@@ -1,4 +1,4 @@
-#wican, soc_helper und OpenWB: Konfiguration und Inbetriebnahme
+# wican, soc_helper und OpenWB: Konfiguration und Inbetriebnahme
 
 Der soc_helper hat den Zweck, den Ladezustand und Kilometerstand eines Elektrofahrzeugs auszulesen und die OpenWB zu übertragen.
 Warum?
@@ -15,7 +15,7 @@ Mit der Version 2024-06-26 wurde der soc_helper erheblich überarbeitet. Die Kon
 
 Die OpenWB-Software 1.9 wird nicht mehr unterstützt.
 
-#Inhalt
+# Inhalt
 
 Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum erfolgreichen Betrieb des soc_helper geben. Für die Anleitung wird angenommen, daß ein aktuelles Raspberry-Pi-System mit raspian verwendet wird. Auf anderen Rechnern funktioniert die Prozedur ähnlich, möglicherweise unterscheiden sich aber einzelne Schritte. Die Konfiguration umfasst Folgendes:
 
@@ -49,9 +49,9 @@ Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum e
         Nutzen des MQTT-Explorers zur Fehlersuche
 
 
-#WiCAN konfigurieren{#wiconf}
+# WiCAN konfigurieren{#wiconf}
 
-##WiCAN ins eigene WLAN holen
+## WiCAN ins eigene WLAN holen
 
 Der WiCAN hat ein nützliches Feature: Er kann so konfiguriert werden, daß er aus dem Heimnetz erreichbar ist. So könnte theoretisch vom heimischen Rechner aus der OBD-Port des Fahrzeugs abgefragt werden. (Die App "Car Scanner" kann das auch)
 Ein neuer WiCAN bucht sich natürlich noch nicht in das heimische WLAN ein. Er spannt ein offenes WLAN mit dem Namen "WiCAN_xxxxxxxxxxxx" auf (die x stehen für die 12 Ziffern der Seriennummer). Nach Einstecken des WiCAN sollte das Netzwerk in der WLAN-Suche des Smartphones oder Laptops auftauchen. Das Smartphone / der Laptop soll sich mit diesem WLAN verbinden. Beim Verbinden ist das Standard-Passwort "@meatpi#" eingeben.
@@ -67,10 +67,10 @@ Unter dem Reiter "Settings" muß zunächst das WLAN konfiguriert werden. Wichtig
 Unten den Knopf "Submit Changes" betätigen. Nach dem darauf folgenden Neustart sollte der WiCAN als Gerät im Heimnetzwerk auftauchen.Die IP-Adresse läßt sich im heimischen Router finden, bei der Fritz!Box unter Heimnetz->Heimnetzübersicht, Reiter Netzwerkverbindungen. Die folgenden Einstellungen erfolgen nach Aufruf der dort gelisteten IP-Adresse. Auch hier ist wieder wichtig, daß kein "s" hinter "http" vorhanden ist. Firefox setzt dieses automatisch, es muß dann per Hand entfernt werden.
 
 Anmerkung: Meiner Erfahrung nach werden alle Einstellungen des WiCAN auf Werkseinstellung zurückgesetzt, wenn man sich über das WiCAN-eigene WLAN mit dem WiCAN verbindet. Nachdem der WiCAN im Heimnetz ist, sollte also nicht mehr in das vom WiCAN aufgespannte WLAN eingebucht werden!
-##Firmware aktualisieren
+## Firmware aktualisieren
 
 Falls der WiCAN noch nicht mit Firmware 2.98 oder neuer läuft, ist ein Updateder Firmware erforderlich: Ab Version 2.98 ist es möglich, den Zweig der WiCAN-Topics im WiCAN vorzugeben. Dies ist nötig, damit das System mit der OpenWB-Software 2.1.4 oder neuer zusammen funktioniert.
-###Firmware herunterladen und auspacken
+### Firmware herunterladen und auspacken
 
 Die aktuelle Firmware wird hier herunterladen: https://github.com/meatpiHQ/wican-fw/releases/
 
@@ -78,7 +78,7 @@ Der Name folgt dem Schema "wican-fw-vXXX_hv300.bin". Bitte das Archiv ohne den N
 
 Das Archiv auf dem Heimrechner auspacken und den Speicherort merken.
 
-###Firmware flashen
+### Firmware flashen
 
 Nach Aufruf der WiCAN-Seite im Browser (siehe "WiCAN ins eigene WLAN holen") befindet sich die Updatemöglichkeit[ ist auf dem Reiter "About":
 
@@ -91,7 +91,7 @@ Nach Klick auf "Browse..." wird im sich öffnenden Dateiauswahlmenü die wie obe
 Ein Klick auf "Update" lädt die Datei auf den WiCAN hoch und führt das Update durch.
 Falls der WiCAN nach dem Neustart nicht mehr im Heimnetz erreichbar ist, sind die Einstellungen wieder zurückgesetzt worden. In diesem Fall den Konfigurationsschritt (WiCAN ins eigene WLAN holen) bitte erneut ausführen.
 
-##Restliche Konfiguration
+## Restliche Konfiguration
 
 Die gesamte Konfiguration ist der Abbildung zu entnehmen:
 
@@ -109,7 +109,7 @@ Dazu folgende Anmerkungen:
 *    MQTT elm327 log: Sollte auf Disable stehen bleiben. Ansonsten kann man mit dem weiter unten stehenden Filter CAN-Botschaften der OBD-Schnittstelle definierten, die automatisiert umgerechnet und an den Broker geschickt werden. Im Fall soc_helper passiert dies aber nicht auf dem WiCAN.
 
 
-###Prüfen der vom WiCAN gemessenen Batteriespannung
+### Prüfen der vom WiCAN gemessenen Batteriespannung
 
 Unter dem Reiter "Status" des WiCAN ist die gemessene Bordnetzspannung zu sehen. Bei eingeschalteter Hochvolt-Batterie (Fahrbereitschaft) sollten über 13.8V und unter 15V zu sehen sein. Bei abgeschalteter Hochvolt-Batterie sollte die Spannung unter 13,5V fallen. Stehen hier doppelt so hohe Werte, wurde die falsche Firmware geflasht (die mit "usb" im Namen).  Dann bitte nochmal die richtige Firmware flashen.
 Prüfen des Schlafmodus des WiCAN
@@ -124,7 +124,7 @@ zurück
 #Linuxsystem konfigurieren
 Vorweg: Es ist nicht nötig, Linux als Grundlage für den soc_helper zu verwenden. Theoretisch kann auch ein Desktoprechner oder Laptop mit Windows verwendet werden. Empfehlenswert ist allerdings etwas stromsparendes wie der Raspberry Pi. Weil ich mit Windows keine Erfahrungen habe, beschreibe ich hier die nötigen Tätigkeiten nach dem Aufsetzen eines Linux-Grundsystems auf einem Raspberry Pi. Für die Bedienung eines Linux-Systems von der Konsole sei auf andere Anleitungen verwiesen, da dies den Umfang dieser Anleitung bei weitem sprengen würde.
 
-##Micro-SD-Karte bespielen:
+## Micro-SD-Karte bespielen:
 
 Für die Installation von Raspbian sei auf folgende Seite verwiesen:
 
@@ -144,7 +144,7 @@ Um später Änderungen in der Konfiguration von raspian durchzuführen, existier
 
 das nach dem Anmelden am System eingegeben wird.
 
-#Nur Einmalig: Installieren der benötigten python-Pakete {#pyth}
+# Nur Einmalig: Installieren der benötigten python-Pakete {#pyth}
 
 soc_helper benötigt ein paar Python-Bibliotheks-Pakete, um korrekt zu funktionieren. Diese müssen einmalig nachinstalliert werden. Nach dem Anmelden per ssh auf dem Pi  erfolgt dies mit dem Befehl:
 
@@ -154,7 +154,7 @@ Damit ist das Grundsystem konfiguriert.
 
 zurück
 
-#soc_helper aufspielen {#socauf}
+# soc_helper aufspielen {#socauf}
 
 Voraussetzung ist, daß der Raspberry Pi hochgefahren und die Erstkonfiguration erfolgt ist sowie der ssh-Zugang aktiviert ist. Die Adresse des Raspberries kann im Heimrouter gefunden werden. Wenn Tastatur und Monitor verbunden sind, kann nach Anmeldung mit dem Befehl "ifconfig" die Adresse angezeigt werden. Im Folgenden wird davon ausgegangen, daß ein Nutzer "pi" angelegt wurde und der Raspi den Namen socke die interne IP-Adresse 192.168.178.111 hat.
 
@@ -169,7 +169,7 @@ Fallstrick 2: Wenn das Archiv auf einem Windows-Rechner entpackt wurde, werden d
 
 zurück
 
-#Optional: Vorbereitung für Spritmonitor {#spritmon}
+# Optional: Vorbereitung für Spritmonitor {#spritmon}
 
 Die Nutzung von Spritmonitor ist optional und zur Zeit der Dokumentation kostenlos. Spritmonitor ist eine große Datenbank von Verbräuchen, die von den Nutzern eingepflegt wird. Man kann dort sehen, welche Verbäuche Nutzer mit verschiedenen Fahrzeugen erzielen und wie man im Vergleich zu anderen Nutzern seines Fahrzeugs abschneidet. Es kann Buch geführt werden über Kraftstoffkosten und bei Bedarf Wartung / Reparaturen. Vorausgesetzt man gibt entsprechende Daten bei den Betankungen / Ladevorgängen ein kann sich unter anderem auswerten lassen, in welchem Monat man welchen Verbrauch erzielt.
 
@@ -216,25 +216,25 @@ Das Bearer-Token wird nicht in der Konfiguratiosdatei abgespeichert. Zu groß is
 
 zurück
 
-#OpenWB vorbereiten{#openwb}
+# OpenWB vorbereiten{#openwb}
 
 Um mit dem WiCAN zusammen zu arbeiten, sind ein paar Einstellungen in der OpenWB nötig. An dieser Stelle erfolgt die Beschreibung für Software-Schiene 2, für Software 1.9 ist die Konfiguration ähnlich, aber deutlich einfacher. Es wird nur der Teil beschrieben, der für den soc_helper relevant ist.
 
 Für Software 2. Nur den für soc_helper relevanten Teil unter Konfiguration->Fahrzeuge
 
-##Fahrzeugprofile
+## Fahrzeugprofile
 
 Im zu nutzenden Fahrzeugprofil muß die Netto-Kapazität der Fahrzeugbatterie sowie der Ladewirkungsgrad korrekt eingestellt sein, da sonst das SoC-Modul während der Ladung den Ladezustand falsch berechnet (SoC bedeutet State of Charge und ist gleichbedeutend mit Ladezustand). Der e-Up! der zweiten Generation hat eine nutzbare Batteriekapazität von 32,3kWh, dies wird hier gerundet. Beim Laden hat das Fahrzeug Verluste. Diese kommen einerseits von Nebenverbrauchern und sind unabhängig von der Ladeleistung, zum anderen hat das Ladegerät selbst von der Ladeleistungs abhängige Verluste. Die im Bild angegebenen 90% sind daher en Mittelwert. Wenn die Ladung mit geringer Leistung stattfindet, sind die Verluste höher, weil die Nebenverbraucher mehr ins Gewicht fallen. Bei hoher Leistung wird der Wirkungsgrade etwas besser sein. Hier gilt es, durch Probieren einen sinnvollen Wert herauszufinden:
 
 Wenn der SoC nach Abstecken grundsätzlich höher ist als von der Wallbox berechnet, sollte der Wirkungsgrad heraufgesetzt werden. Wenn der Ladezustand nach Abstecken meist zu niedrig ist, sollte der Wirkungsgrad verringert werden, um der Wirklichkeit Rechnung zu tragen.
 
-##Fahrzeuge
+## Fahrzeuge
 
 Unter der Fahrzeugkonfiguration ist als SoC-Modul "Manueller SoC" auszuwählen. Dieses Modul nimmt normalerweise die manuelle Eingabe des SoC und rechnet anhand HV-Speicherkapazität, Ladewirkungsgrad und gemessener Ladearbeit den SOC während der Ladung fortwährend aus. Der soc_helper nutzt die Eingabemöglichkeit und schickt den aus dem Fahrzeug asugelesenen Ladezustand an die Wallbox, die dann während der Ladung den Fahrzeug-SoC berechnet.
 
 Der SoC wird nicht direkt aus dem Fahrzeug gelesen - das klappt nur mit der OpenWB Pro im Zusammenspiel mit einigen Fahrzeugtypen. Während der Ladung soll jede Minute der SoC aktualisiert werden, ohne Ladung ist es nicht nötig (lange ZZeitintervalle, hier 720 Minuten) und im abgesteckten Zustandergibt die Funktion keinen Sinn, daher nur aktualisieren wenn angesteckt.
 
-##Geräte-IDs herausfinden und merken
+## Geräte-IDs herausfinden und merken
 
 Die IDs (Nummern) der in der Wallbox konfigurierten Geräte sind wichtig für die Konfiguration des soc_helper. Die IDs sind übersichtlich auf der Statusseite der Wallbox aufgeführt:
 
@@ -243,7 +243,7 @@ Für den soc_helper sind die ID der verwendeten Wallbox (im Bild "Interne openWB
 
 zurück
 
-#soc_helper konfigurieren{#sochconf}
+# soc_helper konfigurieren{#sochconf}
 
 Alle Konfigurationsmöglichkeiten befinden sich in der Datei configuration.py. Das automatische Neueinlesen der Datei bei Änderungen wurde entfernt, da dieser Mechanismus zum Beispiel das Löschen und Neuanlegen der Datei nicht unterstützt hat und entfernte Variablen im Kontext des Hauptprogrammes nicht gelöscht wurden.
 Anlegen der Fahrzeuge
