@@ -49,7 +49,7 @@ Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum e
         Nutzen des MQTT-Explorers zur Fehlersuche
 
 
-# WiCAN konfigurieren{#wiconf}
+# WiCAN konfigurieren {#wiconf}
 
 ## WiCAN ins eigene WLAN holen
 
