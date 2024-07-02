@@ -1,0 +1,268 @@
+2024-07-01:
+* Komplettumbau soc_helper auf neue Datenstrukturen
+* Wegfall SW 1.9-Untestützung
+* Wegfall der Überwachung von Änderungen in der configuration.py und auto-
+  matischem Neueinlesen
+* Unterstützung beliebig vieler Fahrzeuge und Ladepunkte
+* Erhebliche Konfigurationsvereinfachung, da die Fahrzeugtypspezifischen
+  Informationen in die Fahrzeugklassen cars.py gewandert sind
+
+2024-06-24:
+* Bugfix: Wenn ein weiterer Busteilnehmer eine mehrteilige Botschaft
+  anforderte, versuchte der soc_helper, eine "Weiter"-Anforderung zu
+  senden, allerdings ohne Inhalt. Bei Loglevel DEBUG erfolgte ein Absturz.
+* Anleitung ergänzt um eine Lösung, die beim Auspacken unter Windows die
+  verloren gehenden x-Dateiattribute von soc_helper und startAtBoot.sh wieder
+  zu setzen.
+* Anleitung ergänzt um die Möglichkeiten, den soc_helper bei Systemstart 
+  mitzustarten
+* passendes shellscript startAtBoot.sh angelegt
+
+2024-06-18:
+* Korrektur Anleitung: Fehlende Endung .py für Programmstart nachgezogen
+* Syntaxfehler bei soc-Berechnung für VwMEB: Klammer entfernt
+* Korrektur: Prüfung auf korrekten ID-Bereich auf extended IDs (29 Bit) erweitert
+Dank an mattberlin für das Feedback.
+
+2024-06-13:
+* Wenn die OpenWB noch keinen gültigen SOC sendet ("none"), diesen abfangen
+  und statt dessen 0 annehmen.
+* soc-Funktion für den Fiat500e ebenfalls auf Anzeige-SOC-Wert umgestellt
+* Dokumentation erweitert
+
+2024-05-28:
+* Umzug der wican-Topics nach others/wican, um mit aktuellem Master
+  weiterhin zusammenarbeiten zu können.
+* Ergänzung der Anleitung und ANpassung des README.txt
+
+2024-05-20:
+* Umzug der wican-Topics nach openwb/set/wican/, um mit Release 2.1.4
+  weiterhin zusammenarbeiten zu können. Anpassung von README.txt
+* Anleitung zum Beenden eines laufenden soc_helper im Hintergrund geändert,
+  nachdem ich das "pkill"-Kommando kennengelernt habe.
+
+2024-05-18:
+* Spritmonitor: Hinzufügen der neuen API-Informationen "charging_power=11"[kw]
+  und charge_info="ac,source_wallbox"
+
+2024-05-16:
+* Hinzufügen e-Golf (Korrektheit ODO-Meter ist offen, SOC ist bis auf
+  Umrechung identisch zu e-up!)
+* Ändern der Rückgabewerte auf im Kombi angezeigten SOC, damit das Fahrzeug
+  nicht vor angezeigten 100% SOC die Ladung anscheinend vorzeitig beendet
+  (Umrechnungsformeln bei EVNotify abgeschaut)
+* Abfangen von SOC-Werten kleiner 0 und größer 100 in soc_helper.py -
+  zumindest einmal konnte ich feststellen, daß bei einem e-Up ein Wert
+  Rohwert von 253 übermittelt wurde, was oberhalb angezeigter 100% wäre und
+  vermutlich eher ein "nicht bereit" oder Fehlerwert darstellt. Momentan
+  wird bei einem solchermaßen abgefangenen SOC-Wert nichts übertragen. Man
+  könnte überlegen, ob ein Wert von 0 besser wäre oder der zuletzt gültige.
+
+2024-05-07:
+* !ACHTUNG: Änderung der Schlüsselwörter für OBD-Kommunikation in configuration.py.
+  Die Abkürzungen wurden umgestellt vom uneindeutigen SEND und RECEIVE auf REQUEST
+  und RESPONSE.
+  Eine alte configuration.py wird nicht mehr funktionieren, daher bitte die Werte der alten
+  Datei in die entsprechenden Stellen der neuen Datei übertragen! 
+* Robustheit: Prüfe beim Start, ob der Abruf der Fahrzeugdaten bei Spritmonitor
+  funktioniert
+* Beginn einer Dokumentation für Linux-Anfänger - noch lange nicht fertig.
+* Hinzufügen der Kommunikation für Fiat 500e (ungeprüft)
+
+2024-04-28:
+* Robustheit: Abfangen, wenn ein Fahrzeug in der OpenWB beim Abstecken noch keinen SOC
+  hinterlegt hat
+* README überarbeitet und die wican-Konfiguration für weniger nerdige Anwender
+  hoffentlich etwas klarer gemacht.
+
+2024-02-16:
+* Vorbereitung für VW ID3. Dafür mußte eine rudimentäre Unterscheidung für
+  die Nutzung der extended ID implementiert werden.
+  
+2024-02-15:
+* Rauswurf des eigenen loggers, statt dessen Nutzen des python-loggings
+* Bugfix: Beim Empfang mehrteiliger CAN-Botschaften muß eine Aufforderung
+  zum Weitersenden erzeugt werden. Diese muß die gleiche Sender-ID haben.
+  Die Sender-ID war fest kodiert und wurde jetzt durch die konfigurierbare
+  ID ersetzt.
+* Feature: Massive Vereinfachung der Konfiguration in configuration.py
+* Feature: Prüfung der Konfiguration auf offensichtliche Fehler
+
+2024-01-25: Feature
+* Es wir darauf hingewiesen, falls die Umgebungsvariable
+  SPRITMONITR_BEARER_TOKEN nicht gesetzt ist, obwohl Spritmonitor genutzt
+  werden soll.
+
+2024-01-22: Features, Bugfix
+Wiederum größere Überarbeitungen.
+* Feature: soc-helper kann jetzt mehrteilige CAN-Botschaften empfangen. Er
+  erkennt, wenn eine mehrteilige Antwort empfangen wird und fordert die
+  weiteren Teile an. Alle empfangenen Teile werden zusammengesetzt.
+* Feature: In der Konfiguration für den e-up wird jetzt nicht mehr der mit
+  10km quantisierte Kilometerstand abgefragt, sondern der auf den km genaue
+  Stand.
+* Bugfix: Wenn SOC und km-Stand von der gleichen Sender-ID kommen, kommt es
+  jetzt nicht mehr zu Fehlermeldungen. Es ist die gleiche ID für den Sender 
+  beider Botschaften möglich.
+* Bugfix: Nach einer Änderung der configuration.py und automatischem
+  Neustart werden die relevanten Topics neu abonniert. (Ist das nötig?
+  Schadet jedenfalls nicht)
+* README.txt überarbeitet.
+
+Bitte das mitgelieferte configuration.py 
+genau untersuchen und entweder auf eigene Bedürfnisse ändern oder Änderungen
+aus die eigene configuration.py übertragen.
+Der Code ist noch sehr neu und wird vermutlich etliche Bugs enthalten.
+Gerne Rückmeldungen über "meinen" Thread im OpenWB-Forum.
+
+2024-01-14: Feature-Update
+
+Größere Überarbeitungen. Ratschlag: Nehmt die mitgelieferte configuration.py und
+tragt dort Eure Daten ein.
+!!! Es ist jetzt zusätzlich das python-Modul "watchdog" erforderlich !!!
+* Zergliederung des Codes zur besseren Lesbarkeit. die Ladeklasse aufgeräumt
+  und wie die logfunktion in separate Datei ausgegliedert.
+* Feature: Überwachung eingefügt, damit bei Änderung an configuration.py der
+  Inhalt der Datei neu eingelesen und ein manuelles Stoppen und Starten von
+  soc_helper.py überflüssig wird. Eine Änderung des Strompreises oder anderer
+  Parameter erfordert damit weniger Handarbeit.
+* Feature: Funktionen zur Berechnung von SOC und Kilometerstand in
+  configuration.py umgezogen zur besseren Anpaßbarkeit für andere Fahrzeuge.
+* Feature: Spritmonitor:  Programm funktioniert jetzt auch mit Spritmonitor,
+  wenn dort noch keine Betankung gespeichert ist - in diesem Fall wird eine
+  Erstbetankung angegeben.
+* Feature: Spritmonitor: In configuration.py können Default-Werte für
+  Reifentyp, Fahrweise und Zusatzverbraucher (Klima, Standheizung, Anhänger)
+  definiert werden, die beim Hochladen angegeben werden.
+* Konsolenausgabe neu formatiert.
+
+Durch die Überwachung von configuration.py kann jetzt einfach nach
+Reifenwechsel der aktuellen Reifentyp geändert werden - das Programm liest
+die geänderte Konfiguration automatisch ein. Kein kill und manueller
+Neustart mehr erforderlich! Das Gleiche, wenn im Frühjahr oder Herbst der
+angenommene Strompreis von PV auf Netzbezug oder umgekehrt konfiguriert
+wird.
+
+
+2023-12-12:
+* Übertragungsmethode des SOC an die Wallbox gewechselt. Die bisher verwendete
+  Methode scheint nicht bei allen Installationen zuverlässig zu funktionieren.
+  Dazu noch ein separates Abfangen eingebaut, um eine eindeutige Fehlermeldung
+  zu bekommen
+* Eine Kommentarzeile in configuration.py war irreführend - gelöscht.
+
+2023-11-29:
+* README.txt korrigiert, aufgeräumt und aktualisiert
+* Einige Einträge, die immer gleich sind aus configuration.py entfernt
+  und in soc_helper.py übernommen
+* Das Format einer MQTT-Botschaft der Wallbox hat sich geändert. Ein
+  Typecast wurde angepaßt.
+
+2023-11-15:
+* Die Software 1.9 erwartet auf den SOC-Topics Integer. Die Ausgabe wurde
+  angepaßt, um statt einer Nachkommastelle einen Ganzzahlwert auszugeben.
+* Übermittlung des SOCs an die neue API von Spritmonitor. Damit kann
+  "SPRITMONITOR_FULLSOC = 100 gesetzt werden, also wirklich voll, weil auch
+  ohne Volltanken ein Verbrauch ermittelt wird.
+* Dafür wurde der Konfigurationsparameter FULLSOC entfernt. VOll ist jetzt
+  98%..100%
+
+2023-10-19:
+* Vereinheitlichen von Receive- und Send-Topics in der configuration.py: '/#'
+  für empfangene Topics wird jetzt im Code zugefügt, so daß dort kein
+  Unterschied zwischen Sende- und Empfangstopics mehr vorhanden ist. 
+  ACHTUNG: Bitte die eigene Konfiguration anpassen!
+* Bugfix: Vor dem Umrechungsfaktor fehlte das "configuration.".
+* Migration der save()-Funktion in die Ladevorgansklasse
+* Testweises auskommentieren der global-Attribute in den callback-Funktionen
+* Bestimmt wurden jede Menge neue Fehler eingebaut.
+
+2023-10-18:
+* Mit OpenWB-2.1.1-beta1 hat sich das Topic für das SOC-setzen geändert
+  Konfigurationsdatei angepaßt.
+* paho-mqtt 1.6.1 braucht noch eine Definition der Funktion on_pre_connect.
+  Explizit mit "None" initialisiert
+* Ergänzung der Topics für openWB-1.9
+* Einführen eines Teilers in der Konfiguration, da Software 2.0 mit
+  Wattstunden und 1.9 mit kWh für das Topic des Ladezählers arbeitet
+* Der Steckerzustand von Software 1.9 ist "0" oder "1", in 2.0 "true" oder
+  "false". Abfrage verodert.
+
+2023-10-08:
+* Empfehlung für Firmware 2.50 des WiCAN.
+* Verbesserung des README.txt
+
+2023-09-14:
+* Fix: Im Savefile wurde der SOC aus der Wallbox als Bytestring
+  abgespeichert ("b'77.2'). Jetzt mit string.decode() geändert
+
+2023-09-12:
+* Abfangen eines trips mit Länge 0km und Ersetzen durch 0.1km zur
+  Fehlervermeidung bei SPritmonitor
+* Hinzufügen eines kWh-Preises in der Konfigurationsdatei (unterscheidet
+  aber nicht zwischen Ladung aus Netz, Batterie oder PV)
++ README.txt erweitert (Abschnitt abgelehnte Ideen, Idee Fehlerfang
+  addFueling
+
+2023-09-07:
+* Überarbeitung von Kommentaren in soc_helper und configuration.py
+* Überarbeitung von README.txt
+
+2023-09-04:
+* Bugfix: Bei der Differenzbildung zur Erkennung einer Volladung wurde ein
+  int von einem Bytestring abgezogen und das Programm crashte beim Versuch,
+  die Daten an Spritmonitor zu übertragen.  Das sollte jetzt hoffentlich
+  gefixt sein
+
+2023-08-31:
+* Die Logdatei wird jetzt mit Header angelegt, sofern sie noch nicht
+  existiert
+* Fehler bei der Auswertung, ob vollgetankt wurde erkannt und hoffentlich
+  behoben
+
+2023-08-30:
+* Auswahl der Apache-2.0-Lizenz und anlegen der entsprechenden Dateien und
+  Informationen
+* Nutzung des Eintrags "odometer" von /vehicle/{vehicleId}/fuelings.json
+  statt "tripsum" von /vehicle/{vehicleId}/tanks.json für die Berechnung der
+  zurückgelegten Distanz seite dem letzten Laden
+* Einführung von verschiedener Logtiefe in der output(loglevel, text)-Funktion
+* Erster Versuch, die save()-Funktion zu gesunden
+* Tausch des Kürzels "dst" gegen "odo" in Zusammenhang mit dem Gesamtkilometerstand
+
+2023-08-29:
+* Erhebliche Erweiterung der README.txt
+
+2023-08-28:
+* Erste funktionierende Anbindung an Spritmonitor
+
+2023-08-23:
+* Einführung einer Klasse für Energiedaten: Speichert Zählerstand,
+  Kilometerstand und SOC sowie der Zeitstempel des letzten Datenwertes, sobald
+  das Fahrzeug online geht.
+* Bei Vorliegen eines kompletten Datensatzes wird dieser in eine Datei
+  energydata.csv geschrieben (vorerst noch kein Hochladen an Spritmonitor, bevor
+  n icht sinnvolle Auswertung klar ist)
+* Setzen des App-Tokens für Spritmonitor nach deren Rückmeldung
+
+* Erkenntnis: Das Fahrzeug ist während des Ladens komplett wach - man kann
+  also ständig die SOC-Werte aktualisieren! Dann kann auch der Ladevorgang
+  beobachtet werden und die Lademenge laufend aktualisiert werden...
+
+2023-08-21:
+* Erste Einführung einer Ausgabe der Botschaften mit Datumsstempel.
+* Veranlassen der sofortigen Ausgabe, um alle Botschaften zu sehen, falls das
+  Programm abbricht oder abgebrochen wird.
+* Wechsel des Topics für den SOC in OpenWB 2. Es besteht seitens OpenWB noch das
+  Problem, daß der SOC nach Beenden des Ladens auf den Wert vor dem Laden
+  zurückgesetzt wird auf den Wert von vor dem Laden:
+  https://github.com/openWB/core/issues/1097
+* Auslesen des KM-Standes bei Ankunft im WLAN (bisher nur Ausgabe an STDOUT)
+* Erste Gedanken, wie eine Übertragung an Spritmonitor erfolgen könnte
+
+2023-08-15:
+* Status nach Einlesen per json.loads in ein dict überführen, um besser gegen
+  Anführungszeichen und Leerzeichen gewapnet zu sein
+* Ausgabe des SOCs an die Wallbox auf eine Nachkommastelle gerundet.
+
+

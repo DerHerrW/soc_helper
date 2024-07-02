@@ -1,0 +1,5 @@
+*~
+__pycache__/
+*.bak
+energydata.csv
+nohup.out
