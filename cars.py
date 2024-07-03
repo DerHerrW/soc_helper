@@ -9,7 +9,7 @@ from typing import List
 import logging
 import json
 
-validCars = ("eUp", "eGolf", "VwMEB", "Fiat500e", "OraFunkyCat")
+validCars = ("eUp", "eGolf", "VwMEB", "Fiat500e", "OraFunkyCat", "SmartED")
 
 @dataclass
 class carclass:
@@ -50,11 +50,17 @@ class carclass:
                 # Wenn das Fahrzeug online geht, kann der SOC und der Gesamtkm-Stand abgefragt werden
                 logging.info(f'Fahrzeug {self.name} ist online. Sende SOC- und ODO-Anforderung')
 
-                logging.info(f'Sende SOC-Anforderung: {self.SOC_REQUEST}')
-                client.publish(self.getTxTopic(), self.SOC_REQUEST)
+                if self.SOC_REQ_ID == 0:
+                    logging.info(f'SOC_REQ_ID ist 0, sende keine Anforderung')
+                else:
+                    logging.info(f'Sende SOC-Anforderung: {self.SOC_REQUEST}')
+                    client.publish(self.getTxTopic(), self.SOC_REQUEST)
 
-                logging.info(f'Sende ODO-Anforderung: {self.ODO_REQUEST}')
-                client.publish(self.getTxTopic(), self.ODO_REQUEST)
+                if self.ODO_REQ_ID == 0:
+                    logging.info(f'ODO_REQ_ID ist 0, sende keine Anforderung')
+                else:
+                    logging.info(f'Sende ODO-Anforderung: {self.ODO_REQUEST}')
+                    client.publish(self.getTxTopic(), self.ODO_REQUEST)
             else:
                 logging.info(f'Fahrzeug {self.name} ist <<offline>>')
         except Exception as e:
@@ -255,6 +261,30 @@ class OraFunkyCat(carclass):
         print(f'Daten für ODO-Berechnung:{bytes}')
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         return( bytes[4]*65536+bytes[5]*256+bytes[6] ) # Ora Funky Cat. [1995, 98, 208, 4, aa, bb, cc, xx]
+
+class SmartED(carclass):
+    # Scheint, daß der SmartED den SOC und angezeigten SOC ständig auf dem CAN sendet. Anforderung nicht nötig?
+    # SoC würde unter CAN-ID 1304 eintreffen mit 8 Datenbytes
+    # see https://github.com/MyLab-odyssey/ED_BMSdiag/blob/master/ED_BMSdiag/canDiag.cpphttps://github.com/MyLab-odyssey/ED_BMSdiag/blob/master/ED_BMSdiag/_BMS_dfs.h
+    SOC_REQ_ID = 0	# do not send a SoC request at WiCAN arrival
+    SOC_RESP_ID = 1304
+    SOC_REQ_DATA = [1,2,3,4,5,6,7,8]
+    ODO_REQ_ID = 0	# do not send a ODO request
+    ODO_RESP_ID = 1042
+    ODO_REQ_DATA = [2, 2, 166, 170, 170, 170, 170, 170]
+    SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
+    ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
+
+    # car specific functions
+    def calcSOC(self, bytes):
+        print(f'Daten für SoC-Berechnung:{bytes}')
+        logging.debug(f'Daten für SoC-Berechnung:{bytes}')
+        return( round( (bytes[8]/2) ) # Smart ED [1304, ?, ?, ?, xx, xx, xx, xx, aa]. Displayed SOC ist aa/2
+        #return( round( ( (bytes[5] & 3)*256 + bytes[6] ) /10) ) # Smart ED [725, ?, ?, ?, xx, aa, bb, xx, xx]. real SOC is ((2lower Bits of aa)*256+bb)/10
+    def calcODO(self, bytes):
+        print(f'Daten für ODO-Berechnung:{bytes}')
+        logging.debug(f'Daten für ODO-Berechnung:{bytes}')
+        return( bytes[3]*65536+bytes[4]*256+bytes[5] ) # Smart ED [1042, xx, xx, aa, bb, cc, dd, xx, xx]
 
 """
 @dataclass
