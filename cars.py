@@ -9,7 +9,7 @@ from typing import List
 import logging
 import json
 
-validCars = ("eUp", "eGolf", "VwMEB", "Fiat500e", "OraFunkyCat", "SmartED")
+validCars = ("eUp", "eGolf", "VwMEB", "Fiat500e", "OraFunkyCat", "Zoe")
 
 @dataclass
 class carclass:
@@ -262,8 +262,32 @@ class OraFunkyCat(carclass):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         return( bytes[4]*65536+bytes[5]*256+bytes[6] ) # Ora Funky Cat. [1995, 98, 208, 4, aa, bb, cc, xx]
 
+# see https://github.com/nickn17/evDash/blob/master/src/CarRenaultZoe.cpp
+class Zoe(carclass):
+    SOC_REQ_ID = 1947 # 0x79B
+    SOC_RESP_ID = 1955 # 0x7A3 (nicht erwähnt normal sendeID+8)
+    SOC_REQ_DATA = [2, 33, 3, 170, 170, 170, 170, 170] # Request 0x2103
+    ODO_REQ_ID = 1859 # 0x743 - Instrument cluster
+    ODO_RESP_ID = 1867 # 0x74B (nicht erwähnt normal sendeID+8)
+    ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170] # Request 0x220206
+    SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
+    ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
+
+    def calcSOC(self, bytes):
+        # "2103", // 01D 6103018516A717240000000001850185000000FFFF07D00516E60000030000000000, Ziffern 48,49,50,51
+        # "2103", 29 Bytes, 61030185 16A71724 00000000 01850185 000000FF FF07D005 16E60000 03000000 0000 -> 16E6, entspricht 58,62%
+        logging.debug(f'Daten für SoC-Berechnung:{bytes}')
+        self.soc = round( (bytes[21]*256+bytes[22]) / 100) #erwartet: [1955, 61,03,...]
+
+    def calcODO(self, bytes):
+        # "220206", // 620206 00 01 54 59
+        logging.debug(f'Daten für ODO-Berechnung:{bytes}')
+        self.odo = bytes[4]*16777216+bytes[5]*65536+bytes[6]*256+bytes[7] # erwartet: [1867, 94, 2, 6, aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
+
+"""
 class SmartED(carclass):
-    # Scheint, daß der SmartED den SOC und angezeigten SOC ständig auf dem CAN sendet. Anforderung nicht nötig?
+    # zu prüfen: Kann man per UDS die nötigen Botschaften anfordern oder nutzt OVMS den rohen CAN? Anscheinend
+    # wartet OVMS einfach, bis die Daten eintreffen? Kann man WiCAN zum rohen Durchleiten bringen?
     # SoC würde unter CAN-ID 1304 eintreffen mit 8 Datenbytes
     # see https://github.com/MyLab-odyssey/ED_BMSdiag/blob/master/ED_BMSdiag/canDiag.cpphttps://github.com/MyLab-odyssey/ED_BMSdiag/blob/master/ED_BMSdiag/_BMS_dfs.h
     SOC_REQ_ID = 0	# do not send a SoC request at WiCAN arrival
@@ -286,23 +310,47 @@ class SmartED(carclass):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         return( bytes[3]*65536+bytes[4]*256+bytes[5] ) # Smart ED [1042, xx, xx, aa, bb, cc, dd, xx, xx]
 
-"""
-@dataclass
+# see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe.json
 class Zoe(carclass):
-    SOC_REQ_ID = 1947
-    SOC_RESP_ID = ?
-    SOC_REQ_DATA = [2, 33, 3, 170, 170, 170, 170, 170]
-    ODO_REQ_ID = 1859
+    SOC_REQ_ID = 2020 # 0x7E4
+    SOC_RESP_ID = 2028 # 0x7EC
+    SOC_REQ_DATA = [3, 34, 32, 2, 170, 170, 170, 170] # Request 0x222002
+    ODO_REQ_ID = 1859 # 0x743 - Instrument cluster
     ODO_RESP_ID = ?
     ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170]
     SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
     ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
 
     def calcSOC(self, bytes):
-        # Renault Zoe, siehe https://github.com/nickn17/evDash/blob/master/src/CarRenaultZoe.cpp
-        # Antwort auf SOC: "2103", 29 Bytes 6103 0185 16A71724 00000000 01850185 000000FF FF07D005 16E60000 03000000 0000
+        # "2103", 29 Bytes 61030185 16A71724 00000000 01850185 000000FF FF07D005 16E60000 03000000 0000
         logging.debug(f'Daten für SoC-Berechnung:{bytes}')
-        self.soc = round(bytes[4]/2.5*51/46-6.4)
+        self.soc = round( (bytes[25]*256+bytes[26]) / 50)
+
+    def calcODO(self, bytes):
+        #SOC_RESP_ID = ??#(Antwortstring in hex scheint mindestens 52 Bytes lang zu sein?! 
+        # Antwort auf ODO: "220206", // 62020600015459
+        logging.debug(f'Daten für ODO-Berechnung:{bytes}')
+        self.odo = bytes[4]*65536+bytes[5]*256+bytes[6]
+
+#see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe2.json
+class Zoe2(carclass):
+    SOC_REQ_ID =  14342897 #DADAF1 (alternativ: 0x79B Lithium battery controller)
+    SOC_RESP_ID = 417001947 # 18DAF1DB oder 18DADBF1?
+    SOC_REQ_DATA = [3, 34, 144, 2, 170, 170, 170, 170] # Request (0x2103 oderr 0x229002?)
+    ODO_REQ_ID = 1859 # 0x743 - Instrument cluster
+    ODO_RESP_ID = ?
+    ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170]
+    SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": true, "data": '+str(SOC_REQ_DATA)+' }] }'
+    ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
+
+    def calcSOC(self, bytes):
+        # Renault Zoe, siehe https://github.com/nickn17/evDash/blob/master/src/CarRenaultZoe.cpp
+        # Antwort auf SOC: "2103": 01D 6103018516A717240000000001850185000000FFFF07D00516E60000030000000000
+        # "2103", 29 Bytes 61030185 16A71724 00000000 01850185 000000FF FF07D005 16E60000 03000000 0000
+        # liveData->params.socPerc = liveData->hexToDecFromResponse(48, 52, 2, false) / 100.0; 48 und 52 sind Nibbles? Byte 24 bis 26
+        # 6103 ist der Request +0x40 im ersten Byte
+        logging.debug(f'Daten für SoC-Berechnung:{bytes}')
+        self.soc = round( (bytes[x]*256+bytes[y]) / 100)
 
     def calcODO(self, bytes):
         #SOC_RESP_ID = ??#(Antwortstring in hex scheint mindestens 52 Bytes lang zu sein?! 
