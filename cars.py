@@ -289,7 +289,8 @@ class SmartED(carclass):
     # zu prüfen: Kann man per UDS die nötigen Botschaften anfordern oder nutzt OVMS den rohen CAN? Anscheinend
     # wartet OVMS einfach, bis die Daten eintreffen? Kann man WiCAN zum rohen Durchleiten bringen?
     # SoC würde unter CAN-ID 1304 eintreffen mit 8 Datenbytes
-    # see https://github.com/MyLab-odyssey/ED_BMSdiag/blob/master/ED_BMSdiag/canDiag.cpphttps://github.com/MyLab-odyssey/ED_BMSdiag/blob/master/ED_BMSdiag/_BMS_dfs.h
+    # see https://github.com/MyLab-odyssey/ED_BMSdiag/blob/master/ED_BMSdiag/canDiag.cpp
+    #     https://github.com/MyLab-odyssey/ED_BMSdiag/blob/master/ED_BMSdiag/_BMS_dfs.h
     SOC_REQ_ID = 0	# do not send a SoC request at WiCAN arrival
     SOC_RESP_ID = 1304
     SOC_REQ_DATA = [1,2,3,4,5,6,7,8]
