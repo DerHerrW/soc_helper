@@ -14,3 +14,4 @@ Hilfreiche Links
 [10] MEB-OBD2-IDs: https://github.com/spot2000/Volkswagen-MEB-EV-CAN-parameters/blob/main/VW%20MEB%20UDS%20PIDs%20list.csv
 [11] WiCAN Issue-Tracker: https://github.com/meatpiHQ/wican-fw/issues
 [12] SOC/Odo Fiat500e: https://github.com/meatpiHQ/wican-fw/issues/95
+[13] Übersicht CAN / Diagnoseprotokoll: http://www.emotive.de/documents/WebcastsProtected/Transport-Diagnoseprotokolle.pdf
