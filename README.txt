@@ -15,3 +15,4 @@ Hilfreiche Links
 [11] WiCAN Issue-Tracker: https://github.com/meatpiHQ/wican-fw/issues
 [12] SOC/Odo Fiat500e: https://github.com/meatpiHQ/wican-fw/issues/95
 [13] Übersicht CAN / Diagnoseprotokoll: http://www.emotive.de/documents/WebcastsProtected/Transport-Diagnoseprotokolle.pdf
+[1¼] Mehr OBD2-PIDs: https://github.com/iternio/ev-obd-pids/blob/main/
