@@ -17,3 +17,4 @@ Hilfreiche Links
 [13] Übersicht CAN / Diagnoseprotokoll: http://www.emotive.de/documents/WebcastsProtected/Transport-Diagnoseprotokolle.pdf
 [14] Mehr OBD2-PIDs: https://github.com/iternio/ev-obd-pids/blob/main/
 [15] https://automotive.softing.com/fileadmin/sof-files/pdf/de/ae/poster/UDS_Faltposter_softing2016.pdf
+[16] Doku ELM327-Chip (incl AT-Kommandos): https://www.elmelectronics.com/DSheets/ELM327DSH.pdf
