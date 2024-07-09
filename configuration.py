@@ -59,6 +59,11 @@ myCars.append(cars.eUp(
     spritmonitorAttributes = 'summertires,slow'
 ))
 
+myCars.append(cars.StandardFuelLevel(
+    name = 'golfi',                    # Name des Fahrzeugs, wie im WiCAN konfiguriert. Definiert einen Zweig unter others/ im MQTT-Broker.
+    openwbVehicleId = 3                # Fahrzeugnummer in der OpenWB-Konfiguration
+))
+
 #myCars.append(cars.eUp(
 #    name = 'Standard',                 # Name des Fahrzeugs, wie im WiCAN konfiguriert. Definiert einen Zweig unter others/ im MQTT-Broker.
 #    openwbVehicleId = 0                # Fahrzeugnummer in der OpenWB-Konfiguration
