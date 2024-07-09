@@ -9,7 +9,7 @@ from typing import List
 import logging
 import json
 
-validCars = ("eUp", "eGolf", "VwMEB", "Fiat500e", "OraFunkyCat", "Zoe")
+validCars = ("eUp", "eGolf", "VwMEB", "Fiat500e", "OraFunkyCat", "Zoe", "StandardFuelLevel")
 
 @dataclass
 class carclass:
@@ -284,6 +284,26 @@ class Zoe(carclass):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = bytes[4]*16777216+bytes[5]*65536+bytes[6]*256+bytes[7] # erwartet: [1867, 94, 2, 6, aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
 
+class StandardFuelLevel(carclass):
+    # Warum nicht den relativen Tankfüllstand als SOC an die OpenWB senden? Hier die Lösung für 11-Bit-CAN-IDs:
+    SOC_REQ_ID = 2016
+    SOC_RESP_ID = 2024
+    SOC_REQ_DATA = [2, 1, 47, 0, 0, 0, 0, 0]
+    ODO_REQ_ID = 2016    # Odometer; im Verbrenner-eUp oder -Golf leider nicht vorhanden
+    ODO_RESP_ID = 2024
+    ODO_REQ_DATA = [2, 1, 166, 0, 0, 0, 0, 0]
+    SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
+    ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
+
+    def calcSOC(self, bytes):
+        logging.debug(f'Daten für Tankfüllstand: {bytes}')
+        self.soc = bytes[3]/2.55 # Standard-PID Tankfüllstand [2024, 65, 47, aa, xx, xx, xx, xx, xx]. Füllstand=aa/2.55
+
+    def calcODO(self, bytes):
+        logging.debug(f'Daten für ODO-Berechnung: {bytes}')
+        self.odo = ( bytes[3]*16777216 + bytes[4]*65536 + bytes[5]*256 + bytes[6] ) # Standard-PID 166 vom MSG [2024, 65, 166, aa, bb, cc, dd, xx, xx]
+
+
 """
 class SmartED(carclass):
     # zu prüfen: Kann man per UDS die nötigen Botschaften anfordern oder nutzt OVMS den rohen CAN? Anscheinend
@@ -296,7 +316,7 @@ class SmartED(carclass):
     SOC_REQ_DATA = [1,2,3,4,5,6,7,8]
     ODO_REQ_ID = 0	# do not send a ODO request
     ODO_RESP_ID = 1042
-    ODO_REQ_DATA = [2, 2, 166, 170, 170, 170, 170, 170]
+    ODO_REQ_DATA = [2, 1, 166, 170, 170, 170, 170, 170]
     SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
     ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
 
@@ -304,12 +324,12 @@ class SmartED(carclass):
     def calcSOC(self, bytes):
         print(f'Daten für SoC-Berechnung:{bytes}')
         logging.debug(f'Daten für SoC-Berechnung:{bytes}')
-        return( round( (bytes[8]/2) ) # Smart ED [1304, ?, ?, ?, xx, xx, xx, xx, aa]. Displayed SOC ist aa/2
+        self.soc = round( (bytes[8]/2) ) # Smart ED [1304, ?, ?, ?, xx, xx, xx, xx, aa]. Displayed SOC ist aa/2
         #return( round( ( (bytes[5] & 3)*256 + bytes[6] ) /10) ) # Smart ED [725, ?, ?, ?, xx, aa, bb, xx, xx]. real SOC is ((2lower Bits of aa)*256+bb)/10
     def calcODO(self, bytes):
         print(f'Daten für ODO-Berechnung:{bytes}')
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
-        return( bytes[3]*65536+bytes[4]*256+bytes[5] ) # Smart ED [1042, xx, xx, aa, bb, cc, dd, xx, xx]
+        self.odo = ( bytes[3]*65536+bytes[4]*256+bytes[5] ) # Smart ED [1042, xx, xx, aa, bb, cc, dd, xx, xx]
 
 # see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe.json
 class Zoe(carclass):
