@@ -17,6 +17,7 @@ def init(path):
         logging.error(f'Konnte Ausgabedatei {path} nicht anlegen oder öffnen: {e}')
     
 def write(line):
+    global savefile
     try:
         savefile.write(line)
         savefile.flush()
