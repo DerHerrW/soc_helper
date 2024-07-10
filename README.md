@@ -2,7 +2,7 @@
 
 ## Erstinstallation
 
-Die Dokumentation der Erstinstallation befindet sich im Unterordner `Doku`: [Erstinstallation](Doku\Inbetriebnahme_soc_helper.md).
+Die Dokumentation der Erstinstallation befindet sich im Unterordner `Doku`: [Erstinstallation](Doku/Inbetriebnahme_soc_helper.md).
 
 ## Hilfreiche Links
 
