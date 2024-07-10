@@ -9,8 +9,8 @@ Folgende Dateien sind vorhanden:
 1. startAtBoot.sh - Skript, das in die Nutzer-Crontab eingetragen werden
 kann, um den soc_helper bei STart des Rechner mitzustarten
 
-## soc_helper (Hauptprogramm)
-Das Hauptprogramm.
+## soc_helper.py (Hauptprogramm)
+Das Hauptprogramm tut folgendes:
 
 1. Initialisiert den Logger,
 1. prüft die Konfiguration in configuration.py,
@@ -29,34 +29,34 @@ folgenden Variablen und Funktionen.
 #### Variablen
 Folgende Variablen können in configuration.py fahrzeugindividuell gesetzt werden:
 
-1. *str* - Fahrzeugname (wie im WiCAN definiert),
-1. *openwbVehicleId* - OpenWB-ID des Fahrzeugs zur Zuordnung,
-1. *useSpritmonitor* - Ob Spritmonitor verwendet werden soll
-1. *spritmonitorVehicleId* - Fahrzeugnummer bei Spritmonitor
-1. *spritmonitorFuelsort* - Stromart, die bei Spritmonitor angegeben wird
+1. **name** - Fahrzeugname (wie im WiCAN definiert),
+1. **openwbVehicleId** - OpenWB-ID des Fahrzeugs zur Zuordnung,
+1. **useSpritmonitor** - Ob Spritmonitor verwendet werden soll
+1. **spritmonitorVehicleId** - Fahrzeugnummer bei Spritmonitor
+1. **spritmonitorFuelsort** - Stromart, die bei Spritmonitor angegeben wird
 (Öko oder Dreckstrom)
-1. *spritmonitorFuelprice* - Arbeitspreis, der bei Spritmonitor verwendet
+1. **spritmonitorFuelprice** - Arbeitspreis, der bei Spritmonitor verwendet
 wird
-1. *spritmonitorAttributes* - Attribute für Spritmonitor (Reifenart,
+1. **spritmonitorAttributes** - Attribute für Spritmonitor (Reifenart,
 Fahrweise, Klimaanlage usw)
 
 Es werden einige Hilfsfunktionen definiert, die als Rückgabe einen String
 mit jeweils einem MQTT-TOpic liefern:
 
-1. *getStatusTopic() liefert das MQTT-Topic für den WiCAN-Status des
+1. **getStatusTopic()** liefert das MQTT-Topic für den WiCAN-Status des
 jeweiligen Fahrzeugs
-1. *getRxTopic(self)* liefert das MQTT-CAN-Empfangstopics für das Fahrzeug
-1. *getTxTopic(self)* liefert das MQTT-CAN-Sendetopic für das Fahrzeug
-1. *getgetSocTopic(self)* liefert das MQTT-Topic, mit dem der SoC des jeweiligen
+1. **getRxTopic(self)** liefert das MQTT-CAN-Empfangstopics für das Fahrzeug
+1. **getTxTopic(self)** liefert das MQTT-CAN-Sendetopic für das Fahrzeug
+1. **getgetSocTopic(self)** liefert das MQTT-Topic, mit dem der SoC des jeweiligen
 Fahrzeuges aus der OpenWB gelesen werden kann.
-1. *getsetSocTopic(self)* liefert das MQTT-Topic, mit dem der SoC für das
+1. **getsetSocTopic(self)** liefert das MQTT-Topic, mit dem der SoC für das
 jeweilige Fahrzeug in die OpenWV geschrieben werden kann.
 
 Die folgenden Callback-Funktionen definieren das Herz des soc_helpers. Sie
 werden dem MQTT-Client bei Programmstart mitgegeben und aufgerufen, wenn die
 entsprechenden Topics des OpenWB-MQTT-Brokers eine Nachricht empfangen:
 
-### cb_getOpenwbSoc(self, client, userdata, msg)
+#### cb_getOpenwbSoc(self, client, userdata, msg)
 Diese Funktion wird aufgerufen, wenn vom WiCAN der zugehörigen
 Fahrzeugklasse das Status-Topic beschrieben wird. Die Funktion prüft, ob der
 Status 'online' ist. Ist dies der Fall, werden nacheinander die SoC- und
@@ -66,14 +66,14 @@ Falls eine Request-ID 0 ist, wird die entsprechende Abfrage nicht gesendet.
 Dies kann genutzt werden, wenn eine Abfrage für ein Fahrzeug noch nicht
 bekannt ist und nur die andere genutzt werden soll.
 
-### cb_getOpenwbSoc(self, client, userdata, msg)
+#### cb_getOpenwbSoc(self, client, userdata, msg)
 Diese Funktion wird aufgerufen, sobald ein SoC-Wert für das zugehörige
 Fahrzeug von der Wallbox geschrieben wird. Es wird versucht, den Inhalt der
 Botschaft (msg.payload) in eine Gleitkommazahl umzuwandeln und
 Fahrzeugklassenintern zu speichern. Gelingt dies nicht, weil zum Beispiel noch
 kein Wert hinterlegt ist, wird der Wert 0 angelegt.
 
-### cb_rx(self, client, userdata, msg)
+#### cb_rx(self, client, userdata, msg)
 Diese Funktion wird aufgerufen, wenn der WiCAN eine OBD-Botschaft des Fahrzeugs
 empfangen hat. Diese Botschaft wird geprüft, ob sie eine Antwort auf eine
 SoC- oder Odometer-Abfrage ist. Mehrteilige Botschaften werden vorher
