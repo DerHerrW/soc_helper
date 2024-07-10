@@ -9,7 +9,7 @@ Beim Abziehen des Ladesteckers aus dem Auto protokolliert der soc_helper den Kil
 
 Die Dokumentation der Erstinstallation befindet sich im Unterordner `Doku`: [Erstinstallation](Doku/Inbetriebnahme_soc_helper.md).
 
-Hilfreiche Links finden sich in [Doku/HilfreicheLinks.md]
+Hilfreiche Links finden sich ebenfalls in `Doku`: [Doku/HilfreicheLinks.md][Doku/HilfreicheLinks.md]
 
 ## Hilfreiche Links
 
