@@ -139,41 +139,43 @@ client.on_connect = on_connect
 client.on_subscribe = None
 client.on_disconnect = on_disconnect
 
+try:
+    # MQTT-Topic-Abos einrichten und mit Callback-Funktionen verbinden
+    logging.info(f'Verbinde Callbackfunktionen der Ladepunkte:')
+    for cp in configuration.myChargepoints:
+        logging.debug(f'Ladepunkt {cp.chargepointId}')
+        m = cp.getCounterTopic()
+        logging.debug(f'Abonniere {m}')
+        client.message_callback_add(m, cp.cb_energycounter)		# Zählerstand von Chargepoint cp empfangen
+        m = cp.getConnectedIdTopic()
+        logging.debug(f'Abonniere {m}')
+        client.message_callback_add(m, cp.cb_connectedVehicle)	# ID des im Ladepunkt eingestellten Fahrzeugs empfangen
+        m = cp.getPlugStateTopic()
+        logging.debug(f'Abonniere {m}')
+        client.message_callback_add(m, cp.cb_plug)			    # Ladesteckerzustand von Chargepoint cp empfangen
+    logging.info(f'Verbinde Callbackfunktionen der Fahrzeuge:')
+    for car in configuration.myCars:
+        logging.debug(f'Fahrzeug {car.name}')
+        m = car.getStatusTopic()
+        logging.debug(f'Abonniere {m}')
+        client.message_callback_add(m, car.cb_status)		# WiCAN-Statusbotschaft empfangen für car
+        m = car.getRxTopic()
+        logging.debug(f'Abonniere {m}')
+        client.message_callback_add(m, car.cb_rx)			# WiCAN-Botschaft empfangen für car
+        m = car.getgetSocTopic()
+        logging.debug(f'Abonniere {m}')
+        client.message_callback_add(m, car.cb_getOpenwbSoc)		# Berechneter SoC aus der Wallboc für car
+except Exception as e:
+    logging.error(f'FATAL: Fehler beim Abonnieren beim Broker auf {configuration.OPENWB_IP}: {e}')
+    quit()
+
+# Verbindung zum MQTT-Broker in der Wallbox herstellen
+logging.debug(f'Verbindungsversuch mit MQTT-Broker der Wallbox unter Adresse {configuration.OPENWB_IP}.')
 while True:
-    # Verbindung zum MQTT-Broker in der Wallbox herstellen
-    # Verbesserungsidee: Durch Änderung der Konfiguration ist es möglich, daß eine ungültige IP-Adresse anliegt.
-    #		Dann sollte hier eine Logmeldung ausgegeben werden und gewartet werden, bis configuration sich erneut 
-    #		verändert hat.
-    logging.debug(f'Verbindungsversuch mit MQTT-Broker der Wallbox unter Adresse {configuration.OPENWB_IP}.')
     try:
-        # MQTT-Topic-Abos einrichten und mit Callback-Funktionen verbinden
-        logging.info(f'Verbinde Callbackfunktionen der Ladepunkte:')
-        for cp in configuration.myChargepoints:
-            logging.debug(f'Ladepunkt {cp.chargepointId}')
-            m = cp.getCounterTopic()
-            logging.debug(f'Abonniere {m}')
-            client.message_callback_add(m, cp.cb_energycounter)		# Zählerstand von Chargepoint cp empfangen
-            m = cp.getConnectedIdTopic()
-            logging.debug(f'Abonniere {m}')
-            client.message_callback_add(m, cp.cb_connectedVehicle)	# ID des im Ladepunkt eingestellten Fahrzeugs empfangen
-            m = cp.getPlugStateTopic()
-            logging.debug(f'Abonniere {m}')
-            client.message_callback_add(m, cp.cb_plug)			    # Ladesteckerzustand von Chargepoint cp empfangen
-        logging.info(f'Verbinde Callbackfunktionen der Fahrzeuge:')
-        for car in configuration.myCars:
-            logging.debug(f'Fahrzeug {car.name}')
-            m = car.getStatusTopic()
-            logging.debug(f'Abonniere {m}')
-            client.message_callback_add(m, car.cb_status)		# WiCAN-Statusbotschaft empfangen für car
-            m = car.getRxTopic()
-            logging.debug(f'Abonniere {m}')
-            client.message_callback_add(m, car.cb_rx)			# WiCAN-Botschaft empfangen für car
-            m = car.getgetSocTopic()
-            logging.debug(f'Abonniere {m}')
-            client.message_callback_add(m, car.cb_getOpenwbSoc)		# Berechneter SoC aus der Wallboc für car
         client.connect(configuration.OPENWB_IP, 1883, 60)
     except Exception as e:
-        logging.error(f'FATAL: Fehler beim Abonnieren beim Broker auf {configuration.OPENWB_IP}: {e}')
+        logging.error(f'FATAL: Fehler beim Versuch, Verbindung mit Broker {configuration.OPENWB_IP} herzustellen: {e}')
         quit()
     client.loop_forever()
     time.sleep(1)	# Nach Ende der Verbindung zum MQTT-Broker der Wallbox kurz warten vor neuer Kontaktaufnahme, sonst Fehler
