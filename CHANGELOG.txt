@@ -4,6 +4,8 @@
 Anforderung und ohne erste Botschaft [32,16,0,0,0,0,0,0]. Dies hat den
 Empfänger abstürzen lassen.
 * Arbeiten an der Dokumentation
+* Bugfix: Es wird nur dann ein Eintrag bei Spritmonitor versucht, wenn
+  das Fahrzeug des Ldaepunktes in der Liste gefunden wurd
 
 2024-07-01:
 * Komplettumbau soc_helper auf neue Datenstrukturen
