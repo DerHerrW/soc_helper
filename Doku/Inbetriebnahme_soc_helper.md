@@ -19,17 +19,17 @@ Die OpenWB-Software 1.9 wird nicht mehr unterstützt.
 
 Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum erfolgreichen Betrieb des soc_helper geben. Für die Anleitung wird angenommen, daß ein aktuelles Raspberry-Pi-System mit raspian verwendet wird. Auf anderen Rechnern funktioniert die Prozedur ähnlich, möglicherweise unterscheiden sich aber einzelne Schritte. Die Konfiguration umfasst Folgendes:
 
-[WiCAN konfigurieren][#wiconf]
+[WiCAN konfigurieren](#wican-konfigurieren)
 
-[Nur Einmalig: Installieren der benötigten python-Pakete][#python]
+[Nur Einmalig: Installieren der benötigten python-Pakete](#nur-einmalig-installieren-der-benötigten-python-pakete)
 
-[soc_helper aufspielen][#socauf]
+[soc_helper aufspielen](#soc_helper-aufspielen)
 
-[Optional: Vorbereitung für Spritmonitor][#spritmon]
+[Optional: Vorbereitung für Spritmonitor](#optional-vorbereitung-für-spritmonitor)
 
-[OpenWB vorbereiten][#openwb]
+[OpenWB vorbereiten](#openwb-vorbereiten)
 
-[soc_helper konfigurieren][#sochconf]
+[soc_helper konfigurieren](#soc_helper-konfigurieren)
 
         Anlegen der Fahrzeuge
         Anlegen der Ladepunkte
@@ -48,8 +48,6 @@ Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum e
         Oberfläche
         Nutzen des MQTT-Explorers zur Fehlersuche
 
-
-[#wiconf]:
 # WiCAN konfigurieren
 
 ## WiCAN ins eigene WLAN holen
@@ -145,7 +143,7 @@ Um später Änderungen in der Konfiguration von raspian durchzuführen, existier
 
 das nach dem Anmelden am System eingegeben wird.
 
-# Nur Einmalig: Installieren der benötigten python-Pakete [#pyth]
+# Nur Einmalig: Installieren der benötigten python-Pakete
 
 soc_helper benötigt ein paar Python-Bibliotheks-Pakete, um korrekt zu funktionieren. Diese müssen einmalig nachinstalliert werden. Nach dem Anmelden per ssh auf dem Pi  erfolgt dies mit dem Befehl:
 
@@ -155,7 +153,7 @@ Damit ist das Grundsystem konfiguriert.
 
 zurück
 
-# soc_helper aufspielen [#socauf]
+# soc_helper aufspielen
 
 ## zip-Archiv nutzen
 Voraussetzung ist, daß der Raspberry Pi hochgefahren und die Erstkonfiguration erfolgt ist sowie der ssh-Zugang aktiviert ist. Die Adresse des Raspberries kann im Heimrouter gefunden werden. Wenn Tastatur und Monitor verbunden sind, kann nach Anmeldung mit dem Befehl "ifconfig" die Adresse angezeigt werden. Im Folgenden wird davon ausgegangen, daß ein Nutzer "pi" angelegt wurde und der Raspi den Namen socke die interne IP-Adresse 192.168.178.111 hat.
@@ -181,7 +179,7 @@ ausgeführt werden. (Ich weiss gerade nicht, was mit einer lokal geänderten con
 
 zurück
 
-# Optional: Vorbereitung für Spritmonitor [#spritmon]
+# Optional: Vorbereitung für Spritmonitor
 
 Die Nutzung von Spritmonitor ist optional und zur Zeit der Dokumentation kostenlos. Spritmonitor ist eine große Datenbank von Verbräuchen, die von den Nutzern eingepflegt wird. Man kann dort sehen, welche Verbäuche Nutzer mit verschiedenen Fahrzeugen erzielen und wie man im Vergleich zu anderen Nutzern seines Fahrzeugs abschneidet. Es kann Buch geführt werden über Kraftstoffkosten und bei Bedarf Wartung / Reparaturen. Vorausgesetzt man gibt entsprechende Daten bei den Betankungen / Ladevorgängen ein kann sich unter anderem auswerten lassen, in welchem Monat man welchen Verbrauch erzielt.
 
@@ -228,7 +226,7 @@ Das Bearer-Token wird nicht in der Konfiguratiosdatei abgespeichert. Zu groß is
 
 zurück
 
-# OpenWB vorbereiten[#openwb]
+# OpenWB vorbereiten
 
 Um mit dem WiCAN zusammen zu arbeiten, sind ein paar Einstellungen in der OpenWB nötig. An dieser Stelle erfolgt die Beschreibung für Software-Schiene 2, für Software 1.9 ist die Konfiguration ähnlich, aber deutlich einfacher. Es wird nur der Teil beschrieben, der für den soc_helper relevant ist.
 
@@ -255,7 +253,7 @@ Für den soc_helper sind die ID der verwendeten Wallbox (im Bild "Interne openWB
 
 zurück
 
-# soc_helper konfigurieren[#sochconf]
+# soc_helper konfigurieren
 
 Alle Konfigurationsmöglichkeiten befinden sich in der Datei configuration.py. Das automatische Neueinlesen der Datei bei Änderungen wurde entfernt, da dieser Mechanismus zum Beispiel das Löschen und Neuanlegen der Datei nicht unterstützt hat und entfernte Variablen im Kontext des Hauptprogrammes nicht gelöscht wurden.
 Anlegen der Fahrzeuge
