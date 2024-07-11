@@ -4,7 +4,7 @@
 
 Der soc_helper ist aus einem persönlichen Bedürfnis entstanden: Vorhanden sind eine [OpenWB](https://openwb.de/main/) und ein eUp. Im ersten Jahr gibt es gratis weConnect zum Auto dazu. Solange dieser Zugang besteht, kann die OpenWB den Ladezustand automatisch von einem VW-Server abfragen. Dies ist nützlich, um die Ladung akkuschonend bei 80% zu beenden.
 
-Der Online-Zugang erwies sich für mich nicht als besonders stabil, und auch die Vorklimatisierung per App hat meistens kommentarlos nicht funktioniert. Ich wollte die Dinge also selber in die Hand nehmen und dabei etwas Python lernen.
+Der Online-Zugang erwies sich für mich nicht als besonders stabil, und auch die Vorklimatisierung per App hat meistens kommentarlos nicht funktioniert. Ich wollte das Auslesen des SoC selber in die Hand nehmen und dabei etwas Python lernen.
 
 Mittlerweile funktioniert der soc_helper, und ganz reibungslos werden der Ladezustand an die Wallbox übertragen und bei Spritmonitor mein Ladelog geführt.
 
