@@ -78,36 +78,36 @@ class chargepoint:
                 if found:
                     #Fahrzeug in Liste gefunden
                     energylog.write(date+', '+car.name+', '+str(car.odo)+', '+str(lastCharged)+', '+str(car.soc)+', '+str(car.openwbsoc)+'\n')
+                    #Spritmonitor-Teil nach Ladeabschluß
+                    if car.useSpritmonitor and (lastCharged >= 0.1):
+                        logging.debug(f'Spritmonitor ist konfiguriert. Beginne Übermittlung.')
+                        # letzten bei Spritmonitor eingetragenen km-Stand auslesen
+                        lastFueling = spritmonitor.get_last_fuel_entry(car.spritmonitorVehicleId)
+                        if len(lastFueling) > 0:
+                            td = json.loads(json.dumps(lastFueling[0]))
+                            lastOdo = float(td['odometer'])
+                            logging.debug(f'Letzter Spritmonitor-Kilometerstand ist {lastOdo}.')
+                        else:
+                            lastOdo = 0.0
+                            logging.warning(f'Konnte keinen letzter Spritmonitor-Kilometerstand ermitteln, nehme 0 an.')
+                        logging.info(f'Ladung wurde mit berechneten {car.openwbsoc}% beendet.')
+                        # type-Variable für Füllung bestimmen
+                        if lastOdo == 0.0:
+                            fuel_type = "first"
+                        elif ( abs(float(car.openwbsoc)-100)<=2.0 ):
+                            fuel_type = "full" 
+                        else:
+                            fuel_type = "notfull"
+                        trip = round(car.odo - lastOdo,2)
+                        if trip < 0.1:
+                            trip = 0.0
+                        logging.info(f'Letzter Spritmonitor-Kilometerstand: {lastOdo}; aktueller Kilometerstand: {car.odo} trip: {trip}')
+                        quantityunitid = 5 # 'kWh'
+                        # "Betankung" übermitteln
+                        result=spritmonitor.add_fuel_entry(car.spritmonitorVehicleId, 1,date, fuel_type, car.odo, trip, lastCharged,
+                                quantityunitid, car.spritmonitorFuelsort, car.spritmonitorFuelprice,car.openwbsoc,car.spritmonitorAttributes)
+                        logging.debug(f'Ergebnis der Übermittlung: {result}')
+                        logging.info(f'Übermittlung an Spritmonitor ist erfolgt.')
                 else:
                     # undefiniertes Fahrzeug angesteckt
                     energylog.write(date+', undefiniertes Fahrzeug, -,'+str(lastCharged)+', -, -\n')
-                #Spritmonitor-Teil nach Ladeabschluß
-                if car.useSpritmonitor and (lastCharged >= 0.1):
-                    logging.debug(f'Spritmonitor ist konfiguriert. Beginne Übermittlung.')
-                    # letzten bei Spritmonitor eingetragenen km-Stand auslesen
-                    lastFueling = spritmonitor.get_last_fuel_entry(car.spritmonitorVehicleId)
-                    if len(lastFueling) > 0:
-                        td = json.loads(json.dumps(lastFueling[0]))
-                        lastOdo = float(td['odometer'])
-                        logging.debug(f'Letzter Spritmonitor-Kilometerstand ist {lastOdo}.')
-                    else:
-                        lastOdo = 0.0
-                        logging.warning(f'Konnte keinen letzter Spritmonitor-Kilometerstand ermitteln, nehme 0 an.')
-                    logging.info(f'Ladung wurde mit berechneten {car.openwbsoc}% beendet.')
-                    # type-Variable für Füllung bestimmen
-                    if lastOdo == 0.0:
-                        fuel_type = "first"
-                    elif ( abs(float(car.openwbsoc)-100)<=2.0 ):
-                        fuel_type = "full" 
-                    else:
-                        fuel_type = "notfull"
-                    trip = round(car.odo - lastOdo,2)
-                    if trip < 0.1:
-                        trip = 0.0
-                    logging.info(f'Letzter Spritmonitor-Kilometerstand: {lastOdo}; aktueller Kilometerstand: {car.odo} trip: {trip}')
-                    quantityunitid = 5 # 'kWh'
-                    # "Betankung" übermitteln
-                    result=spritmonitor.add_fuel_entry(car.spritmonitorVehicleId, 1,date, fuel_type, car.odo, trip, lastCharged,
-                            quantityunitid, car.spritmonitorFuelsort, car.spritmonitorFuelprice,car.openwbsoc,car.spritmonitorAttributes)
-                    logging.debug(f'Ergebnis der Übermittlung: {result}')
-                    logging.info(f'Übermittlung an Spritmonitor ist erfolgt.')
