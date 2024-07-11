@@ -19,17 +19,17 @@ Die OpenWB-Software 1.9 wird nicht mehr unterstützt.
 
 Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum erfolgreichen Betrieb des soc_helper geben. Für die Anleitung wird angenommen, daß ein aktuelles Raspberry-Pi-System mit raspian verwendet wird. Auf anderen Rechnern funktioniert die Prozedur ähnlich, möglicherweise unterscheiden sich aber einzelne Schritte. Die Konfiguration umfasst Folgendes:
 
-[WiCAN konfigurieren](#wiconf) 
+[WiCAN konfigurieren][#wiconf]
 
-[Nur Einmalig: Installieren der benötigten python-Pakete](#python)
+[Nur Einmalig: Installieren der benötigten python-Pakete][#python]
 
-[soc_helper aufspielen](#socauf)
+[soc_helper aufspielen][#socauf]
 
-[Optional: Vorbereitung für Spritmonitor](#spritmon)
+[Optional: Vorbereitung für Spritmonitor][#spritmon]
 
-[OpenWB vorbereiten](#openwb)
+[OpenWB vorbereiten][#openwb]
 
-[soc_helper konfigurieren](#sochconf)
+[soc_helper konfigurieren][#sochconf]
 
         Anlegen der Fahrzeuge
         Anlegen der Ladepunkte
@@ -49,7 +49,8 @@ Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum e
         Nutzen des MQTT-Explorers zur Fehlersuche
 
 
-# WiCAN konfigurieren {#wiconf}
+[#wiconf]:
+# WiCAN konfigurieren
 
 ## WiCAN ins eigene WLAN holen
 
@@ -144,7 +145,7 @@ Um später Änderungen in der Konfiguration von raspian durchzuführen, existier
 
 das nach dem Anmelden am System eingegeben wird.
 
-# Nur Einmalig: Installieren der benötigten python-Pakete {#pyth}
+# Nur Einmalig: Installieren der benötigten python-Pakete [#pyth]
 
 soc_helper benötigt ein paar Python-Bibliotheks-Pakete, um korrekt zu funktionieren. Diese müssen einmalig nachinstalliert werden. Nach dem Anmelden per ssh auf dem Pi  erfolgt dies mit dem Befehl:
 
@@ -154,8 +155,9 @@ Damit ist das Grundsystem konfiguriert.
 
 zurück
 
-# soc_helper aufspielen {#socauf}
+# soc_helper aufspielen [#socauf]
 
+## zip-Archiv nutzen
 Voraussetzung ist, daß der Raspberry Pi hochgefahren und die Erstkonfiguration erfolgt ist sowie der ssh-Zugang aktiviert ist. Die Adresse des Raspberries kann im Heimrouter gefunden werden. Wenn Tastatur und Monitor verbunden sind, kann nach Anmeldung mit dem Befehl "ifconfig" die Adresse angezeigt werden. Im Folgenden wird davon ausgegangen, daß ein Nutzer "pi" angelegt wurde und der Raspi den Namen socke die interne IP-Adresse 192.168.178.111 hat.
 
 Mit einem geeigneten Dateiverwaltungs-Tool kann auf den Raspi zugegriffen werden. Dazu wird als Adresse sftp://pi@192.168.178.111/home/pi/ oder sftp://pi@socke angegeben. Nach Abfrage des Passwortes des Nutzers sollte der Inhalte des Homeverzeichnisses zu sehen sein. (Unter Windows kann möglicherweise winscp genutzt werden: https://winscp.net/eng/docs/lang:de. Unter Linux können beispielsweise nautilus und dolphin mit ssh umgehen.)
@@ -166,10 +168,20 @@ Fallstrick: Sollte sich bereits ein funktionierender  soc_helper auf dem Zielsys
 
 Fallstrick 2: Wenn das Archiv auf einem Windows-Rechner entpackt wurde, werden die Dateiattribute nicht gespeichert. Diese entscheiden unter Unix (und Linux), ob eine Datei lesbar / schreibar / ausführbar ist und für wen. In diesem Fall empfiehlt es sich nach dem Kopieren auf den Raspberry, die Datei soc_helper.py per Hand ausführbar zu machen, um sie direkt aufrufen zu können. Das geschieht nach dem Wechsel in das Verzeichnis soc_helper mit dem Befehl chmod 755 soc_helper.py. Siehe hierzu auch die Erklärung von ubuntu zu chmod.
 
+## Alternativ: git nutzen
+git ist ein Versionsverwaltungstool für die Softwareentwicklung. Wenn auf dem Rechner, auf dem soc_helper laufen soll git vorhanden ist, kann mit 
+
+        git clone https://github.com/DerHerrW/soc_helper
+
+eine Erstinstallation erfolgen. Der Befehl bewirkt, daß im Verzeichnis, in dem der Befehl ausgeführt wird, ein Verzeichnis soc_helper mit dem aktuellen Entwicklungsstand angelegt wird. Um nach einiger Zeit auf den aktuellen Stand zu kommen, muß
+
+        git pull
+
+ausgeführt werden. (Ich weiss gerade nicht, was mit einer lokal geänderten configuration.py passiert. Schlägt der pull fehl? Wird sie überschrieben?)
 
 zurück
 
-# Optional: Vorbereitung für Spritmonitor {#spritmon}
+# Optional: Vorbereitung für Spritmonitor [#spritmon]
 
 Die Nutzung von Spritmonitor ist optional und zur Zeit der Dokumentation kostenlos. Spritmonitor ist eine große Datenbank von Verbräuchen, die von den Nutzern eingepflegt wird. Man kann dort sehen, welche Verbäuche Nutzer mit verschiedenen Fahrzeugen erzielen und wie man im Vergleich zu anderen Nutzern seines Fahrzeugs abschneidet. Es kann Buch geführt werden über Kraftstoffkosten und bei Bedarf Wartung / Reparaturen. Vorausgesetzt man gibt entsprechende Daten bei den Betankungen / Ladevorgängen ein kann sich unter anderem auswerten lassen, in welchem Monat man welchen Verbrauch erzielt.
 
@@ -216,7 +228,7 @@ Das Bearer-Token wird nicht in der Konfiguratiosdatei abgespeichert. Zu groß is
 
 zurück
 
-# OpenWB vorbereiten{#openwb}
+# OpenWB vorbereiten[#openwb]
 
 Um mit dem WiCAN zusammen zu arbeiten, sind ein paar Einstellungen in der OpenWB nötig. An dieser Stelle erfolgt die Beschreibung für Software-Schiene 2, für Software 1.9 ist die Konfiguration ähnlich, aber deutlich einfacher. Es wird nur der Teil beschrieben, der für den soc_helper relevant ist.
 
@@ -243,7 +255,7 @@ Für den soc_helper sind die ID der verwendeten Wallbox (im Bild "Interne openWB
 
 zurück
 
-# soc_helper konfigurieren{#sochconf}
+# soc_helper konfigurieren[#sochconf]
 
 Alle Konfigurationsmöglichkeiten befinden sich in der Datei configuration.py. Das automatische Neueinlesen der Datei bei Änderungen wurde entfernt, da dieser Mechanismus zum Beispiel das Löschen und Neuanlegen der Datei nicht unterstützt hat und entfernte Variablen im Kontext des Hauptprogrammes nicht gelöscht wurden.
 Anlegen der Fahrzeuge
