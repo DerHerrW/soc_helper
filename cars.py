@@ -120,7 +120,7 @@ class carclass:
             # Botschaft ist ein Folgeteil einer mehrteiligen Botschaft. Der Index sollte im unteren Nibble von Byte 0 stehen
             # hier wird einfach gehofft, daß die Botschaften in der richtigen Reihenfolge ankommen. Sie werden stumpf angehängt.
             # FIXME: Wenn hier kein erster Teil vorhanden ist, sondern unmotiviert ein zweiter kommt, knallt es. Vorher prüfen, ob self.payload existiert!
-            if 'self.payload' in locals():
+            if hasattr(self, 'payload'):
                 self.payload.extend(data[1:8])     # Je Nachfolger sollten 7 Nutzbytes kommen
                 self.bytesReceived += 7
                 if self.bytesReceived >= self.bytesToReceive:
