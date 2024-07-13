@@ -6,13 +6,12 @@
 1. [Dokumentation und Quellcode des WiCAN](https://github.com/meatpiHQ/wican-fw)
 1. [Bestellung WiCAN](https://eu.mouser.com/c/?m=MeatPi)
 1. [WiCAN Issue-Tracker](https://github.com/meatpiHQ/wican-fw/issues)
-1. [Installation von Python-Paketen](https://u-labs.de/portal/was-ist-eine-python-virtualenv-venv-und-wozu-braucht-man-sie-virtuelle-python-umgebung-fuer-einsteiger/)
 
 ## OBD
 
 ### Generell
 
-1. [Übersicht Ptorokoll CAN-TP](https://en.m.wikipedia.org/wiki/ISO_15765-2)
+1. [Übersicht Protokoll CAN-TP](https://en.m.wikipedia.org/wiki/ISO_15765-2)
 1. [CAN-Datenbank VW](https://www.goingelectric.de/wiki/Liste-der-OBD2-Codes/)
 1. [Übersicht CAN / Diagnoseprotokoll](http://www.emotive.de/documents/WebcastsProtected/Transport-Diagnoseprotokolle.pdf)
 1. [UDS Faltposter](https://automotive.softing.com/fileadmin/sof-files/pdf/de/ae/poster/UDS_Faltposter_softing2016.pdf)
@@ -33,3 +32,7 @@
 
 1. [API von Spritmonitor](https://api.spritmonitor.de/doc)
 1. [Nutzungsbeispiele der API](https://github.com/FundF/Spritmonitor-API-sample-code)
+
+# Python
+
+1. [Installation von Python-Paketen](https://u-labs.de/portal/was-ist-eine-python-virtualenv-venv-und-wozu-braucht-man-sie-virtuelle-python-umgebung-fuer-einsteiger/)
