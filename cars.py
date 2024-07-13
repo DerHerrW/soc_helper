@@ -305,7 +305,7 @@ class StandardFuelLevel(carclass):
 
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
-        self.odo = ( bytes[3]*16777216 + bytes[4]*65536 + bytes[5]*256 + bytes[6] ) # Standard-PID 166 vom MSG [2024, 65, 166, aa, bb, cc, dd, xx, xx]
+        self.odo = ( bytes[3]*16777216 + bytes[4]*65536 + bytes[5]*256 + bytes[6] )/10 # Standard-PID 166 vom MSG [2024, 65, 166, aa, bb, cc, dd, xx, xx]
 
 
 """
