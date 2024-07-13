@@ -1,5 +1,0 @@
-Bekannte Fehler:
-
-Erkenntnis: 2024-07-13
-Fix: Offen
-Im lokalen Ladelog wird als Start-SoC bei Abschluss der Ladung die Variable car.soc abgespeichert. Dies ist nicht korrekt, da der SoC bei Start einer Ladung nach Ladeunterbrechung oder bei anderem Aufwecken des WiCANs jeweils neu angefordert und geschrieben wird. Somit wird hier der zuletzt übertragene SoC gespeichert und nicht der SoC bei Antecken des Fahrzeugs.
