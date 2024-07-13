@@ -1,4 +1,4 @@
-2024-07-11:
+2024-07-13:
 * Hinzugefügt: Fahrzeugmodul für Tankfüllstand (Verbrenner)
 * Bugfixes: Der Verbrenner-Golf sendet periodisch Folgebotschaften ohne
 Anforderung und ohne erste Botschaft [32,16,0,0,0,0,0,0]. Dies hat den
