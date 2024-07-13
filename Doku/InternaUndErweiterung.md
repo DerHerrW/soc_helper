@@ -155,9 +155,22 @@ chargepoints.py definiert die Ladepunktklasse. In dieser sind Variablen und Funk
 [zurück](#inhalt)
 
 ## energylog.py
+ernergylog.py stellt die Funktionen für das schreiben des lokalen Ladelogs bereit.
+
+### Funktionen
+1. **init(path)** - Versucht, die lokale Ladelogdatei zu öffnen. Ist diese nicht vorhanden, wird sie neu angelegt und mit Spaltenüberschriften versehen. Der Filehandler savefile wird als globale Variable beschrieben.
+2. **write(line)** - schreibt einen Ladevorgang (String line) in die Datei mit dem Handle savefile und schreibt den Buffer auf die lokale Platte.
+
+[zurück](#inhalt)
 
 ## spritmonitor.py
 
+[zurück](#inhalt)
+
 ## startAtBoot.sh
 
+[zurück](#inhalt)
+
 ## Erweiterung um neue Fahrzeugtypen
+
+[zurück](#inhalt)
