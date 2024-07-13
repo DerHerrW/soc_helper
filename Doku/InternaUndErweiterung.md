@@ -2,7 +2,6 @@
 In diesem Dokument wird der Aufbau von soc_helper im Detail beschrieben. Am Ende befindet sich eine Anleitung, wie weitere Fahrzeugtypen ergänzt werden können.
 
 ## Inhalt
-Folgende Dateien sind vorhanden:
 
 1. [Ablauf eines Ladevorgangs](#ablauf-eines-ladevorgangs)
 1. [soc_helper - das Hauptprogramm](#soc_helperpy)
