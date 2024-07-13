@@ -164,13 +164,26 @@ ernergylog.py stellt die Funktionen für das schreiben des lokalen Ladelogs bere
 [zurück](#inhalt)
 
 ## spritmonitor.py
+Die Datei ist das Interface zu spritmonitor.de. Sie enthält Funktionen zum Verbinden mit Spritmonitor, zum Auslesen des letzten gespeicherten Beldaungsvorgangs und zum Anlegen enes neuen Eintrags. Die Funktionen sind nahezu unverändert aus dem [spritmonitor-Beispielcode](https://github.com/FundF/Spritmonitor-API-sample-code) übernommen.
 
 [zurück](#inhalt)
 
 ## startAtBoot.sh
+Um den soc_helper beim Booten eines Linux-Rechners mit zu starten, kann man einen Eintrag in der crontab des Benutzers anlegen.  Näheres dazu steht in der Datei. Der Eintrag in der crontab startet dieses Shellskript, was wiederum den soc_helper startet.
 
 [zurück](#inhalt)
 
 ## Erweiterung um neue Fahrzeugtypen
+Sofern die OBD2-Anfragen und Antworten bekannt sind, läßt sich der soc_helper einfach um neue Fahrzeugtypen erweitern. Folgende Schritte sind dafür nötig:
+
+1. Datei cars.py öffnen
+2. Abschnitt einer Fahrzeugtypenklasse (z.B. class eUp(carclass)) kopieren.
+3. Die neue Klasse umbenennen, also eUp ersetzen durch eine kurze und eingängige Beschreibung des neuen Fahrzeugtyps
+4. die SOC_REQ_ID, SOC_RESP_ID, SOC_REQ_DATA, ODO_REQ_ID, ODO_RESP_ID, ODO_REQ_DATA passen definieren. Die Zahlen sollten Ganzzahlen sein.
+5. Wenn eine ID größer als 2047 ist, handelt es sich sicher um eine erweiterte 29-Bit-ID. In diesem Fall muß im zugehörigen String (SOC_REQUEST und/oder ODO_REQUEST) hinter dem "extd": true stehen, ansonsten false.
+6. Die Umrechnungsfunktionen für soc und odo müssen vermutlich dem Fahrzeug angepaßt werden. Wenn in der Quelle der OBD-Informationen nichts angegeben ist, muß durch Vergleich der Rohwerte mit den im Fahrzeug angezeigten SoC-Werten oder dem Kilometerstand eine Formel ermittelt werden. Beispielsweise sei 100% SOC mit einem Rohwert von 240 in Listenelement 4 und 10% SOC mit einem Rohwert von 40 verbunden. Eine Ausgleichsgerade würde eine Steigung von (100%-10%)/(240-40)=0,45 ergeben. Um von 10% auf 0% zu kommen, sind (10%-0%)/0,45=22,222 Rohwerte erforderlich, also 40-22,222=17,778 Rohwerte Offset. Die Formel für das Beispiel lautet daher: self.soc = (bytes[4]-17,7)*0,45
+7. Wenn die Definition der neuen Fahrzeugtypklasse funktioniert, bitte unbedingt als Pull Request oder den Codeschnippsel per Nachricht an mich zustellen.
+
+### Hilfe zur Ermittlung der IDs und Daten
 
 [zurück](#inhalt)
