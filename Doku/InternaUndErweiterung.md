@@ -57,6 +57,8 @@ Folgende Variablen können in configuration.py fahrzeugindividuell gesetzt werde
 wird
 1. **spritmonitorAttributes** - Attribute für Spritmonitor (Reifenart,
 Fahrweise, Klimaanlage usw)
+
+Darüber hinaus hat die Fahrzeug-Grundklasse folgende Variablen, die nicht bei der Konfiguration gesetzt werden sollten
 1. **odo** - Letzter vom Fahrzeug empfangener Kilometerstand
 1. **soc** - Letzter vom Fahrzeug emfangener SoC
 1. **openwbsoc** - Letzter von der OpenWB empfanegener berechneter SoC
@@ -125,8 +127,10 @@ berechnet die Klassenvariable soc aus den Rohdaten, die in der Liste bytes über
     self.soc = round(bytes[4]/2.5*51/46-6.4)
 
 #### calcODO(self, bytes)
-berechnet den Kilometerstand aus Rohwerten analog zum schon beschriebenen SoC und speichert ihn in der Klassenvariable odo. Auch diese Umrechnung ist fahrzeugtyp-indiviuell. Es ist eine Standard-PID für das Motorsteuergerät definiert (1,166), diese wird aber nicht von allen Fahrzeugen unterstützt. eUp, eGolf unterstützen sie nicht, Passat GTE hingegen schon
+berechnet den Kilometerstand aus Rohwerten analog zum schon beschriebenen SoC und speichert ihn in der Klassenvariable odo. Auch diese Umrechnung ist fahrzeugtyp-indiviuell. Es ist eine Standard-PID für das Motorsteuergerät definiert (1,166), diese wird aber nicht von allen Fahrzeugen unterstützt. eUp, eGolf unterstützen sie nicht, Passat GTE beispielsweise schon.
 
+    self.odo = ( bytes[3]*16777216 + bytes[4]*65536 + bytes[5]*256 + bytes[6] )/10 # Standard-PID 166 vom MSG [2024, 65, 166, aa, bb, cc, dd, xx, xx]
+    
 [zurück](#inhalt)
 
 ## chargepoints.py
