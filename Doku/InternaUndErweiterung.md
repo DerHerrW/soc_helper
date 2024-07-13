@@ -1,14 +1,29 @@
-# Aufbau von soc_Helper und Erweiterung der bekannten Fahrzeuge
+# Funktion und Aufbau von soc_Helper; Erweiterung der bekannten Fahrzeuge
+In diesem Dokument wird der Aufbau von soc_helper im Detail beschrieben. Am Ende befindet sich eine Anleitung, wie weitere Fahrzeugtypen ergänzt werden können.
 
 ## Inhalt
 Folgende Dateien sind vorhanden:
 
+1. [Ablauf eines Ladevorgangs](#ablauf-eines-ladevorgangs)
 1. [soc_helper - das Hauptprogramm](#soc_helperpy)
 1. [cars.py - Fahrzeugspezifischer Code, Fahrzeugtypenklassen](#carspy)
 1. [chargepoints.py - Ladepunktspezifischer Code](#chargepointspy)
 1. [energylog.py - Funktionalität zum lokalen Speichern der Ladevorgänge](#energylogpy)
 1. [spritmonitor.py - Verbindungscode zur Spritmonitor-Anbindung](#spritmonitorpy)
 1. [startAtBoot.sh - Skript, das in die Nutzer-Crontab eingetragen werden kann, um den soc_helper bei Start des Rechner mitzustarten](#startatbootsh)
+
+## Ablauf eines Ladevorgangs
+Für jedes definierte Fahrzeug und jeden Ladepunkt wird in der Datei configuration.py eine Instanz einer Fahrzeugklasse beziehungsweise einer Ladepunktklasse angelegt. Jede dieser Instanzen hat verschiedene Callback-Funktionen, die beim Eintreffen der von ihnen abbonierten MQTT-Topics aufgerufen werden.
+
+1. Das Fahrzeug mit aktivem WiCAN nähert sich dem heimischen WLAN.
+2. Der WiCAN bucht sich ins WLAN ein, verbindet sich mit dem MQTT-Broker der OpenWB und sendet sein "status": "online" an das Status-Topic des betreffenden Fahrzeugs
+3. Die Statusmeldung wird vom soc_helper empfangen und die Callback-Funktion cb_status der Fahrzeugklasseninstanz wird aufgerufen. Da der Status "online" ist, werden die Abfragen nach SoC und Odometer über das Tx-Topic an den MQTT-Broker und damit den WiCAN verschickt, sofern die Request-ID ungleich 0 ist.
+4. Der WiCAN im Fahrzeug schickt die Antworten auf die Anfragen an das Rx-Topic, sie werden vom soc_helper empfangen und die Callback-Funktion cb_rx der Fahrzeugklasseninstanz wird aufgerufen. Wenn eine SoC-Antwort erkannt wurd, wird die Umrechungsfunktion der Klasseninstanz aufgerufen und der berechnete SoC klasseninstanz-intern abgespeichert und an den zugehörigen Fahrzeugeintrag der OpenWB geschickt. Der Odometerwert wird vorerst nur in der Klasseninstanz abgespeichert.
+5. Der WiCAN legt sich möglicherweise schlafen. Falls er durch Laden der NV-Batterie geweckt wird, finden die oben genannten Schritte erneut statt.
+6. Die Callback_Funktion cb_plug aller Ladepunkte wird periodisch aufgerufen, da die zugehörige Botschaft fortwährend beschrieben wird. Das Stecken des Ladesteckers löst eine Zustandsänderung aus. In der betroffenen Ladepunktklasseninstanz wird der Steckerzustand plugstate mit True beschrieben und der Zählerstand des Ladestromzählers in counterAtPlugin gesichert.
+7. Die Callback-Funktion cb_connectedVehicle wird periodisch aufgerufen und speichert die ID des in der OpenWB gewählte Fahrzeug des Ladepunktes in der Instanzvariable connectedId.
+8. Die Callback-Funktion cb_energycounter wird periodisch aufgerufen und speichert den Zählerstand des Ladepunktes in der Instanzvariable counter.
+9. Beim Lösen des Ladesteckers erkennt die Callback-Funktion cb_plug die Zustandsänderung. Sie berechnet die geladene Energiemenge, ermittelt die Fahrzeugklasseninstanz des an den Ladpunkt angeschlossene Fahrzeugs, speichert das Datum, wandelt es in einen String für das Logging um, speichert den Ladevorgang lokal und erzeugt wenn gewünscht einen Eintrag bei Spritmonitor.
 
 ## soc_helper.py
 Das Hauptprogramm tut folgendes:
@@ -42,6 +57,9 @@ Folgende Variablen können in configuration.py fahrzeugindividuell gesetzt werde
 wird
 1. **spritmonitorAttributes** - Attribute für Spritmonitor (Reifenart,
 Fahrweise, Klimaanlage usw)
+1. **odo** - Letzter vom Fahrzeug empfangener Kilometerstand
+1. **soc** - Letzter vom Fahrzeug emfangener SoC
+1. **openwbsoc** - Letzter von der OpenWB empfanegener berechneter SoC
 
 Es werden einige Hilfsfunktionen definiert, die als Rückgabe einen String
 mit jeweils einem MQTT-TOpic liefern:
@@ -59,7 +77,7 @@ Die folgenden Callback-Funktionen definieren das Herz des soc_helpers. Sie
 werden dem MQTT-Client bei Programmstart mitgegeben und aufgerufen, wenn die
 entsprechenden Topics des OpenWB-MQTT-Brokers eine Nachricht empfangen:
 
-#### cb_getOpenwbSoc(self, client, userdata, msg)
+#### cb_status(self, client, userdata, msg)
 Diese Funktion wird aufgerufen, wenn vom WiCAN der zugehörigen
 Fahrzeugklasse das Status-Topic beschrieben wird. Die Funktion prüft, ob der
 Status 'online' ist. Ist dies der Fall, werden nacheinander die SoC- und
