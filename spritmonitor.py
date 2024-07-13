@@ -48,19 +48,6 @@ def connect_to_sm_rest(url):
         )
     return respose.json()
 
-def connect_to_sm_rest(url):
-    """
-    Send request to Spritmonitor REST endpoint
-    """
-    respose = requests.request("GET", url, auth=bearer_auth)
-    if respose.status_code != 200:
-        raise Exception(
-            "Request returned an error: {} {}".format(
-                respose.status_code, respose.text
-            )
-        )
-    return respose.json()
-
 def get_last_fuel_entry(vehicle_id):
     """
     Retrieve fuel entries from vehicle with given id
