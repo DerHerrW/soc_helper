@@ -1,3 +1,7 @@
+2024-07-18:
+* neue Fahrzeugvariable socAtPlugin, um den SoC bei Ladebeginn korrekt in das
+lokale Ladelog zu speichern.
+
 2024-07-13:
 * Hinzugefügt: Fahrzeugmodul für Tankfüllstand (Verbrenner)
 * Bugfixes: Der Verbrenner-Golf sendet periodisch Folgebotschaften ohne
