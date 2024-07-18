@@ -20,13 +20,13 @@ Beim Abziehen des Ladesteckers aus dem Auto protokolliert der soc_helper den Kil
 ### Funktioniert:
 1. eUp
 2. VW MEB (ID3, ID4 und abgeleitete Varianten von Skoda,Seat)
+3. Standard-Abfragen für Verbrenner: Tankfüllstand (als SOC an die Wallbox), Kilometerstand
 
 ### Vorbereitet (Tester gesucht):
 1. eGolf (sollte identisch zum eUp funktionieren)
 2. Ora Funky Cat
 3. Renault Zoe
 4. Fiat 500e
-5. Standard-Abfragen für Verbrenner: Tankfüllstand (als SOC an die Wallbox), Kilometerstand
 
 Generell werden immer Tester gesucht. Ich freue mich über Rückmeldungen!
 
