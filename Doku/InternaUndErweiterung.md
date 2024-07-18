@@ -60,6 +60,7 @@ Fahrweise, Klimaanlage usw)
 Darüber hinaus hat die Fahrzeug-Grundklasse folgende Variablen, die nicht bei der Konfiguration gesetzt werden sollten
 1. **odo** - Letzter vom Fahrzeug empfangener Kilometerstand
 1. **soc** - Letzter vom Fahrzeug emfangener SoC
+1. **socAtPlugin** - Wert von soc beim Einstecken des Ladesteckers.
 1. **openwbsoc** - Letzter von der OpenWB empfanegener berechneter SoC
 
 Es werden einige Hilfsfunktionen definiert, die als Rückgabe einen String
@@ -150,7 +151,16 @@ chargepoints.py definiert die Ladepunktklasse. In dieser sind Variablen und Funk
 ### Call-Back-Funktionen
 1. **cb_energycounter(self, client, userdata, msg)** - Immer wenn eine neue Botschaft mit aktuellem Zählerstand eintrifft, wird dieser in dieser Funktion in der Klassenvariable counter abgelegt.
 2. **cb_connectedVehicle(self, client, userdata, msg)** - Diese Funktion wird aufgerufen, wenn das Topic mit der ID des verbundenen Fahrzeugs beschrieben wird. Die ID wird in der Klassenvariable connectedId gespeichert.
-3. **cb_plug(self, client, userdata, msg)** - Diese Funktion wird aufgerufen, wenn das Topic mit dem Steckerzustand des Ladepunktes beschrieben wird. Der Steckerzustand wird in der Klassenvariable plugstate gespeichert. Wechselt der Zustand des Steckers von ungesteckt nach gesteckt, wird der Wert des Energiezählers in der Klassenvariable counterAtPlugin gespeichert. Wechselt der Zustand des Steckers von gesteckt auf ungesteckt, passieren etliche Dinge: Zunächst wird mittels counter und counterAtPlugin die geladene Energiemenge berechnet. Dann wird aus der konfigurierten Fahrzeugliste (configuration.py) das Fahrzeug identifiziert, das an den Ladepunkt angesteckt ist. Zusammen mit dem aktuellen Datum wird ein Eintrag in das lokale Ladelog geschrieben. Ist für das gefundene Fahrzeug die Nutzung von Spritmonitor definiert, wird dieser erzeugt.
+3. **cb_plug(self, client, userdata, msg)** - Diese Funktion wird aufgerufen, wenn das Topic mit dem Steckerzustand des Ladepunktes beschrieben wird.
+Der Steckerzustand wird in der Klassenvariable plugstate gespeichert. Wechselt der Zustand des Steckers von ungesteckt nach gesteckt, wird der Wert
+des Energiezählers in der Klassenvariable counterAtPlugin gespeichert. Das
+eingestellte Fahrzeug wird aus der Fahrzeugliste herausgesucht und sofern
+gefunden, wird der Inhalt dessen Variable soc in seine Variable socAtPlugin
+kopiert, um beim Abschluß des Ladens den korrekten Start-SoC zu speichern.
+Wechselt der Zustand des Steckers von gesteckt auf ungesteckt, passieren
+etliche Dinge: Zunächst wird mittels counter und counterAtPlugin die geladene Energiemenge berechnet. Dann wird aus der konfigurierten Fahrzeugliste
+(configuration.py) das Fahrzeug identifiziert, das an den Ladepunkt angesteckt ist. Zusammen mit dem aktuellen Datum wird ein Eintrag in das lokale
+Ladelog geschrieben. Ist für das gefundene Fahrzeug die Nutzung von Spritmonitor definiert, wird dieser erzeugt.
 
 [zurück](#inhalt)
 

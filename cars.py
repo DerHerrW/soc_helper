@@ -21,9 +21,10 @@ class carclass:
     spritmonitorFuelsort: int = 19
     spritmonitorFuelprice: float = 0.27
     spritmonitorAttributes: str = 'summertires, slow'
-    odo: float = 0					# Letzter vom Fahrzeug empfangener Kilometerstand
-    soc: float = 0					# Letzter vom Fahrzeug emfangener SoC
-    openwbsoc: float = 0            # Letzter von der Wallbox empfangener (berechneter) SoC
+    odo: float = 0		# Letzter vom Fahrzeug empfangener Kilometerstand
+    soc: float = 0		# Letzter vom Fahrzeug emfangener SoC
+    socAtPlugin: float = 0	# Inhalt von soc im Moment des Einsteckens des Ladesteckers
+    openwbsoc: float = 0        # Letzter von der Wallbox empfangener (berechneter) SoC
         
     # Hilfsfunktionen
     def getStatusTopic(self):

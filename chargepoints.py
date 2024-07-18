@@ -51,6 +51,17 @@ class chargepoint:
                 # Wechsel von 0 auf 1 (Anstecken)
                 self.plugstate = True
                 self.counterAtPlugin = self.counter
+                # In der Wallbox gewähltes Fahrzeug heraussuchen und dessen SoC als SoC zu Ladebeginn merken
+                found = False
+                for car in configuration.myCars:
+                    if car.openwbVehicleId == self.connectedId:
+                        logging.debug(f'Angestecktes Fahrzeug mit openwbId {self.connectedId} als {car.name} in der Fahrzeugliste identifiziert')
+                        found = True
+                        car.socAtPlugin = car.soc
+                        logging.info(f'Angestecktes Fahrzeug {car.name}, ID {self.connectedId} mit SoC {car.socAtPlugin} angesteckt')
+                        break
+                if not found:
+                    logging.warn(f'in der Wallbox eingestelltes Fahrzeug mit ID {self.connectedId} ist nicht in der Fahrzeugliste aufgeführt')
         else:
             if self.plugstate:
                 # Wechsel von 1 auf 0 (Abstecken)
@@ -77,7 +88,7 @@ class chargepoint:
                 # lokales Abspeichern
                 if found:
                     #Fahrzeug in Liste gefunden
-                    energylog.write(date+', '+car.name+', '+str(car.odo)+', '+str(lastCharged)+', '+str(car.soc)+', '+str(car.openwbsoc)+'\n')
+                    energylog.write(date+', '+car.name+', '+str(car.odo)+', '+str(lastCharged)+', '+str(car.socAtPlugin)+', '+str(car.openwbsoc)+'\n')
                     #Spritmonitor-Teil nach Ladeabschluß
                     if car.useSpritmonitor and (lastCharged >= 0.1):
                         logging.debug(f'Spritmonitor ist konfiguriert. Beginne Übermittlung.')
