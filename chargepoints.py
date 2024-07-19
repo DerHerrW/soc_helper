@@ -19,7 +19,7 @@ class chargepoint:
     plugstate: bool = False	    # Zustand Ladestecker
     counterAtPlugin: float = None   # Zählerstand beim Stecken des Stecker
     counter: float = None	    # zuletzt übermittelter Zählerstand
-    connectecId: int = None         # aktuell im Ladepunkt eingestelltes Fahrzeug    
+    connectedId: int = None     # aktuell im Ladepunkt eingestelltes Fahrzeug    
     
     # Hilfsfunktionen
     def getCounterTopic(self):
