@@ -385,57 +385,33 @@ Ein Systemdienst ist prinzipiell einfach zu erstellen, erfordert aber das Anlege
 
 # Hinzufügen neuer Fahrzeugtypen
 
-Dein Fahrzeug ist noch nicht unterstützt? Dann bist du hier richtig. Für das zu unterstützende Fahrzeug müssen Informationen für die OBD2-Kommunikation vorliegen. Die Projekte evDash und EVNotify haben schon für einige Fahrzeuge die OBD-Kommuikation hinterlegt.
+Dein Fahrzeug ist noch nicht unterstützt? Für das zu unterstützende Fahrzeug müssen Informationen für die OBD2-Kommunikation vorliegen. Die Projekte [evDash](https://github.com/nickn17/evDash/tree/master/src) und [EVNotify](https://github.com/EVNotify/EVNotify) haben schon für einige Fahrzeuge die OBD-Kommuikation hinterlegt.
 
 Ganz wichtig: Nach erfolgreichem Hinzufügen eines bisher nicht unterstützten Fahrzeugs schickt mir bitte die Konfiguration unter soc_helper@vortagsmett.de
 
-Die Fahrzeuge sind in der Datei cars.py definiert. Die Datei enthält eine übergreifende Klasse carclass, die Variablen und Funktionen besitzt, die für jedes Fahrzeug gleich sind. Weiter unten folgen die Klassen der einzelnen Fahrzeugtypen. Diese erben alle Eigenschaften der carclass-Klasse und definieren darüber hinaus die Abfageparameter für SOC und Kilometerstand des jeweiligen Fahrzeugtyps. Auch die Berechnung von SoC und Kilometerstand aus den Antworten ist in diesen Klassen definiert.Die Abfrage von Werten über die CAN-Schnittstelle der OBD-Buchse erfolgt, indem eine Anfrage (Request ) an eine festgelegte Steuergeräte-ID geschickt wird. Das Steuergerät antwortet (Response) dann mit einer anderen ID und den zu der Anfrage gehörigen Datenbytes. Der WiCAN übermittelt die genannten Werte im json-Format, daher müssen diese noch in einen String vom json-Format verpackt werden.
+Das Hinzufügen neuer Fahrzeuge ist am Ende der Datei [InternaUndErweiterung.md](./InternaUndErweiterung.md) beschrieben.
 
-SOC-Abfrage
-self.SOC_REQ_ID = 2021
-self.SOC_RESP_ID = 2029
-self.SOC_REQ_DATA = [3, 34, 2, 140, 170, 170, 170, 170] self.SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(self.SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(self.SOC_REQ_DATA)+' }] }'
+[zurück](inhalt)
 
-Es gibt Steuergeräte-IDs mit 11 Bit Länge und erweiterte IDs mit 29 Bit Länge. Wird eine lange ID verwendet, ist im json-String das false hinter "extd" durch ein True zu ersetzen!
-Kilometerstand-Abfrage
- self.ODO_REQ_ID = 2021
- self.ODO_RESP_ID = 2029
- self.ODO_REQ_DATA = [3, 34, 2, 189, 170, 170, 170, 170]
- self.ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(self.ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(self.ODO_REQ_DATA)+' }] }'
-
-Es gibt Steuergeräte-IDs mit 11 Bit Länge und erweiterte IDs mit 29 Bit Länge. Wird eine lange ID verwendet, ist im json-String das false hinter "extd" durch ein True zu ersetzen!
-SOC-Berechnung
-
-Jede Fahrzeugklasse muß eine Umrechnungsfunktion haben, die bei Aufruf eine Liste bytes von Zahlen empfängt und daraus den SoC berechnet und in der Variable self.soc abspeichert.
-    def calcSOC(self, bytes):
-        logging.debug(f'Daten für SoC-Berechnung: {bytes}')
-        self.soc = round(bytes[4]/2.5*51/46-6.4)         # VW e-up [2029, 98, 2, 140, aa, xx, xx, xx, xx].
-Kilometerstand-Berechnung
-
-Jede Fahrzeugklasse muß eine Umrechnungsfunktion haben, die bei Aufruf eine Liste bytes von Zahlen empfängt und daraus den Kilometerstand berechnet und in der Variable self.odo abspeichert.
-
-FIXME: continue
-    def calcODO(self, bytes):
-        logging.debug(f'Daten für ODO-Berechnung: {bytes}')
-        self.odo =  bytes[5]*65536+bytes[6]*256+bytes[7] # VW e-up. [2029, 98, 2, 189, xx, bb, cc, dd, xx, xx]
-
-zurück
-Optional, aber hilfreich: MQTT-Explorer auf Desktop installieren
+# Optional, aber hilfreich: MQTT-Explorer auf Desktop installieren
 
 Um im Fehlerfall den Grund herauszufinden, ist der MQTT-Explorer hilfreich. Dieser zeigt alle Topics eines MQTT-Brokers an, so dass nachzuvollziehen ist, ob zum Beispiel eine Botschaft nicht gesendet wurde oder der Empfänger sie nicht wahrgenommen hat.
-Oberfläche
-Beschaffung:
-Einrichten der Verbindung zur OpenWB
+
+Beschaffung: [http://mqtt-explorer.com/](http://mqtt-explorer.com/)
+
+## Einrichten der Verbindung zur OpenWB
 
 Links oben unter "Connections" das Plus-Symbol klicken. Dann die auf der rechten Seite zu sehenden Informationen und Schalterstellungen eingeben. Die Adresse der OpenWB natürlich auf die eigene Wallbox anpassen.
 
-Anmeldefenstzer des MQTT-Explorers
+![Anmeldefenster des MQTT-Explorers](./MQTT-Explorer_Anmeldung.png "Anmeldefenster des MQTT-Explorers")
 
-Botschaften ansehen
+## Botschaften ansehen
 
 Im linken Bereich des Fenster sind empfangen Botschaften zu sehen. Die kleinen Pfeile klappen die einzelnen Zweige der Hierarchie auf und zu. Im Bild aufgeklappt zu sehen ist die Statusbotschaft des WiCAN, mit der er sich schlafen gelegt hat.
-Hauptfenster
-Botschaften senden
+
+![Hauptfenster des MQTT-Explorers](./MQTT-Explorer_Hauptfenster.png "Oberfläche des MQTT-Explorers")
+
+## Botschaften senden
 
 Im vorigen Bild auf der rechten Seite zu sehen ist der Abschnitt "Publish". Unter Topic kann das MQTT-Topic eingegeben werden, unter dem Daten veröffentlicht werden sollen. In dem Kasten darunter können diese Daten eingegeben werden. Der Knopf "Publish" sendet diese Daten unter dem angegebenen Topic an den Broker der Wallbox.
 Nutzen des MQTT-Explorers zur Fehlersuche
