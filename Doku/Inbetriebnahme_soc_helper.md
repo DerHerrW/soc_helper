@@ -223,15 +223,15 @@ Das Bearer-Token wird nicht in der Konfiguratiosdatei abgespeichert. Zu groß is
 
 # OpenWB vorbereiten
 
-Um mit dem WiCAN zusammen zu arbeiten, sind ein paar Einstellungen in der OpenWB nötig. An dieser Stelle erfolgt die Beschreibung für Software-Schiene 2, für Software 1.9 ist die Konfiguration ähnlich, aber deutlich einfacher. Es wird nur der Teil beschrieben, der für den soc_helper relevant ist.
-
-Für Software 2. Nur den für soc_helper relevanten Teil unter Konfiguration->Fahrzeuge
+Um mit dem WiCAN zusammen zu arbeiten, sind ein paar Einstellungen in der OpenWB nötig. Es wird nur der Teil beschrieben, der für den soc_helper relevant ist. Diese Einstellungen befinden sich ausnahmslos unter den Einstellungen->Konfiguration->Fahrzeuge.
 
 ## Fahrzeugprofile
 
-Im zu nutzenden Fahrzeugprofil muß die Netto-Kapazität der Fahrzeugbatterie sowie der Ladewirkungsgrad korrekt eingestellt sein, da sonst das SoC-Modul während der Ladung den Ladezustand falsch berechnet (SoC bedeutet State of Charge und ist gleichbedeutend mit Ladezustand). Der e-Up! der zweiten Generation hat eine nutzbare Batteriekapazität von 32,3kWh, dies wird hier gerundet. Beim Laden hat das Fahrzeug Verluste. Diese kommen einerseits von Nebenverbrauchern und sind unabhängig von der Ladeleistung, zum anderen hat das Ladegerät selbst von der Ladeleistungs abhängige Verluste. Die im Bild angegebenen 90% sind daher en Mittelwert. Wenn die Ladung mit geringer Leistung stattfindet, sind die Verluste höher, weil die Nebenverbraucher mehr ins Gewicht fallen. Bei hoher Leistung wird der Wirkungsgrade etwas besser sein. Hier gilt es, durch Probieren einen sinnvollen Wert herauszufinden:
+Im zu nutzenden Fahrzeugprofil muß die Netto-Kapazität der Fahrzeugbatterie sowie der Ladewirkungsgrad korrekt eingestellt sein, da sonst das SoC-Modul während der Ladung den Ladezustand falsch berechnet (SoC bedeutet State of Charge und ist gleichbedeutend mit Ladezustand). Der e-Up! der zweiten Generation hat eine nutzbare Batteriekapazität von 32,3kWh, dies wird hier auf 32kWh gerundet. Beim Laden hat das Fahrzeug Verluste. Diese kommen einerseits von Nebenverbrauchern und sind unabhängig von der Ladeleistung, zum anderen hat das Ladegerät selbst von der Ladeleistungs abhängige Verluste. Die im Bild angegebenen 90% sind daher en Mittelwert. Wenn die Ladung mit geringer Leistung stattfindet, sind die Verluste höher, weil die Nebenverbraucher mehr ins Gewicht fallen. Bei hoher Leistung wird der Wirkungsgrade etwas besser sein. Hier gilt es, durch Probieren einen sinnvollen Wert herauszufinden:
 
 Wenn der SoC nach Abstecken grundsätzlich höher ist als von der Wallbox berechnet, sollte der Wirkungsgrad heraufgesetzt werden. Wenn der Ladezustand nach Abstecken meist zu niedrig ist, sollte der Wirkungsgrad verringert werden, um der Wirklichkeit Rechnung zu tragen.
+
+![Einstellungen Fahrzeugprofil](./OpenWB_Fahrzeugprofil.png "Einstellungen Fahrzeugprofil")
 
 ## Fahrzeuge
 
@@ -239,10 +239,13 @@ Unter der Fahrzeugkonfiguration ist als SoC-Modul "Manueller SoC" auszuwählen. 
 
 Der SoC wird nicht direkt aus dem Fahrzeug gelesen - das klappt nur mit der OpenWB Pro im Zusammenspiel mit einigen Fahrzeugtypen. Während der Ladung soll jede Minute der SoC aktualisiert werden, ohne Ladung ist es nicht nötig (lange ZZeitintervalle, hier 720 Minuten) und im abgesteckten Zustandergibt die Funktion keinen Sinn, daher nur aktualisieren wenn angesteckt.
 
+![Einstellungen Fahrzeug](./OpenWB_EinstellungenFahrzeug.png "Einstellungen Fahrzeug")
+
 ## Geräte-IDs herausfinden und merken
 
 Die IDs (Nummern) der in der Wallbox konfigurierten Geräte sind wichtig für die Konfiguration des soc_helper. Die IDs sind übersichtlich auf der Statusseite der Wallbox aufgeführt:
 
+![OpenWB Status](./OpenWB_Status.png "Status")
 
 Für den soc_helper sind die ID der verwendeten Wallbox (im Bild "Interne openWB", ID 3) und die Nummer des Fahrzeugs, das den WiCAN verwendet ("Nulli", ID 1) wichtig. Diese Nummern sind im folgenden Kapitel wichtig.
 
@@ -251,7 +254,8 @@ Für den soc_helper sind die ID der verwendeten Wallbox (im Bild "Interne openWB
 # soc_helper konfigurieren
 
 Alle Konfigurationsmöglichkeiten befinden sich in der Datei configuration.py. Das automatische Neueinlesen der Datei bei Änderungen wurde entfernt, da dieser Mechanismus zum Beispiel das Löschen und Neuanlegen der Datei nicht unterstützt hat und entfernte Variablen im Kontext des Hauptprogrammes nicht gelöscht wurden.
-Anlegen der Fahrzeuge
+
+## Anlegen der Fahrzeuge
 
 Zu Beginn con configuration.py wird jeweils eine leere Liste von Fahrzeugen ("myCars") und Ladepunkten ("myChargepoints") definiert. Ein Fahrzeug wird definiert, indem ein neuer Eintrag an diese Liste angehängt wird:
 
@@ -265,108 +269,117 @@ Zu Beginn con configuration.py wird jeweils eine leere Liste von Fahrzeugen ("my
         spritmonitorAttributes = 'summertires,slow'
     ))
 
-Die Fahrzeugdefinitionen befinden sich in cars.p, die verfügbaren Typen sollten als Kommentar in configuration.py gelistet sein. Das Beispiel hängt der Liste ein Fahrzeug vom Typ eUp an. Diesem Fahrzeug werden mindestens der Parameter name und openwbVehicleId mit korrekten Werten übergeben.
+Die Fahrzeugdefinitionen befinden sich in [cars.py](../cars.py), die verfügbaren Typen sollten als Kommentar in configuration.py gelistet sein. Das Beispiel hängt der Liste ein Fahrzeug vom Typ eUp an. Jedem Fahrzeug werden mindestens die Parameter `name` und `openwbVehicleId` übergeben.
 
-    name ist der Name, der dem zugehörigen WiCAN bei der Konfiguration gegeben wurde (Kapitel der WiCAN-Konfiguration).
-    openwbVehicleId ist die Fahrzeug-ID, die auf der OpenWB-Statusseite gelistet ist.
+1. **name** - ist der Name, der dem zugehörigen WiCAN bei der Konfiguration gegeben wurde (Kapitel der WiCAN-Konfiguration).
+2. **openwbVehicleId** - ist die Fahrzeug-ID, die auf der OpenWB-Statusseite gelistet ist.
 
-Fall ein Konto bei spritmonitor.de besteht, können Ladevorgänge nach Beenden automatisch dort hochgeladen werden. Erforderlich ist ein Konto und die Anlage des Fahrzeugs dort.Für die Anbindung von Spritmonitor sind folgende weitere Parameter erforderlich:
+Fall ein Konto bei spritmonitor.de besteht, können Ladevorgänge nach Beenden automatisch dort hochgeladen werden. Erforderlich ist ein Konto und die Anlage des Fahrzeugs dort. Für die Anbindung von Spritmonitor sind folgende weitere Parameter erforderlich:
 
-    useSpritmonitor muss True sein, damit Spritmonitor genutzt wird
-    spritmonitorVehicleId ist die Fahrzeugnummer, mit der das Fahrzeug bei Spritmonitor gelistet ist
-    spritmonitorFuelsort ist die Kraftstoffart, die per Default in den Betankungsvorgang eingetragen wird: 19 steht für allgemeinen Strom, 24 für Ökostrom.
-    spritmonitorFuelprice ist der Default-Kraftstoffpreis pro kWh. Dies kann der Bezugspreis sein oder bei eigener PV im Sommer die entgangene Einspeisevergütung. Sinnvoll kann bei eigener PV-Anlage auch der Gestehungspreis sein (Anlagenpreis geteilt durch Stromerzeugung über Lebensdauer)
-    spritmonitorAttributes ist eine Zeichenkette, in der durch Komma getrennt, Informationen über das Fahren zwischen den Tankvorgängen übergeben werden. Es sollten nur solche Attribute angegeben werden, die nahezu immer aktiv sind. Gültige Werte sind je ein Wort für Reifensorte ("summertires" / "wintertires" / "allyeartires"), die Fahrweise ("slow" / "normal" / "fast"), falls die Klimaanlage meist in Betrieb ist "ac", falls immer mit Anhänger gefahren wird "trailer", falls die Standheizung immer aktiv ist "heating". Die Zeichenkette darf leer sein ('').
+1. **useSpritmonitor** - muss True sein, damit Spritmonitor genutzt wird
+2. **spritmonitorVehicleId** - ist die Fahrzeugnummer, mit der das Fahrzeug bei Spritmonitor gelistet ist
+3. **spritmonitorFuelsort** - ist die Kraftstoffart, die per Default in den Betankungsvorgang eingetragen wird: 19 steht für allgemeinen Strom, 24 für Ökostrom.
+4. **spritmonitorFuelprice** - ist der Default-Kraftstoffpreis pro kWh. Dies kann der Bezugspreis sein oder bei eigener PV im Sommer die entgangene Einspeisevergütung. Sinnvoll kann bei eigener PV-Anlage auch der Gestehungspreis sein (Anlagenpreis geteilt durch Stromerzeugung über Lebensdauer)
+5. **spritmonitorAttributes** - ist eine Zeichenkette, in der durch Komma getrennt, Informationen über das Fahren zwischen den Tankvorgängen übergeben werden. Es sollten nur solche Attribute angegeben werden, die nahezu immer aktiv sind. Gültige Werte sind je ein Wort für Reifensorte ("summertires" / "wintertires" / "allyeartires"), die Fahrweise ("slow" / "normal" / "fast"), falls die Klimaanlage meist in Betrieb ist "ac", falls immer mit Anhänger gefahren wird "trailer", falls die Standheizung immer aktiv ist "heating". Die Zeichenkette darf leer sein ('').
 
 Bei der Übertragung wird für den Ladevorgang automatisch angewählt, daß mit 11kW AC geladen wurde und die Lademenge durch die Wallbox gemessen wurde. Momentan ist dies hart codiert. Falls Bedarf besteht, die Ladeleistung auf beispielsweie 3,6kW zu setzen (fixes Einphasiges Laden als Defaulteinstellung), kann ich den Wert konfigurierbar gestalten. Eine Berechnung der durchschnittlichen Ladeleistung halte ich für nicht sinnvoll, da eine Ladung für den soc_helper mit Stecken des Ladesteckers beginnt und mit Abziehen endet, auch wenn schon lange vorher kein Strom mehr geflossen ist.zurück
 
-Anlegen eines weiteren Fahrzeugs vom Typ VW MEB ohne Spritmonitor-Anbindung:
-myCars.append(cars.VwMEB(
-    name = "Standard",                 # Name des Fahrzeugs, wie im WiCAN konfiguriert. Definiert einen Zweig unter others/ im MQTT-Broker.
-    openwbVehicleId = 0                # Fahrzeugnummer in der OpenWB-Konfiguration
+### Anlegen eines weiteren Fahrzeugs vom Typ VW MEB ohne Spritmonitor-Anbindung:
 
-))
-Anlegen der Ladepunkte
+    myCars.append(cars.VwMEB(
+        name = "Standard",                 # Name des Fahrzeugs, wie im WiCAN konfiguriert. Definiert einen Zweig unter others/ im MQTT-Broker.
+        openwbVehicleId = 0                # Fahrzeugnummer in der OpenWB-Konfiguration
+    ))
+
+## Anlegen der Ladepunkte
 
 Das Anlegen der Ladepunkte, die vom soc_helper genutzt werden sollen erfolgt noch einfacher: Für jeden Ladepunkt wird lediglich die Ladepunktnummer übergeben:
 
-myChargepoints.append(chargepoints.chargepoint(chargepointId=3))
+    myChargepoints.append(chargepoints.chargepoint(chargepointId=3))
 
 # soc_helper starten und stoppen
 
 Für diesen Schritt muß immer eine Anmeldung auf dem Raspi erfolgt sein und mit
 
-pi@pi4:~/$ cd soc_helper
+    pi@pi4:~/$ cd soc_helper
 
 in das Verzeichnis des soc_helper gewechselt werden.
 Programm im Vordergrund starten und stoppen
 
 Für erste Tests ist es sinnvoll,den soc-Helper nicht im Hintergrund zu starten. Auf diese Weise sieht ma die Ausgaben des soc_helpers auf der Konsole.
 
-pi@pi4:~/soc_helper$ ./soc_helper.py
+    pi@pi4:~/soc_helper$ ./soc_helper.py
 
 Auf einen Fallstrick in Verbindung mit Windows auf dem Desktop-Rechner wird hier hingewiesen. Wenn die Dateirechte nicht richtig sind, kann trotzdem mit python ./soc_helper.py gearbeitet werden.
 Programm im Hintergrund laufen lassen
 
 Um den soc_helper mit dem Abmelden nicht zu beenden, wird der Befehl nohup ("no hangup") verwendet.
 
-pi@pi4:~/soc_helper$ nohup ./soc_helper.py&
+    pi@pi4:~/soc_helper$ nohup ./soc_helper.py&
 
 Das kaufmännische & am Ende bewirkt, daß der Prozess von der Konsole gelöst wird und im Hintergrund weiterarbeitet. Damit ist die Konsole frei für weitere Eingaben, zum Beispiel die Ansicht der Ausgaben mittels tail:
 
-pi@pi4:~/soc_helper$ tail nohup.out
-2024-05-02 15:14:21,799;     INFO;[      soc_helper.py:245 -        cb_status() ] WiCAN-Status: others/wican/nulli/status b'{"status": "offline"}'
-2024-05-02 15:14:21,800;     INFO;[      soc_helper.py:261 -        cb_status() ] Fahrzeugstatus ist nicht <<online>>
-2024-05-02 16:37:51,714;     INFO;[      soc_helper.py:245 -        cb_status() ] WiCAN-Status: others/wican/nulli/status b'{"status": "online"}'
-2024-05-02 16:37:51,714;     INFO;[      soc_helper.py:251 -        cb_status() ] Fahrzeug ist online. Sende SOC- und DST-Anforderung
-2024-05-02 16:37:51,715;     INFO;[      soc_helper.py:254 -        cb_status() ] Sende SOC-Anforderung: { "bus": "0", "type": "tx", "frame": [{ "id": 2021, "dlc": 8, "rtr": false, "extd": false, "data": [3, 34, 2, 140, 170, 170, 170, 170] }] }
-2024-05-02 16:37:51,716;     INFO;[      soc_helper.py:258 -        cb_status() ] Sende DST-Anforderung: { "bus": "0", "type": "tx", "frame": [{ "id": 2021, "dlc": 8, "rtr": false, "extd": false, "data": [3, 34, 2, 189, 170, 170, 170, 170] }] }
-2024-05-02 16:37:51,762;     INFO;[      soc_helper.py:334 -            cb_rx() ] Fahrzeug-SOC ist 75
-2024-05-02 16:37:51,803;     INFO;[      soc_helper.py:344 -            cb_rx() ] Fahrzeug-Kilometerstand ist 10481
-2024-05-02 16:42:09,821;     INFO;[      soc_helper.py:245 -        cb_status() ] WiCAN-Status: others/wican/nulli/status b'{"status": "offline"}'
-2024-05-02 16:42:09,821;     INFO;[      soc_helper.py:261 -        cb_status() ] Fahrzeugstatus ist nicht <<online>>
+    pi@pi4:~/soc_helper$ tail nohup.out
+    2024-05-02 15:14:21,799;     INFO;[      soc_helper.py:245 -        cb_status() ] WiCAN-Status: others/wican/nulli/status b'{"status": "offline"}'
+    2024-05-02 15:14:21,800;     INFO;[      soc_helper.py:261 -        cb_status() ] Fahrzeugstatus ist nicht <<online>>
+    2024-05-02 16:37:51,714;     INFO;[      soc_helper.py:245 -        cb_status() ] WiCAN-Status: others/wican/nulli/status b'{"status": "online"}'
+    2024-05-02 16:37:51,714;     INFO;[      soc_helper.py:251 -        cb_status() ] Fahrzeug ist online. Sende SOC- und DST-Anforderung
+    2024-05-02 16:37:51,715;     INFO;[      soc_helper.py:254 -        cb_status() ] Sende SOC-Anforderung: { "bus": "0", "type": "tx", "frame": [{ "id": 2021, "dlc": 8, "rtr": false, "extd":  false, "data": [3, 34, 2, 140, 170, 170, 170, 170] }] }
+    2024-05-02 16:37:51,716;     INFO;[      soc_helper.py:258 -        cb_status() ] Sende DST-Anforderung: { "bus": "0", "type": "tx", "frame": [{ "id": 2021, "dlc": 8, "rtr": false, "extd": false, "data": [3, 34, 2, 189, 170, 170, 170, 170] }] }
+    2024-05-02 16:37:51,762;     INFO;[      soc_helper.py:334 -            cb_rx() ] Fahrzeug-SOC ist 75
+    2024-05-02 16:37:51,803;     INFO;[      soc_helper.py:344 -            cb_rx() ] Fahrzeug-Kilometerstand ist 10481
+    2024-05-02 16:42:09,821;     INFO;[      soc_helper.py:245 -        cb_status() ] WiCAN-Status: others/wican/nulli/status b'{"status": "offline"}'
+    2024-05-02 16:42:09,821;     INFO;[      soc_helper.py:261 -        cb_status() ] Fahrzeugstatus ist nicht <<online>>
 
 In die Datei nohup.out werden alle Augaben eines Prozesses geschrieben, der mittels nohup gestartet wurde.
-Stoppen eines nicht im Hintergrund laufenden soc_helper
+
+## Stoppen eines nicht im Hintergrund laufenden soc_helper
 
 Durch die Tastenkombination <Strg>+<C> wird der laufende Prozess abgebrochen.
-Stoppen eines im Hintergrund laufenden soc_helper
 
+## Stoppen eines im Hintergrund laufenden soc_helper
+
+### Prozess-ID herausfinden und Prozess töten
 Ermitteln der Prozessnummer des soc_helpers:
 
-pi@pi4:~/soc_helper$ ps ax | grep soc
-    501 ?        Ss     0:22 /usr/sbin/thd --triggers /etc/triggerhappy/triggers.d/ --socket /run/thd.socket --user nobody --deviceglob /dev/input/event*
- 359528 ?        Sl     7:02 python3 ./soc_helper.py
- 365331 pts/0    S+     0:00 grep soc
+    pi@pi4:~/soc_helper$ ps ax | grep soc
+        501 ?        Ss     0:22 /usr/sbin/thd --triggers /etc/triggerhappy/triggers.d/ --socket /run/thd.socket --user nobody --deviceglob /dev/input/event*
+     359528 ?        Sl     7:02 python3 ./soc_helper.py
+     365331 pts/0    S+     0:00 grep soc
 
 ps bedeutet process status und gibt die Status der laufenden Prozesse aus. die Optionen ax zeigen alle Prozesse (nicht nur die der aktuellen Sitzung) und zeigen sie mit der kompletten Aufrufzeile.  Der senkrechte Struch leitet die Ausgabe auf das Kommando grep um, das nur Zeilen durchlässt, die die Zeichenkette "soc" beinhalten.
 
 Der Prozess mit der Nummer 359528 ist der zu beendende Prozess. (Die Nummer ist individuell und fast nie die gleiche, daher wie oben beschrieben nachsehen). Beenden des soc_helpers:
 
-pi@pi4:~/soc_helper$ kill 359528
+    pi@pi4:~/soc_helper$ kill 359528
 
 Die Prozessnummer ist dabei die oben ermittelte.
 
+### Prozess nach Zeichenkette töten
+
 Eleganter geht das oben Beschriebene mit dem Befehl "pkill". Hiermit können Prozesse nach Namen beendet werden. Um alle Prozesse, die im Aufruf ein "soc_helper" tragen zu beenden, gibt man einfach
 
-pi@pi4:~$ pkill -f soc_helper.py
+    pi@pi4:~$ pkill -f soc_helper.py
 
 ein.
-Optional: Starten des soc_helpers mit Start des System
+
+## Optional: Starten des soc_helpers mit Start des System
 
 Vorweg: Falls man sehr selten Stromausfälle hat und der Rechner, auf dem der soc_helper läuft, dauerhaft an ist, kann man den soc_helper per Hand starten. Etwas komfortabler ist es, wenn mit dem Systemstart der soc_helper gleich mitgestartet wird. Hier gibt es mehrere Alternativen:
-cron
+
+### cron
 
 cron ist Systemdienst, das bestimmte Kommandos zu definierten Zeiten ausführt. In einer Tabelle namens crontab stehen dazu die nötigen Informationen. Von dieser Tabelle gibt es neben der Version für das System für jeden Nutzer eine. In der System-crontab werden solche Sachen wie die Prüfung nach Updates, das Aufräumen temporärer Dateien oder Log-Dateien aufgerufen.
 
 Ein Nutzer kann seine crontab mit dem Befehl crontab -e bearbeiten. In die Datei kann die Zeile
 
-@reboot . $HOME/.profile; $HOME/soc_helper/startAtBoot.sh
+    @reboot . $HOME/.profile; $HOME/soc_helper/startAtBoot.sh
 
 eingefügt werden. Damit wird bei Neustart die mitgelieferte Datei startAtBoot.sh ausgeführt, die den soc_helper nach 10s Verzögerung startet.Bitte  darauf achten, dass das Executable-Bit von startAtBoot.sh und soc_helper.py gesetzt sind. Das ". $HOME/.profile" ist nötig, damit die in der Datei .profile definierte Variable SPRITMONITOR_BEARER_TOKEN vorhanden ist und das Hochladen bei Spritmonitor funktionieren kann.
-Systemdienst für systemd
 
-Ein Systemdienst ist prinzipiell einfach zu erstellen, erfordert aber das Anlegen einer Datei in einem Systemverzeichnis. Wer sich das zutraut, findet unter diesem Link eine hilfreiche Anleitung.
+### Systemdienst für systemd
+
+Ein Systemdienst ist prinzipiell einfach zu erstellen, erfordert aber das Anlegen einer Datei in einem Systemverzeichnis. Wer sich das zutraut, findet unter [diesem Link](https://forum.openwb.de/viewtopic.php?p=111670#p111670) eine hilfreiche Anleitung.
 
 [zurück](inhalt)
 
