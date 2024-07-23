@@ -19,34 +19,28 @@ Die OpenWB-Software 1.9 wird nicht mehr unterstützt.
 
 Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum erfolgreichen Betrieb des soc_helper geben. Für die Anleitung wird angenommen, daß ein aktuelles Raspberry-Pi-System mit raspian verwendet wird. Auf anderen Rechnern funktioniert die Prozedur ähnlich, möglicherweise unterscheiden sich aber einzelne Schritte. Die Konfiguration umfasst Folgendes:
 
-[WiCAN konfigurieren](#wican-konfigurieren)
+* [WiCAN konfigurieren](#wican-konfigurieren)
+  * [WiCAN ins eigene WLAN holen](wican-ins-eigene-wlan-holen)
+  * [Firmware aktualisieren](firmware-aktualisieren)
+  * [Restliche Konfiguration](restliche-konfiguration)
 
-[Nur Einmalig: Installieren der benötigten python-Pakete](#nur-einmalig-installieren-der-benötigten-python-pakete)
+* [Nur Einmalig: Installieren der benötigten python-Pakete](#nur-einmalig-installieren-der-benötigten-python-pakete)
 
-[soc_helper aufspielen](#soc_helper-aufspielen)
+* [soc_helper aufspielen](#soc_helper-aufspielen)
+  * [Möglichkeit 1: zip-Archiv nutzen](möglichkeit-1-zip-archiv-nutzen)
+  * [Möglichkeit 2: git nutzen](möglichkeit-2-git-nutzen)
 
-[Optional: Vorbereitung für Spritmonitor](#optional-vorbereitung-für-spritmonitor)
+* [Optional: Vorbereitung für Spritmonitor](#optional-vorbereitung-für-spritmonitor)
 
-[OpenWB vorbereiten](#openwb-vorbereiten)
+* [OpenWB vorbereiten](#openwb-vorbereiten)
 
-[soc_helper konfigurieren](#soc_helper-konfigurieren)
+* [soc_helper konfigurieren](#soc_helper-konfigurieren)
 
-        Anlegen der Fahrzeuge
-        Anlegen der Ladepunkte
-    soc_helper starten und stoppen
-        Programm im Vordergrund starten und stoppen
-        Programm im Hintergrund laufen lassen
-        Stoppen eines nicht im Hintergrund laufenden soc_helper
-        Stoppen eines im Hintergrund laufenden soc_helper
-        Optional: Starten des soc_helpers mit Start des System
-    Hinzufügen neuer Fahrzeugtypen
-        SOC-Abfrage
-        Kilometerstand-Abfrage
-        SOC-Berechnung
-        Kilometerstand-Berechnung
-    Optional, aber hilfreich: MQTT-Explorer auf Desktop installieren
-        Oberfläche
-        Nutzen des MQTT-Explorers zur Fehlersuche
+* [soc_helper starten und stoppen](#soc_helper-starten-und-stoppen)
+
+* [Hinzufügen neuer Fahrzeugtypen](#hinzufügen-neuer-fahrzeugtypen)
+
+* [Optional, aber hilfreich: MQTT-Explorer auf Desktop installieren](optional-aber-hilfreich-mqtt-explorer-auf-Desktop-installieren)
 
 # WiCAN konfigurieren
 
@@ -66,9 +60,11 @@ Unter dem Reiter "Settings" muß zunächst das WLAN konfiguriert werden. Wichtig
 Unten den Knopf "Submit Changes" betätigen. Nach dem darauf folgenden Neustart sollte der WiCAN als Gerät im Heimnetzwerk auftauchen.Die IP-Adresse läßt sich im heimischen Router finden, bei der Fritz!Box unter Heimnetz->Heimnetzübersicht, Reiter Netzwerkverbindungen. Die folgenden Einstellungen erfolgen nach Aufruf der dort gelisteten IP-Adresse. Auch hier ist wieder wichtig, daß kein "s" hinter "http" vorhanden ist. Firefox setzt dieses automatisch, es muß dann per Hand entfernt werden.
 
 Anmerkung: Meiner Erfahrung nach werden alle Einstellungen des WiCAN auf Werkseinstellung zurückgesetzt, wenn man sich über das WiCAN-eigene WLAN mit dem WiCAN verbindet. Nachdem der WiCAN im Heimnetz ist, sollte also nicht mehr in das vom WiCAN aufgespannte WLAN eingebucht werden!
+
 ## Firmware aktualisieren
 
 Falls der WiCAN noch nicht mit Firmware 2.98 oder neuer läuft, ist ein Updateder Firmware erforderlich: Ab Version 2.98 ist es möglich, den Zweig der WiCAN-Topics im WiCAN vorzugeben. Dies ist nötig, damit das System mit der OpenWB-Software 2.1.4 oder neuer zusammen funktioniert.
+
 ### Firmware herunterladen und auspacken
 
 Die aktuelle Firmware wird hier herunterladen: https://github.com/meatpiHQ/wican-fw/releases/
@@ -79,16 +75,14 @@ Das Archiv auf dem Heimrechner auspacken und den Speicherort merken.
 
 ### Firmware flashen
 
-Nach Aufruf der WiCAN-Seite im Browser (siehe "WiCAN ins eigene WLAN holen") befindet sich die Updatemöglichkeit[ ist auf dem Reiter "About":
-
-Die Möglichkeit zum Firmwareupdate befindet sich in der WiCAN-Oberfläche unter dem Reiter "About"
+Nach Aufruf der WiCAN-Seite im Browser (siehe "WiCAN ins eigene WLAN holen") befindet sich die Updatemöglichkeit auf dem Reiter "About":
 
 ![About-Seite des WiCAN](./Firmwareupdate.png "Firmware flashen")
 
 Nach Klick auf "Browse..." wird im sich öffnenden Dateiauswahlmenü die wie oben beschrieben aktuelle entpackte Firmwaredatei im 
 .bin-Format ausgewählt. Es handelt sich dabei um die größte der vier bin-Dateien im Archiv. Der Name folgt dem Schema "wican-fw-vXXX_hv300.bin".
 Ein Klick auf "Update" lädt die Datei auf den WiCAN hoch und führt das Update durch.
-Falls der WiCAN nach dem Neustart nicht mehr im Heimnetz erreichbar ist, sind die Einstellungen wieder zurückgesetzt worden. In diesem Fall den Konfigurationsschritt (WiCAN ins eigene WLAN holen) bitte erneut ausführen.
+Falls der WiCAN nach dem Neustart nicht mehr im Heimnetz erreichbar ist, sind die Einstellungen wieder zurückgesetzt worden. In diesem Fall den Konfigurationsschritt [WiCAN ins eigene WLAN holen](wican-ins-eigene-wlan-holen) bitte erneut ausführen.
 
 ## Restliche Konfiguration
 
@@ -103,22 +97,21 @@ Dazu folgende Anmerkungen:
 *    Sleep Voltage ist die Schwelle der Bordnetzspannung, unterhalb der der WiCAN nach etwa drei Minuten schlafen geht. Diese Schwelle sollte höher liegen als die Ruhespannung der voll geladenen Niedervoltbatterie (etwa 13,2V) aber niedriger als die Spannung beim Laden der Batterie im Zustand Fahrbereitschaft (z.B. 14,7V). Auf diese Weise wacht das Gerät auf, nachdem Fahrbereitschaft hergestellt wird und die Niedervoltbatterie geladen wird. Nach Ende der Ladung und Ablauf der Verzögerungszeit legt sich der WiCAN wieder schlafen.
 *    Battery Alert sollte auf Disable stehen, hier besteht die Möglichkeit, daß der WiCAN bei Unterschreiten einer Spannungsschwelle aufwacht und per MQTT eine Alarmbotschaft verschickt. Dieses Feature wird vom soc_helper nicht genutzt.
 *    MQTT URL muss die IP-Adresse beinhalten, unter der die OpenWB erreichbar ist.
-*    MQTT Usernd Passwort müssen leer bleiben (bis Software 2.1.3 der OpenWB war der Inhalt beliebig).
+*    MQTT User und MQTT Pass müssen leer bleiben (bis Software 2.1.3 der OpenWB war der Inhalt beliebig).
 *    TX, RX, Status Topic: Dies sind die Zweige, unter denen der WiCAN seine Informationen empfängt und veröffentlicht. Wenn er aktiv oder inaktiv wird und sich ins WLAN einbucht oder abmeldet, schreibt er eine Statusbotschaft an den unter URL definierten MQTT-Broker. Desgleichen lauscht er auf dem RX Topic auf Botschaften und sendet Informationen auf dem TX Topic. In Version 2.1.4 der OpenWB sind alle Topics bis auf einige set-Topics unbeschreibbar. Dies schützt vor versehentlichem Überschreiben der Wallbox-Konfiguration. Für Fremdnutzung ist ab der Software 2024-05-28 im Masterzweig der Zweig others/ vorgesehen. Die in der Abbildung angegebenen Zweige sind einzuhalten, der Teil "nulli" ist dabei frei wählbar - zum Beispiel der Fahrzeugname - und muß in die Konfigurationsdatei configuration.py übernommen werden. Die Gesamtlänge der Topics darf jeweils 64 Zeichen nicht überschreiten.
 *    MQTT elm327 log: Sollte auf Disable stehen bleiben. Ansonsten kann man mit dem weiter unten stehenden Filter CAN-Botschaften der OBD-Schnittstelle definierten, die automatisiert umgerechnet und an den Broker geschickt werden. Im Fall soc_helper passiert dies aber nicht auf dem WiCAN.
-
 
 ### Prüfen der vom WiCAN gemessenen Batteriespannung
 
 Unter dem Reiter "Status" des WiCAN ist die gemessene Bordnetzspannung zu sehen. Bei eingeschalteter Hochvolt-Batterie (Fahrbereitschaft) sollten über 13.8V und unter 15V zu sehen sein. Bei abgeschalteter Hochvolt-Batterie sollte die Spannung unter 13,5V fallen. Stehen hier doppelt so hohe Werte, wurde die falsche Firmware geflasht (die mit "usb" im Namen).  Dann bitte nochmal die richtige Firmware flashen.
-Prüfen des Schlafmodus des WiCAN
+
+### Prüfen des Schlafmodus des WiCAN
 
 Der WiCAN sollte sich einige Zeit nach Wegnahme der Fahrbereitschaft des Fahrzeugs schlafen legen, um die Niedervolt-Batterie zu schonen. Diesist der Fall, wenn die WiCAN-Seite im Heimnetz nach einigen Minuten nicht mehr erreichbar ist.
-Hilfreiche Links:
 
-![Anleitung:](https://github.com/meatpiHQ/wican-fw "Anleitung zum WiCAN")
+[Anleitung im WiCAN-Github-Repository](https://github.com/meatpiHQ/wican-fw)
 
-zurück
+[zurück](inhalt)
 
 #Linuxsystem konfigurieren
 Vorweg: Es ist nicht nötig, Linux als Grundlage für den soc_helper zu verwenden. Theoretisch kann auch ein Desktoprechner oder Laptop mit Windows verwendet werden. Empfehlenswert ist allerdings etwas stromsparendes wie der Raspberry Pi. Weil ich mit Windows keine Erfahrungen habe, beschreibe ich hier die nötigen Tätigkeiten nach dem Aufsetzen eines Linux-Grundsystems auf einem Raspberry Pi. Für die Bedienung eines Linux-Systems von der Konsole sei auf andere Anleitungen verwiesen, da dies den Umfang dieser Anleitung bei weitem sprengen würde.
@@ -151,11 +144,11 @@ sudo apt install python3-paho-mqtt python3-watchdog python3-requests
 
 Damit ist das Grundsystem konfiguriert.
 
-zurück
+[zurück](inhalt)
 
 # soc_helper aufspielen
 
-## zip-Archiv nutzen
+## Möglichkeit 1: zip-Archiv nutzen
 Voraussetzung ist, daß der Raspberry Pi hochgefahren und die Erstkonfiguration erfolgt ist sowie der ssh-Zugang aktiviert ist. Die Adresse des Raspberries kann im Heimrouter gefunden werden. Wenn Tastatur und Monitor verbunden sind, kann nach Anmeldung mit dem Befehl "ifconfig" die Adresse angezeigt werden. Im Folgenden wird davon ausgegangen, daß ein Nutzer "pi" angelegt wurde und der Raspi den Namen socke die interne IP-Adresse 192.168.178.111 hat.
 
 Mit einem geeigneten Dateiverwaltungs-Tool kann auf den Raspi zugegriffen werden. Dazu wird als Adresse sftp://pi@192.168.178.111/home/pi/ oder sftp://pi@socke angegeben. Nach Abfrage des Passwortes des Nutzers sollte der Inhalte des Homeverzeichnisses zu sehen sein. (Unter Windows kann möglicherweise winscp genutzt werden: https://winscp.net/eng/docs/lang:de. Unter Linux können beispielsweise nautilus und dolphin mit ssh umgehen.)
@@ -164,10 +157,10 @@ Das heruntergeladene zip-Archiv des soc_helper wird nun auf dem Desktop-Rechner 
 
 Fallstrick: Sollte sich bereits ein funktionierender  soc_helper auf dem Zielsystem befinden, sollte vor dem Kopiervorgang die Konfigurationsdatei configuration.py gesichert werden, zum Beispiel durch Kopieren in configuration.py.funktioniert. Es empfiehlt sich beim jetzigen Entwicklungsstand, bei jeder neuen Version die mitgelieferte Konfiguration mit Hilfe der gesicherten configuration.py an die eigenen Bedürfnisse anzupassen, da sich das Format häufiger ändern kann.
 
-Fallstrick 2: Wenn das Archiv auf einem Windows-Rechner entpackt wurde, werden die Dateiattribute nicht gespeichert. Diese entscheiden unter Unix (und Linux), ob eine Datei lesbar / schreibar / ausführbar ist und für wen. In diesem Fall empfiehlt es sich nach dem Kopieren auf den Raspberry, die Datei soc_helper.py per Hand ausführbar zu machen, um sie direkt aufrufen zu können. Das geschieht nach dem Wechsel in das Verzeichnis soc_helper mit dem Befehl chmod 755 soc_helper.py. Siehe hierzu auch die Erklärung von ubuntu zu chmod.
+Fallstrick 2: Wenn das Archiv auf einem Windows-Rechner entpackt wurde, werden die Dateiattribute nicht gespeichert. Diese entscheiden unter Unix (und Linux), ob eine Datei lesbar / schreibar / ausführbar ist und für wen. In diesem Fall empfiehlt es sich nach dem Kopieren auf den Raspberry, die Datei soc_helper.py per Hand ausführbar zu machen, um sie direkt aufrufen zu können. Das geschieht nach dem Wechsel in das Verzeichnis soc_helper mit dem Befehl `chmod 755 soc_helper.py`. Siehe hierzu auch die [Erklärung von ubuntu zu chmod](https://wiki.ubuntuusers.de/chmod/).
 
-## Alternativ: git nutzen
-git ist ein Versionsverwaltungstool für die Softwareentwicklung. Wenn auf dem Rechner, auf dem soc_helper laufen soll git vorhanden ist, kann mit 
+## Möglichkeit 2: git nutzen
+git ist ein Versionsverwaltungstool für die Softwareentwicklung. Wenn git auf dem Zielrechner installiert ist (`sudo apt install git`), kann mit 
 
         git clone https://github.com/DerHerrW/soc_helper
 
@@ -177,17 +170,19 @@ eine Erstinstallation erfolgen. Der Befehl bewirkt, daß im Verzeichnis, in dem 
 
 ausgeführt werden. (Ich weiss gerade nicht, was mit einer lokal geänderten configuration.py passiert. Schlägt der pull fehl? Wird sie überschrieben?)
 
-zurück
+[zurück](inhalt)
 
 # Optional: Vorbereitung für Spritmonitor
 
-Die Nutzung von Spritmonitor ist optional und zur Zeit der Dokumentation kostenlos. Spritmonitor ist eine große Datenbank von Verbräuchen, die von den Nutzern eingepflegt wird. Man kann dort sehen, welche Verbäuche Nutzer mit verschiedenen Fahrzeugen erzielen und wie man im Vergleich zu anderen Nutzern seines Fahrzeugs abschneidet. Es kann Buch geführt werden über Kraftstoffkosten und bei Bedarf Wartung / Reparaturen. Vorausgesetzt man gibt entsprechende Daten bei den Betankungen / Ladevorgängen ein kann sich unter anderem auswerten lassen, in welchem Monat man welchen Verbrauch erzielt.
+Die Nutzung von Spritmonitor ist optional und zur Zeit der Dokumentation kostenlos. Spritmonitor ist eine große Datenbank von Verbräuchen, die von den Nutzern eingepflegt wird. Man kann dort sehen, welche Verbäuche Nutzer mit verschiedenen Fahrzeugen erzielen und wie man im Vergleich zu anderen Nutzern seines Fahrzeugs abschneidet. Es kann Buch geführt werden über Kraftstoffkosten und über Wartung / Reparaturen. Verschiedene Auswertungen sind möglich. Die Verbindung zu Spritmonitor automatisiert das Eingeben der Ladevorgänge an der heimischen Wallbox.
 
 Spritmonitor hat keine Beziehung zu soc_helper.
-Spritmonitor-Zugang verschaffen und Fahrzeug anlegen
+
+## Spritmonitor-Zugang verschaffen und Fahrzeug anlegen
 
 Unter https://www.spritmonitor.de kann ein Nutzerkonto angelegt werden. Unter "Mein Account" kann ein (weiteres) Fahrzeug angelegt werden. Die ID (Nummer) dieses Fahrzeuges wird später gebraucht.
-Bearer-Token beschaffen und sichern
+
+## Bearer-Token beschaffen und sichern
 
 Für die Nutzung der Spritmonitor-Programmierschnittstelle durch ein Programm erfolgt keine Anmeldung per Passwort. Stattdessen wird ein App-Token und ein Bearer-Token verlangt. Das App-Token in configuration.py ist vorgegeben und sollte nicht geändert werden. Es signalisiert Spritmonitor, mit welcher App der Eintrag erfolgt. Das Bearer-Token ist nutzerindividuell und dient dazu, sich als Nutzer gegenüber Spritmonitor auszuweisen.
 
@@ -224,7 +219,7 @@ Das Bearer-Token wird nicht in der Konfiguratiosdatei abgespeichert. Zu groß is
     declare -x XDG_SESSION_TYPE="tty"
     pi@pi4:~$
 
-zurück
+[zurück](inhalt)
 
 # OpenWB vorbereiten
 
@@ -251,7 +246,7 @@ Die IDs (Nummern) der in der Wallbox konfigurierten Geräte sind wichtig für di
 
 Für den soc_helper sind die ID der verwendeten Wallbox (im Bild "Interne openWB", ID 3) und die Nummer des Fahrzeugs, das den WiCAN verwendet ("Nulli", ID 1) wichtig. Diese Nummern sind im folgenden Kapitel wichtig.
 
-zurück
+[zurück](inhalt)
 
 # soc_helper konfigurieren
 
@@ -296,7 +291,8 @@ Anlegen der Ladepunkte
 Das Anlegen der Ladepunkte, die vom soc_helper genutzt werden sollen erfolgt noch einfacher: Für jeden Ladepunkt wird lediglich die Ladepunktnummer übergeben:
 
 myChargepoints.append(chargepoints.chargepoint(chargepointId=3))
-soc_helper starten und stoppen
+
+# soc_helper starten und stoppen
 
 Für diesen Schritt muß immer eine Anmeldung auf dem Raspi erfolgt sein und mit
 
@@ -372,9 +368,9 @@ Systemdienst für systemd
 
 Ein Systemdienst ist prinzipiell einfach zu erstellen, erfordert aber das Anlegen einer Datei in einem Systemverzeichnis. Wer sich das zutraut, findet unter diesem Link eine hilfreiche Anleitung.
 
-zurück
+[zurück](inhalt)
 
-Hinzufügen neuer Fahrzeugtypen
+# Hinzufügen neuer Fahrzeugtypen
 
 Dein Fahrzeug ist noch nicht unterstützt? Dann bist du hier richtig. Für das zu unterstützende Fahrzeug müssen Informationen für die OBD2-Kommunikation vorliegen. Die Projekte evDash und EVNotify haben schon für einige Fahrzeuge die OBD-Kommuikation hinterlegt.
 
@@ -431,5 +427,4 @@ Botschaften senden
 Im vorigen Bild auf der rechten Seite zu sehen ist der Abschnitt "Publish". Unter Topic kann das MQTT-Topic eingegeben werden, unter dem Daten veröffentlicht werden sollen. In dem Kasten darunter können diese Daten eingegeben werden. Der Knopf "Publish" sendet diese Daten unter dem angegebenen Topic an den Broker der Wallbox.
 Nutzen des MQTT-Explorers zur Fehlersuche
 
-
-
+[zurück](inhalt)
