@@ -1,15 +1,16 @@
 # wican, soc_helper und OpenWB: Konfiguration und Inbetriebnahme
 
-Der soc_helper hat den Zweck, den Ladezustand und Kilometerstand eines Elektrofahrzeugs auszulesen und die OpenWB zu übertragen.
-Warum?
+Der soc_helper hat den Zweck, den Ladezustand und Kilometerstand eines Elektrofahrzeugs auszulesen und die OpenWB zu übertragen. Einfach nach Hause kommen und der Ladezustand des Fahrzeugs wird noch während des Parkvorgangs in die Wallbox übertragen. Auf Wunsch wird jeder Ladevorgang bei Spritmonitor eingetragen.
 
-Die OpenWB bietet die Möglichkeit, nur bis zu einem bestimmten Ladezustand zu laden. Auch kann in Abhängigkeit vom Ladezustand des Fahrzeugs auf verschiedene Weise geladen werden. So kann beispielsweise ein maximaler Ladezustand (SOC) von 80% definiert werden, um die Fahrzeugbatterie zu schonen. Oder es kann direkt nach Anstecken bis zu einem Mindestfüllstand geladen werden, darüber hinaus per PV-Überschuß und dann zu bis zu einer definierten Uhrzeit bis zu einer Grenze. Alles das setzt voraus, daß der Ladezustand der Wallbox bekannt ist.
+# Warum?
 
-Um den Ladezustand in die Wallbox zu bekommen, bietet diese ab Werk schon verschiedene Möglichkeiten. So kann für eine Anzahl von Fahrzeugen beim Laden periodisch die Hersteller-Cloud abgefragt werden. Eine andere Möglichkeit ist, einen MQTT-Client periodisch einen SOC-Wert in die Wallbox schreiben zu lassen. Der einfachste Weg ist, vor dem Stecken des Ladesteckers manuell (am Handy oder Wallbox-Display) den Ladezustand einzugeben - anhand derhinterlegten Batteriekapazität und des Ladewirkungsgrades sowie der durchgesetzen elektrischen Arbeit kann die OpenWB den aktuellen Ladezustand des Fahrzeugs berechnen.
+Die OpenWB bietet die Möglichkeit, nur bis zu einem bestimmten Ladezustand zu laden. Auch kann in Abhängigkeit vom Ladezustand des Fahrzeugs auf verschiedene Weise geladen werden. So kann beispielsweise ein maximaler Ladezustand (SoC) von 80% definiert werden, um die Fahrzeugbatterie zu schonen. Oder es kann direkt nach Anstecken bis zu einem Mindestfüllstand geladen werden, darüber hinaus per PV-Überschuß und dann zu einer definierten Uhrzeit bis zu einer Grenze. Alles das setzt voraus, daß der Ladezustand der Wallbox bekannt ist.
 
-Der soc_helper kommt da ins Spiel, wo kein passendes Fahrzeug-Modul vorhanden ist oder man die Hersteller-Cloud nicht nutzen oder bezahlen möchte: Der WiCAN ist ein Dongle für die Diagnosebuche von Kraftfahrzeugen. Er bietet die Möglichkeit, sich in ein WLAN einzubuchen und mit einem erreichbaren MQTT-Broker zu kommunizieren. Wenn der WiCAN eingebucht und mit einem MQTT-Broker verbunden ist, kann per MQTT eine Anforderung über den WiCAN und die Diagnosebuchse an das Fahrzeug gestellt werden. Das Fahrzeug beantwortet eine gültige Anfrage, was vom WiCAN wiederum per MQTT bekannt gegeben wird.
+Um den Ladezustand in die Wallbox zu bekommen, bietet diese ab Werk verschiedene Möglichkeiten. So kann für eine Anzahl von Fahrzeugen beim Laden periodisch die Hersteller-Cloud abgefragt werden. Eine andere Möglichkeit ist, einen MQTT-Client periodisch einen SoC-Wert in die Wallbox schreiben zu lassen. Der einfachste Weg ist, vor dem Stecken des Ladesteckers manuell (am Handy oder Wallbox-Display) den Ladezustand einzugeben - anhand der hinterlegten Batteriekapazität und des Ladewirkungsgrades sowie der durchgesetzen elektrischen Arbeit kann die OpenWB den aktuellen Ladezustand des Fahrzeugs berechnen. Das Verfahren ist günstig und robust, da nach der Eingabe keine Kommuikation mit externen Servern erforderlich ist. Leider nervt das Ablesen des SoC im Fahrzeug, das möglicherweise erforderliche Umrechnen in Prozent und die anschließende die Eingabe in die Wallbox.
 
-Der soc_helper läuft auf einem beliebigen python-fähigen Rechner im Heimnetz und stellt die Verbindung zwischen WiCAN und OpenWB her. Sobald der WiCAN sich in den MQTT-Broker der OpenWB eingebucht hat, schickt der soc_helper Abfragen von Kilometerstand und Ladezustand ab. Die Antworten des Fahrzeugs werden ausgewertet. Der Ladezustand wird in die OpenWB übertragen und dient der oben erwähnten Ladesteuerung.Durch die zusätzliche Abfrage des Kilometerstandes kann auf Wunsch mit Spritmonitor über den Verbrauch Protokoll geführt werden.
+Hier kommt der soc_helper in Verbindung mit dem WiCAN ins Spiel: Der WiCAN ist ein Dongle für die Diagnosebuche von Kraftfahrzeugen. Er bietet die Möglichkeit, sich in ein WLAN einzubuchen und mit einem erreichbaren MQTT-Broker zu kommunizieren. Wenn der WiCAN eingebucht und mit einem MQTT-Broker verbunden ist, kann per MQTT eine Anforderung über den WiCAN und die Diagnosebuchse an das Fahrzeug gestellt werden. Das Fahrzeug beantwortet eine gültige Anfrage, was vom WiCAN wiederum per MQTT bekannt gegeben wird.
+
+Der soc_helper läuft auf einem beliebigen python-fähigen Rechner im Heimnetz und stellt die Verbindung zwischen WiCAN und OpenWB her. Sobald der WiCAN sich in den MQTT-Broker der OpenWB eingebucht hat, schickt der soc_helper Anfragen zum Kilometerstand und Ladezustand ab. Die Antworten des Fahrzeugs werden ausgewertet. Der Ladezustand wird in die OpenWB übertragen und dient der oben erwähnten Ladesteuerung. Durch die zusätzliche Abfrage des Kilometerstandes kann auf Wunsch mit Spritmonitor über den Verbrauch Protokoll geführt werden.
 
 Mit der Version 2024-06-26 wurde der soc_helper erheblich überarbeitet. Die Konfiguration für Anwender ist erheblich vereinfacht, da die fahrzeugspezifischen Teile in die Datei cars.py gezogen sind, und nur noch ein Minimum an Parametern in der Konfigurationsdatei configuration.py vorhanden ist. Dafür gibt es jetzt die Möglichkeit, beliebig viele Autos mit WiCAN-Adapter mit einem System von beliebig vielen Ladepunkten an einem OpenWB-System zu betreiben.
 
@@ -19,12 +20,12 @@ Die OpenWB-Software 1.9 wird nicht mehr unterstützt.
 
 Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum erfolgreichen Betrieb des soc_helper geben. Für die Anleitung wird angenommen, daß ein aktuelles Raspberry-Pi-System mit raspian verwendet wird. Auf anderen Rechnern funktioniert die Prozedur ähnlich, möglicherweise unterscheiden sich aber einzelne Schritte. Die Konfiguration umfasst Folgendes:
 
-* [WiCAN konfigurieren](#wican-konfigurieren)
+* [Einmalig: WiCAN konfigurieren](#wican-konfigurieren)
   * [WiCAN ins eigene WLAN holen](wican-ins-eigene-wlan-holen)
   * [Firmware aktualisieren](firmware-aktualisieren)
   * [Restliche Konfiguration](restliche-konfiguration)
 
-* [Nur Einmalig: Installieren der benötigten python-Pakete](#nur-einmalig-installieren-der-benötigten-python-pakete)
+* [Einmalig: Installieren der benötigten python-Pakete](#nur-einmalig-installieren-der-benötigten-python-pakete)
 
 * [soc_helper aufspielen](#soc_helper-aufspielen)
   * [Möglichkeit 1: zip-Archiv nutzen](möglichkeit-1-zip-archiv-nutzen)
@@ -387,7 +388,7 @@ Ein Systemdienst ist prinzipiell einfach zu erstellen, erfordert aber das Anlege
 
 Dein Fahrzeug ist noch nicht unterstützt? Für das zu unterstützende Fahrzeug müssen Informationen für die OBD2-Kommunikation vorliegen. Die Projekte [evDash](https://github.com/nickn17/evDash/tree/master/src) und [EVNotify](https://github.com/EVNotify/EVNotify) haben schon für einige Fahrzeuge die OBD-Kommuikation hinterlegt.
 
-Ganz wichtig: Nach erfolgreichem Hinzufügen eines bisher nicht unterstützten Fahrzeugs schickt mir bitte die Konfiguration unter soc_helper@vortagsmett.de
+Ganz wichtig: Nach erfolgreichem Hinzufügen eines bisher nicht unterstützten Fahrzeugs schickt mir bitte die Konfiguration unter soc_helper\<at\>vortagsmett\<Punkt\>de
 
 Das Hinzufügen neuer Fahrzeuge ist am Ende der Datei [InternaUndErweiterung.md](./InternaUndErweiterung.md) beschrieben.
 
