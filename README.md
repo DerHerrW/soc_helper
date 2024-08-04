@@ -28,7 +28,7 @@ Beim Abziehen des Ladesteckers aus dem Auto protokolliert der soc_helper den Kil
 3. Renault Zoe
 4. Fiat 500e
 
-Generell werden immer Tester gesucht. Ich freue mich über Rückmeldungen!
+Generell werden immer Tester gesucht. Ich freue mich über Rückmeldungen - entweder über das [OpenWB-Forum](https://forum.openwb.de/viewtopic.php?t=7451) oder per EMail an soc_helper\<at\>vortagsmett\<Punkt\>de.
 
 ## Dokumentation
 
