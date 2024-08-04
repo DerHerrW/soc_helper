@@ -11,8 +11,11 @@ In diesem Dokument wird der Aufbau von soc_helper im Detail beschrieben. Am Ende
 1. [spritmonitor.py - Verbindungscode zur Spritmonitor-Anbindung](#spritmonitorpy)
 1. [startAtBoot.sh - Skript, das in die Nutzer-Crontab eingetragen werden kann, um den soc_helper bei Start des Rechner mitzustarten](#startatbootsh)
 
+## Konfiguration
+
+In der Konfigurationsdatei wird je eine Liste an Fahrzeugen und Ladepunkten definiert. Die Listen enthalten Instanzen der in den Dateien cars.py und chargepoints.py definierten Klassen. Für jedes Fahrzeug, daß vom soc_helper betreut werden soll, muß eine Instanz der passenden Fahrzeugklasse in der Fahrzeugliste myCars vorhanden sein; ebenfalls müssen alle in Verbindung mit dem soc_helper verwendeten Ladepunkte je einmal als Instanz an die Ladepunktliste myChargepoints angehängt werden.
+
 ## Ablauf eines Ladevorgangs
-Für jedes definierte Fahrzeug und jeden Ladepunkt wird in der Datei configuration.py eine Instanz einer Fahrzeugklasse beziehungsweise einer Ladepunktklasse angelegt. Jede dieser Instanzen hat verschiedene Callback-Funktionen, die beim Eintreffen der von ihnen abbonierten MQTT-Topics aufgerufen werden.
 
 1. Das Fahrzeug mit aktivem WiCAN nähert sich dem heimischen WLAN.
 2. Der WiCAN bucht sich ins WLAN ein, verbindet sich mit dem MQTT-Broker der OpenWB und sendet sein "status": "online" an das Status-Topic des betreffenden Fahrzeugs
