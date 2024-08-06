@@ -21,9 +21,9 @@ Die OpenWB-Software 1.9 wird nicht mehr unterstützt.
 Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum erfolgreichen Betrieb des soc_helper geben. Für die Anleitung wird angenommen, daß ein aktuelles Raspberry-Pi-System mit raspian verwendet wird. Auf anderen Rechnern funktioniert die Prozedur ähnlich, möglicherweise unterscheiden sich aber einzelne Schritte. Die Konfiguration umfasst Folgendes:
 
 * [Einmalig: WiCAN konfigurieren](#wican-konfigurieren)
-  * [WiCAN ins eigene WLAN holen](wican-ins-eigene-wlan-holen)
-  * [Firmware aktualisieren](firmware-aktualisieren)
-  * [Restliche Konfiguration](restliche-konfiguration)
+  * [WiCAN ins eigene WLAN holen](#wican-ins-eigene-wlan-holen)
+  * [Firmware aktualisieren](#firmware-aktualisieren)
+  * [Restliche Konfiguration](#restliche-konfiguration)
 
 * [Einmalig: Installieren der benötigten python-Pakete](#nur-einmalig-installieren-der-benötigten-python-pakete)
 
