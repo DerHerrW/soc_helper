@@ -9,7 +9,7 @@ from typing import List
 import logging
 import json
 
-validCars = ("eUp", "eGolf", "VwMEB", "Fiat500e", "OraFunkyCat", "Zoe", "StandardFuelLevel")
+validCars = ("eUp", "eGolf", "VwMEB", "Fiat500e", "OraFunkyCat", "ZoePH1", "StandardFuelLevel")
 
 @dataclass
 class carclass:
@@ -267,12 +267,12 @@ class OraFunkyCat(carclass):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         return( bytes[4]*65536+bytes[5]*256+bytes[6] ) # Ora Funky Cat. [1995, 98, 208, 4, aa, bb, cc, xx]
 
-# see https://github.com/nickn17/evDash/blob/master/src/CarRenaultZoe.cpp
-class Zoe(carclass):
-    SOC_REQ_ID = 1947 # 0x79B
-    SOC_RESP_ID = 1955 # 0x7A3 (nicht erwähnt normal sendeID+8)
-    SOC_REQ_DATA = [2, 33, 3, 170, 170, 170, 170, 170] # Request 0x2103
-    ODO_REQ_ID = 1859 # 0x743 - Instrument cluster
+#see https://github.com/meatpiHQ/wican-fw/issues/17#issuecomment-1456925171
+class ZoePH1(carclass):
+    SOC_REQ_ID = 2015 # 0x7F0 Broadcast-ID
+    SOC_RESP_ID = 1955 # noch unbekannt
+    SOC_REQ_DATA = [1, 91, 170, 170, 170, 170, 170, 170] # Standard-Request 
+    ODO_REQ_ID = 0 # 0x743 - Instrument cluster
     ODO_RESP_ID = 1867 # 0x74B (nicht erwähnt normal sendeID+8)
     ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170] # Request 0x220206
     SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
