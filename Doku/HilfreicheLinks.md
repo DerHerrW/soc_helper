@@ -16,6 +16,7 @@
 1. [Übersicht CAN / Diagnoseprotokoll](http://www.emotive.de/documents/WebcastsProtected/Transport-Diagnoseprotokolle.pdf)
 1. [UDS Faltposter](https://automotive.softing.com/fileadmin/sof-files/pdf/de/ae/poster/UDS_Faltposter_softing2016.pdf)
 1. [Doku ELM327-Chip (incl AT-Kommandos)](https://www.elmelectronics.com/DSheets/ELM327DSH.pdf)
+2. [OBD2-PIDs](https://en.m.wikipedia.org/wiki/OBD-II_PIDs)
 
 ### Fahrzeugspezifisch
 
