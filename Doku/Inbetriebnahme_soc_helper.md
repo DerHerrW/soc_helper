@@ -336,7 +336,7 @@ In die Datei nohup.out werden alle Augaben eines Prozesses geschrieben, der mitt
 
 ## Stoppen eines nicht im Hintergrund laufenden soc_helper
 
-Durch die Tastenkombination <Strg>+<C> wird der laufende Prozess abgebrochen.
+Durch die Tastenkombination \<Strg\>+\<C\> wird der laufende Prozess abgebrochen.
 
 ## Stoppen eines im Hintergrund laufenden soc_helper
 
@@ -348,7 +348,7 @@ Ermitteln der Prozessnummer des soc_helpers:
      359528 ?        Sl     7:02 python3 ./soc_helper.py
      365331 pts/0    S+     0:00 grep soc
 
-ps bedeutet process status und gibt die Status der laufenden Prozesse aus. die Optionen ax zeigen alle Prozesse (nicht nur die der aktuellen Sitzung) und zeigen sie mit der kompletten Aufrufzeile.  Der senkrechte Struch leitet die Ausgabe auf das Kommando grep um, das nur Zeilen durchlässt, die die Zeichenkette "soc" beinhalten.
+ps bedeutet process status und gibt die Status der laufenden Prozesse aus. die Optionen ax zeigen alle Prozesse (nicht nur die der aktuellen Sitzung) und zeigen sie mit der kompletten Aufrufzeile.  Der senkrechte Strich leitet die Ausgabe auf das Kommando grep um, das nur Zeilen durchlässt, die die Zeichenkette "soc" beinhalten.
 
 Der Prozess mit der Nummer 359528 ist der zu beendende Prozess. (Die Nummer ist individuell und fast nie die gleiche, daher wie oben beschrieben nachsehen). Beenden des soc_helpers:
 
@@ -366,11 +366,11 @@ ein.
 
 ## Optional: Starten des soc_helpers mit Start des System
 
-Vorweg: Falls man sehr selten Stromausfälle hat und der Rechner, auf dem der soc_helper läuft, dauerhaft an ist, kann man den soc_helper per Hand starten. Etwas komfortabler ist es, wenn mit dem Systemstart der soc_helper gleich mitgestartet wird. Hier gibt es mehrere Alternativen:
+Vorweg: Falls man sehr selten Stromausfälle hat und der Rechner auf dem der soc_helper läuft dauerhaft an ist, kann man den soc_helper per Hand starten. Etwas komfortabler ist es, wenn mit dem Systemstart der soc_helper gleich mitgestartet wird. Hier gibt es mehrere Alternativen:
 
 ### cron
 
-cron ist Systemdienst, das bestimmte Kommandos zu definierten Zeiten ausführt. In einer Tabelle namens crontab stehen dazu die nötigen Informationen. Von dieser Tabelle gibt es neben der Version für das System für jeden Nutzer eine. In der System-crontab werden solche Sachen wie die Prüfung nach Updates, das Aufräumen temporärer Dateien oder Log-Dateien aufgerufen.
+cron ist Systemdienst, der bestimmte Kommandos zu definierten Zeiten ausführt. In einer Tabelle namens crontab stehen dazu die nötigen Informationen. Von dieser Tabelle gibt es neben der Version für das System für jeden Nutzer eine. In der System-crontab werden solche Sachen wie die Prüfung auf Updates, das Aufräumen temporärer Dateien oder Log-Dateien aufgerufen.
 
 Ein Nutzer kann seine crontab mit dem Befehl crontab -e bearbeiten. In die Datei kann die Zeile
 
