@@ -269,20 +269,19 @@ class OraFunkyCat(carclass):
 
 #see https://github.com/meatpiHQ/wican-fw/issues/17#issuecomment-1456925171
 class ZoePH1(carclass):
-    SOC_REQ_ID = 2015 # 0x7F0 Broadcast-ID
-    SOC_RESP_ID = 1955 # noch unbekannt
-    SOC_REQ_DATA = [1, 91, 170, 170, 170, 170, 170, 170] # Standard-Request 
-    ODO_REQ_ID = 0 # 0x743 - Instrument cluster
+    SOC_REQ_ID = 0 # Warte auf rohe CAN-Botschaften, keine aktive Abfrage
+    SOC_RESP_ID = 1070 # sollte Anzeige-SOC enthalten
+    SOC_REQ_DATA = [1, 91, 170, 170, 170, 170, 170, 170] # Standard-Request, wird nicht genutzt wegen SOC_REQ_ID=0 
+    ODO_REQ_ID = 0 # inaktiv
     ODO_RESP_ID = 1867 # 0x74B (nicht erwähnt normal sendeID+8)
     ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170] # Request 0x220206
     SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
     ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
 
     def calcSOC(self, bytes):
-        # "2103", // 01D 6103018516A717240000000001850185000000FFFF07D00516E60000030000000000, Ziffern 48,49,50,51
-        # "2103", 29 Bytes, 61030185 16A71724 00000000 01850185 000000FF FF07D005 16E60000 03000000 0000 -> 16E6, entspricht 58,62%
+        # Nach EVNotiPi: (msg[0:2]) >> 3 & 0x1fff) * 0.02
         logging.debug(f'Daten für SoC-Berechnung:{bytes}')
-        self.soc = round( (bytes[21]*256+bytes[22]) / 100) #erwartet: [1955, 61,03,...]
+        self.soc = round( (bytes[2]*256+bytes[3]) / 400) #erwartet: [1070,xx,aa,bb,xx,xx,xx,xx,xx] mit (aa*256+bb)/400
 
     def calcODO(self, bytes):
         # "220206", // 620206 00 01 54 59
