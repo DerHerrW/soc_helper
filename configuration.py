@@ -97,4 +97,6 @@ Sonstiges
 # DEBUG - Zur Entwicklung.
 LOGLEVEL = 'INFO'
 # In das Chargelog werden die Daten der Ladevorgänge geschrieben: Start-SOC, Kilometerstand, Energiemenge, End-SOC laut Wallbox
+# Bitte den Pfad anpassen (User, soc_helper-Verzeichnis!)
 CHARGELOG_PATH = '/home/pi/soc_helper/energydata.csv'
+

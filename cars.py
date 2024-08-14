@@ -49,19 +49,22 @@ class carclass:
             s=json.loads(msg.payload)
             if s['status'] == 'online':
                 # Wenn das Fahrzeug online geht, kann der SOC und der Gesamtkm-Stand abgefragt werden
-                logging.info(f'Fahrzeug {self.name} ist online. Sende SOC- und ODO-Anforderung')
-
-                if self.SOC_REQ_ID == 0:
-                    logging.info(f'SOC_REQ_ID ist 0, sende keine Anforderung')
+                if self.SPEAKS_UDS is True:
+                    logging.info(f'Fahrzeug {self.name} ist online. Sende SOC- und ODO-Anforderung')
+    
+                    if self.SOC_REQ_ID == 0:
+                        logging.info(f'SOC_REQ_ID ist 0, sende keine Anforderung')
+                    else:
+                        logging.info(f'Sende SOC-Anforderung: {self.SOC_REQUEST}')
+                        client.publish(self.getTxTopic(), self.SOC_REQUEST)
+    
+                    if self.ODO_REQ_ID == 0:
+                        logging.info(f'ODO_REQ_ID ist 0, sende keine Anforderung')
+                    else:
+                        logging.info(f'Sende ODO-Anforderung: {self.ODO_REQUEST}')
+                        client.publish(self.getTxTopic(), self.ODO_REQUEST)
                 else:
-                    logging.info(f'Sende SOC-Anforderung: {self.SOC_REQUEST}')
-                    client.publish(self.getTxTopic(), self.SOC_REQUEST)
-
-                if self.ODO_REQ_ID == 0:
-                    logging.info(f'ODO_REQ_ID ist 0, sende keine Anforderung')
-                else:
-                    logging.info(f'Sende ODO-Anforderung: {self.ODO_REQUEST}')
-                    client.publish(self.getTxTopic(), self.ODO_REQUEST)
+                    logging.info(f'Fahrzeug {self.name} ist online, spricht aber kein UDS. Keine Aktion.')
             else:
                 logging.info(f'Fahrzeug {self.name} ist <<offline>>')
         except Exception as e:
@@ -82,96 +85,146 @@ class carclass:
         # und sendet im Fall eines SOC den Wert zur OpenWB. Mehrteilige Botschaften werden aneinander gehängt.
         logging.debug(f'cb_rx von Fahrzeug {self.name} aufgerufen')
         logging.debug(f'Empfangene CAN-Botschaft: {msg.payload}')
+        
+        # In einer Botschaft können mehrere Frames zusammen kommen - momentan noch unklar, was bei Fortsetzungs-Frames inmitten
+        # anderer Frames passiert
         try:
-            frame = json.loads(msg.payload)['frame'][0]
+            frames = json.loads(msg.payload)['frame']
             # json.loads(msg.payload): String der Nutzlast als dict
             # json.loads(msg.payload)['frame']: Datenframe in f ergibt eine Liste mit einem Element
             # json.loads(msg.payload)['frame'][0]: Das nullte und einzige Element der Liste ist ein dict
-            id = frame['id']        # json.loads(msg.payload)['frame'][0]['id']: Sender-ID
-            data = frame['data']    # json.loads(msg.payload)['frame'][0]['data']: Liste der Nutzbytes vom CAN
         except Exception as e:
             logging.error(f'Fehler beim json-Parsen der empfangenen CAN-Botschaft: {e}')
-    
-        # Prüfe, ob die Botschaft mehrteilig oder einteilig ist
-        tpType =  data[0] // 16        # Oberen Nibble von Byte 0 extrahieren
-        self.messageComplete = False
-        if tpType == 1:
-            # Erster Teil einer mehrteiligen Botschaft
-            # Anzahl zu empfangenen Bytes: 12 Bit aus unterem Nibble Byte 0 und ganzes Byte 1
-            self.bytesToReceive = (data[0] & 15)*256 + data[1]
-            self.payload = [id]
-            self.payload.extend(data[2:8])
-            self.bytesReceived = 6
-            logging.debug(f'Ersten Teil einer mehrteiligen Botschaft empfangen: {self.payload}')
-            # zu Sende-ID des Senders die passende Empfänger-ID suchen:
-            if id > 2047:	# FIXME: reicht das, oder muss ich die Information extd explizit in den abgeleiteten Klassen definieren?
-                ext = 'true'
-            else:
-                ext = 'false'
-            flowCtrl = None
-            if id == self.ODO_RESP_ID:
-                flowCtrl = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(self.ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": '+ext+', "data": [48,0,100,170,170,170,170,170] }] }'
-            elif id == self.SOC_RESP_ID:
-                flowCtrl = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(self.SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": '+ext+', "data": [48,0,100,170,170,170,170,170] }] }'
-            if flowCtrl is not None:
-                # Fordere alle weitere Botschaften an mit 100ms Pause zwischen den Frames
-                logging.debug(f'Aufforderung für Folgeteile absetzen: {flowCtrl}')
-                client.publish(self.getTxTopic(), flowCtrl)
-        elif tpType == 2:
-            # Botschaft ist ein Folgeteil einer mehrteiligen Botschaft. Der Index sollte im unteren Nibble von Byte 0 stehen
-            # hier wird einfach gehofft, daß die Botschaften in der richtigen Reihenfolge ankommen. Sie werden stumpf angehängt.
-            # FIXME: Wenn hier kein erster Teil vorhanden ist, sondern unmotiviert ein zweiter kommt, knallt es. Momentan bei
-            # StandardFuelLevel so mit Golf7, der immer wieder ein [32,16,0,0,0,0,0,0] sendet, warum auch immer
-            if hasattr(self, 'payload') and hasattr(self, 'bytesToReceive'):
-                self.payload.extend(data[1:8])     # Je Nachfolger sollten 7 Nutzbytes kommen
-                self.bytesReceived += 7
-                if self.bytesReceived >= self.bytesToReceive:
+            return
+        if len(frames) == 0:
+            loggin.error(f'Fehler: Empfangene Botschaft enthält keine Frames: {frames}')
+            return
+        
+        if self.SPEAKS_UDS is True:
+            # Fahrzeug sprich UDS - Fragen und Antworten nötig
+            for f in frames:
+                id = f['id']        # json.loads(msg.payload)['frame'][0]['id']: Sender-ID
+                data = f['data']    # json.loads(msg.payload)['frame'][0]['data']: Liste der Nutzbytes vom CAN
+                # Prüfe, ob die Botschaft mehrteilig oder einteilig ist
+                tpType =  data[0] // 16        # Oberen Nibble von Byte 0 extrahieren
+                self.messageComplete = False
+                if tpType == 1:
+                    # Erster Teil einer mehrteiligen Botschaft
+                    # Anzahl zu empfangenen Bytes: 12 Bit aus unterem Nibble Byte 0 und ganzes Byte 1
+                    self.bytesToReceive = (data[0] & 15)*256 + data[1]
+                    self.payload = [id]
+                    self.payload.extend(data[2:8])
+                    self.bytesReceived = 6
+                    logging.debug(f'Ersten Teil einer mehrteiligen Botschaft empfangen: {self.payload}')
+                    # zu Sende-ID des Senders die passende Empfänger-ID suchen:
+                    if id > 2047:	# FIXME: reicht das, oder muss ich die Information extd explizit in den abgeleiteten Klassen definieren?
+                        ext = 'true'
+                    else:
+                        ext = 'false'
+                    flowCtrl = None
+                    if id == self.ODO_RESP_ID:
+                        flowCtrl = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(self.ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": '+ext+', "data": [48,0,100,170,170,170,170,170] }] }'
+                    elif id == self.SOC_RESP_ID:
+                        flowCtrl = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(self.SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": '+ext+', "data": [48,0,100,170,170,170,170,170] }] }'
+                    if flowCtrl is not None:
+                        # Fordere alle weitere Botschaften an mit 100ms Pause zwischen den Frames
+                        logging.debug(f'Aufforderung für Folgeteile absetzen: {flowCtrl}')
+                        client.publish(self.getTxTopic(), flowCtrl)
+                elif tpType == 2:
+                    # Botschaft ist ein Folgeteil einer mehrteiligen Botschaft. Der Index sollte im unteren Nibble von Byte 0 stehen
+                    # hier wird einfach gehofft, daß die Botschaften in der richtigen Reihenfolge ankommen. Sie werden stumpf angehängt.
+                    if hasattr(self, 'payload') and hasattr(self, 'bytesToReceive'):
+                        self.payload.extend(data[1:8])     # Je Nachfolger sollten 7 Nutzbytes kommen
+                        self.bytesReceived += 7
+                        if self.bytesReceived >= self.bytesToReceive:
+                            self.messageComplete = True
+                            self.bytesToReceive = 0
+                        logging.debug(f'Mehrteilige Botschaft komplett: {self.payload}')
+                elif tpType == 0:
+                    # Einteilige Botschaft
+                    self.payload = [id]
+                    self.payload.extend(data[1:8])
+                    self.bytesReceived = 7
                     self.messageComplete = True
-                    self.bytesToReceive = 0
-                logging.debug(f'Mehrteilige Botschaft komplett: {self.payload}')
-        elif tpType == 0:
-            # Einteilige Botschaft
-            self.payload = [id]
-            self.payload.extend(data[1:8])
-            self.bytesReceived = 7
-            self.messageComplete = True
-            logging.debug(f'Einteilige Botschaft: {self.payload}')
-        else:
-            logging.warning('Botschaft mit unbekanntem CAN-TP-Botschaftstyp oder FlowControl empfangen.')
-
-        if self.messageComplete:
-            #in payload liegt eine Liste der komplett empfangenen Botschaft vor
-            # Erwartungswerte zusammenbauen
-            lenSOC = self.SOC_REQ_DATA[0]
-            expectSOC = self.SOC_REQ_DATA[1:1+lenSOC]
-            expectSOC[0] += 64
-            logging.debug(f'lenSOC: {lenSOC}; expectSOC: {expectSOC}')
-            lenODO = self.ODO_REQ_DATA[0]
-            expectODO = self.ODO_REQ_DATA[1:1+lenODO]
-            expectODO[0] += 64
-            logging.debug(f'lenODO: {lenODO}; expectODO: {expectODO}')
-            if self.payload[0] == self.SOC_RESP_ID and self.payload[1:1+lenSOC] == expectSOC:
-                self.calcSOC(self.payload)
-                if self.soc is None:
-                    logging.warning("Erhaltener SOC ist ungültig (Return-Wert None). Wird ignoriert")
-                elif self.soc<0 or self.soc>100:
-                    logging.warning(f'Erhaltener SOC {soc} ist ungültig. Wird ignoriert.')
+                    logging.debug(f'Einteilige Botschaft: {self.payload}')
                 else:
-                    logging.info(f'Fahrzeug-SOC ist {self.soc}')
-                    logging.debug(f'SOC-Wert von {self.soc} an {self.getsetSocTopic()} schicken.')
-                    try:
-                        client.publish(self.getsetSocTopic(), self.soc)     #SOC-Wert an die OpenWB schicken.
-                    except Exception as e:
-                        logging.error(f'Schreiben des SOC an die Wallbox ist fehlgeschlagen: {e}')
-            elif self.payload[0] == self.ODO_RESP_ID and self.payload[1:1+lenODO] == expectODO:
-                self.calcODO(self.payload)
-                logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
-            else:
-                logging.warning(f'Empfangene Botschaft: {self.payload} ist keine gültige Antwort auf eine konfigurierte Anfrage')
+                    logging.warning('Botschaft mit unbekanntem CAN-TP-Botschaftstyp oder FlowControl empfangen.')
+        
+                if self.messageComplete:
+                    #in payload liegt eine Liste der komplett empfangenen Botschaft vor
+                    if self.payload[0] == self.SOC_RESP_ID:
+                        if self.SOC_REQ_ID != 0:
+                            # Erwartungswerte zusammenbauen (Kommando wird wiederholt)
+                            lenSOC = self.SOC_REQ_DATA[0]
+                            expectSOC = self.SOC_REQ_DATA[1:1+lenSOC]
+                            expectSOC[0] += 64
+                            logging.debug(f'Erwarteter SOC_Header: lenSOC: {lenSOC}; expectSOC: {expectSOC}')
+                            if self.payload[1:1+lenSOC] == expectSOC:
+                                # Erwartungswert für Auslesekommando ist vorhanden, daher Konvertierung aufrufen
+                                self.calcSOC(self.payload)
+                        else:
+                            # SOC_REQ_ID == 0, daher vor Berechnung nicht prüfen, ob Kommando wiederholt wurde
+                            self.calcSOC(self.payload)
+                        if self.soc is None:
+                            logging.warning("Erhaltener SOC ist ungültig (Return-Wert None). Wird ignoriert")
+                        elif self.soc<0 or self.soc>100:
+                            logging.warning(f'Erhaltener SOC {self.soc} ist ungültig. Wird ignoriert.')
+                        else:
+                            logging.info(f'Fahrzeug-SOC ist {self.soc}')
+                            logging.debug(f'SOC-Wert von {self.soc} an {self.getsetSocTopic()} schicken.')
+                            try:
+                                client.publish(self.getsetSocTopic(), self.soc)     #SOC-Wert an die OpenWB schicken.
+                            except Exception as e:
+                                logging.error(f'Schreiben des SOC an die Wallbox ist fehlgeschlagen: {e}')
+                    elif self.payload[0] == self.ODO_RESP_ID:
+                        if self.ODO_REQ_ID !=0:
+                            # Erwartungswerte zusammenbauen
+                            lenODO = self.ODO_REQ_DATA[0]
+                            expectODO = self.ODO_REQ_DATA[1:1+lenODO]
+                            expectODO[0] += 64
+                            logging.debug(f'lenODO: {lenODO}; expectODO: {expectODO}')
+                            if self.payload[1:1+lenODO] == expectODO:
+                                # Erwartungswert für Auslesekommando ist vorhanden, daher Konvertierung aufrufen
+                                self.calcODO(self.payload)
+                                logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
+                        else:
+                            # ODO_REQ_ID == 0, daher vor Berechnung nicht prüfen, ob Kommando wiederholt wurde
+                            self.calcODO(self.payload)
+                            logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
+                    else:
+                        logging.warning(f'Empfangene Botschaft: {self.payload} ist keine gültige Antwort auf eine konfigurierte Anfrage')
+        else:
+            # Fahrzeug spricht kein UDS (ZoePH1 et al)
+            for f in frames:
+                id = f['id']        # json.loads(msg.payload)['frame'][0]['id']: Sender-ID
+                data = f['data']    # json.loads(msg.payload)['frame'][0]['data']: Liste der Nutzbytes vom CAN
+                self.payload = [id]
+                self.payload.extend(data[0:8])
+                self.bytesReceived = 8
+                self.messageComplete = True
+                logging.debug(f'Rohe CAN-Botschaft: {self.payload}')
+                if self.payload[0] == self.SOC_RESP_ID:
+                    self.calcSOC(self.payload)
+                    if self.soc is None:
+                        logging.warning("Erhaltener SOC ist ungültig (Return-Wert None). Wird ignoriert")
+                    elif self.soc<0 or self.soc>100:
+                        logging.warning(f'Erhaltener SOC {self.soc} ist ungültig. Wird ignoriert.')
+                    else:
+                        logging.info(f'Fahrzeug-SOC ist {self.soc}')
+                        logging.debug(f'SOC-Wert von {self.soc} an {self.getsetSocTopic()} schicken.')
+                        try:
+                            client.publish(self.getsetSocTopic(), self.soc)     #SOC-Wert an die OpenWB schicken.
+                        except Exception as e:
+                            logging.error(f'Schreiben des SOC an die Wallbox ist fehlgeschlagen: {e}')
+                elif self.payload[0] == self.ODO_RESP_ID:
+                    # Erwartungswerte zusammenbauen
+                    self.calcODO(self.payload)
+                    logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
 
 class eUp(carclass):
     # Alle Objekte werden nicht in Init initialisiert und sind deshalb Klassenobjekte!
     # wenn sie ihre Werte in der Klasse geändert werden, ändern sie sich in allen Instanzen!
+    SPEAKS_UDS = True
     SOC_REQ_ID = 2021
     SOC_RESP_ID = 2029
     SOC_REQ_DATA = [3, 34, 2, 140, 170, 170, 170, 170]
@@ -190,6 +243,7 @@ class eUp(carclass):
         self.odo =  bytes[5]*65536+bytes[6]*256+bytes[7] # VW e-up. [2029, 98, 2, 189, xx, bb, cc, dd, xx, xx]
 
 class eGolf(carclass):
+    SPEAKS_UDS = True
     SOC_REQ_ID = 2021
     SOC_RESP_ID = 2029
     SOC_REQ_DATA = [3, 34, 2, 140, 170, 170, 170, 170]
@@ -208,6 +262,7 @@ class eGolf(carclass):
         self.odo = bytes[5]*65536+bytes[6]*256+bytes[7] # VW e-Golf, ungetestet. [2029, 98, 2, 189, xx, bb, cc, dd, xx, xx, xx, xx, xx, xx]
 
 class VwMEB(carclass):
+    SPEAKS_UDS = True
     SOC_REQ_ID = 0x17FC007B
     SOC_RESP_ID = 0x17FE007B
     SOC_REQ_DATA = [3, 34, 2, 140, 170, 170, 170, 170]
@@ -226,6 +281,7 @@ class VwMEB(carclass):
         self.odo = bytes[4]*65536+bytes[5]*256+bytes[6] # VW MEB. [0x17FE0076, 98, 41, 90, aa, bb, cc, xx]
 
 class Fiat500e(carclass):
+    SPEAKS_UDS = True
     SOC_REQ_ID = 0x18DA44F1
     SOC_RESP_ID = 0x18DAF144
     SOC_REQ_DATA = [3, 34, 160, 16, 170, 170, 170, 170]
@@ -248,6 +304,7 @@ class Fiat500e(carclass):
 
 # Ora Funky Cat, Danke an Kitmgue
 class OraFunkyCat(carclass):
+    SPEAKS_UDS = True
     SOC_REQ_ID = 1931
     SOC_RESP_ID = 1995
     SOC_REQ_DATA = [3, 34, 3, 8, 170, 170, 170, 170]
@@ -269,19 +326,15 @@ class OraFunkyCat(carclass):
 
 #see https://github.com/meatpiHQ/wican-fw/issues/17#issuecomment-1456925171
 class ZoePH1(carclass):
-    SOC_REQ_ID = 0 # Warte auf rohe CAN-Botschaften, keine aktive Abfrage
+    # Ich vermute, die alte Zoe spricht kein UDS. Sie sendet aber etliche CAN-Botschaften periodisch auf den CAN der OBD-Buchse.
+    SPEAKS_UDS = False
     SOC_RESP_ID = 1070 # sollte Anzeige-SOC enthalten
-    SOC_REQ_DATA = [1, 91, 170, 170, 170, 170, 170, 170] # Standard-Request, wird nicht genutzt wegen SOC_REQ_ID=0 
-    ODO_REQ_ID = 0 # inaktiv
-    ODO_RESP_ID = 1867 # 0x74B (nicht erwähnt normal sendeID+8)
-    ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170] # Request 0x220206
-    SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
-    ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
+    ODO_RESP_ID = 0 # unbekannt und ungenutzt
 
     def calcSOC(self, bytes):
         # Nach EVNotiPi: (msg[0:2]) >> 3 & 0x1fff) * 0.02
         logging.debug(f'Daten für SoC-Berechnung:{bytes}')
-        self.soc = round( (bytes[2]*256+bytes[3]) / 400) #erwartet: [1070,xx,aa,bb,xx,xx,xx,xx,xx] mit (aa*256+bb)/400
+        self.soc = round( (bytes[1]*256 + (bytes[2]&0xf8) ) / 400) #erwartet: [1070,xx,aa,bb,xx,xx,xx,xx,xx] mit (aa*256+bb)/400
 
     def calcODO(self, bytes):
         # "220206", // 620206 00 01 54 59
@@ -290,6 +343,7 @@ class ZoePH1(carclass):
 
 class StandardFuelLevel(carclass):
     # Warum nicht den relativen Tankfüllstand als SOC an die OpenWB senden? Hier die Lösung für 11-Bit-CAN-IDs:
+    SPEAKS_UDS = True
     SOC_REQ_ID = 2016
     SOC_RESP_ID = 2024
     SOC_REQ_DATA = [2, 1, 47, 0, 0, 0, 0, 0]

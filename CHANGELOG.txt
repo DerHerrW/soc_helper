@@ -1,3 +1,7 @@
+2024-08-14:
+* Größere Umbauten, um Fahrzeuge nutzen zu können, die kein UDS sprechen
+  (z.B. ZoePH1)
+
 2024-07-18:
 * neue Fahrzeugvariable socAtPlugin, um den SoC bei Ladebeginn korrekt in das
 lokale Ladelog zu speichern.
