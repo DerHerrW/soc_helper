@@ -256,7 +256,7 @@ Beispiel einer Klasse mit passivem Lauschen ohne UDS:
             self.odo = bytes[4]*16777216+bytes[5]*65536+bytes[6]*256+bytes[7] # erwartet: [1867, 94, 2, 6, aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
 
 
-In jedem Fall gilt: Wenn die Definition der neuen Fahrzeugtypklasse funktioniert, bitte unbedingt als Pull Request oder den Codeschnippsel per Nachricht an mich zustellen.
+In jedem Fall gilt: Wenn die Definition der neuen Fahrzeugtypklasse funktioniert, bitte unbedingt als Pull Request oder den Codeschnippsel per Nachricht an soc_helper\<at\>vortagsmett\<Punkt\>de zustellen.
 
 ### Hilfe zur Ermittlung der IDs und Daten
 
