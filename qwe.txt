@@ -1,0 +1,285 @@
+2024-08-18 16:02:44,526; CRITICAL;[      soc_helper.py:127 -         <module>() ] Starte soc_helper2 Version 2024-08-14
+2024-08-18 16:02:44,526;    DEBUG;[      soc_helper.py: 38 -      checkConfig() ] Prüfe Konfiguration...
+2024-08-18 16:02:44,526;    DEBUG;[      soc_helper.py: 48 -      checkConfig() ] Prüfe auf OpenWB-IP-Adresse
+2024-08-18 16:02:44,527;    DEBUG;[      soc_helper.py: 55 -      checkConfig() ] Prüfe auf eindeutige Fahrzeugnamen
+2024-08-18 16:02:44,527;    DEBUG;[      soc_helper.py: 67 -      checkConfig() ] Prüfe Fahrzeuge auf eindeutige OpenWB-IDs
+2024-08-18 16:02:44,527;    DEBUG;[      soc_helper.py: 79 -      checkConfig() ] Prüfe Abrufbarkeit der letzten Kilometerstände bei Spritmonitor
+2024-08-18 16:02:44,527;    DEBUG;[      soc_helper.py: 82 -      checkConfig() ] nulli: Spritmonitor benutzen? True
+2024-08-18 16:02:44,530;    DEBUG;[  connectionpool.py:1006 -        _new_conn() ] Starting new HTTPS connection (1): api.spritmonitor.de:443
+2024-08-18 16:02:44,843;    DEBUG;[  connectionpool.py:457 -    _make_request() ] https://api.spritmonitor.de:443 "GET /v1/vehicle/1370192/fuelings.json?limit=1 HTTP/1.1" 200 None
+2024-08-18 16:02:44,849;    DEBUG;[      soc_helper.py: 94 -      checkConfig() ] Antwort von Spritmonitor auf probeweises Abrufen des letzten Kilometerstandes: [{'id': 55362257, 'type': 'notfull', 'date': '18.08.2024', 'odometer': None, 'trip': None, 'fuelsortid': 24, 'quantity': '2.98', 'quantityunitid': 5, 'quantity_converted': '2.98', 'cost': '0.24', 'currencyid': 0, 'cost_converted': '0.24', 'note': 'automatisch übertragen von soc_helper.py', 'attributes': 'summertires,slow', 'streets': '', 'consumption': None, 'bc_speed': '0.00', 'bc_quantity': '0.00', 'bc_consumption': '0.00', 'position': None, 'stationname': 'daheim', 'tankid': 1, 'country': None, 'location': '', 'percent': '80.1', 'charging_power': '11.0', 'charging_duration': None, 'charging_info': 'ac,source_wallbox'}]
+2024-08-18 16:02:44,849;    DEBUG;[      soc_helper.py: 98 -      checkConfig() ] Letzter Spritmonitor-Kilometerstand von Fahrzeug nulli erfolgreich abgerufen: {'id': 55362257, 'type': 'notfull', 'date': '18.08.2024', 'odometer': None, 'trip': None, 'fuelsortid': 24, 'quantity': '2.98', 'quantityunitid': 5, 'quantity_converted': '2.98', 'cost': '0.24', 'currencyid': 0, 'cost_converted': '0.24', 'note': 'automatisch übertragen von soc_helper.py', 'attributes': 'summertires,slow', 'streets': '', 'consumption': None, 'bc_speed': '0.00', 'bc_quantity': '0.00', 'bc_consumption': '0.00', 'position': None, 'stationname': 'daheim', 'tankid': 1, 'country': None, 'location': '', 'percent': '80.1', 'charging_power': '11.0', 'charging_duration': None, 'charging_info': 'ac,source_wallbox'}.
+2024-08-18 16:02:44,849;    DEBUG;[      soc_helper.py: 82 -      checkConfig() ] golfi: Spritmonitor benutzen? False
+2024-08-18 16:02:44,850;     INFO;[       energylog.py: 14 -             init() ] Öffne existierende Logdatei /home/pi/soc_helper/energydata.csv.
+2024-08-18 16:02:44,850;     INFO;[      soc_helper.py:144 -         <module>() ] Verbinde Callbackfunktionen der Ladepunkte:
+2024-08-18 16:02:44,851;    DEBUG;[      soc_helper.py:146 -         <module>() ] Ladepunkt 3
+2024-08-18 16:02:44,851;    DEBUG;[      soc_helper.py:148 -         <module>() ] Abonniere openWB/chargepoint/3/get/imported
+2024-08-18 16:02:44,851;    DEBUG;[      soc_helper.py:151 -         <module>() ] Abonniere openWB/chargepoint/3/get/connected_vehicle/info
+2024-08-18 16:02:44,851;    DEBUG;[      soc_helper.py:154 -         <module>() ] Abonniere openWB/chargepoint/3/get/plug_state
+2024-08-18 16:02:44,851;     INFO;[      soc_helper.py:156 -         <module>() ] Verbinde Callbackfunktionen der Fahrzeuge:
+2024-08-18 16:02:44,852;    DEBUG;[      soc_helper.py:158 -         <module>() ] Fahrzeug nulli
+2024-08-18 16:02:44,852;    DEBUG;[      soc_helper.py:160 -         <module>() ] Abonniere others/wican/nulli/status/#
+2024-08-18 16:02:44,852;    DEBUG;[      soc_helper.py:163 -         <module>() ] Abonniere others/wican/nulli/can/rx/#
+2024-08-18 16:02:44,852;    DEBUG;[      soc_helper.py:166 -         <module>() ] Abonniere openWB/vehicle/1/get/soc
+2024-08-18 16:02:44,852;    DEBUG;[      soc_helper.py:158 -         <module>() ] Fahrzeug golfi
+2024-08-18 16:02:44,852;    DEBUG;[      soc_helper.py:160 -         <module>() ] Abonniere others/wican/golfi/status/#
+2024-08-18 16:02:44,853;    DEBUG;[      soc_helper.py:163 -         <module>() ] Abonniere others/wican/golfi/can/rx/#
+2024-08-18 16:02:44,853;    DEBUG;[      soc_helper.py:166 -         <module>() ] Abonniere openWB/vehicle/3/get/soc
+2024-08-18 16:02:44,853;    DEBUG;[      soc_helper.py:173 -         <module>() ] Verbindungsversuch mit MQTT-Broker der Wallbox unter Adresse 192.168.1.102.
+2024-08-18 16:02:44,855;     INFO;[      soc_helper.py:112 -       on_connect() ] Verbindung hergestellt zu 192.168.1.102 mit Resultat 0
+2024-08-18 16:02:44,870;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:02:44,872;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:44,872;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:02:44,878;    DEBUG;[            cars.py: 74 -  cb_getOpenwbSoc() ] cb_getOpenwbSoc von Fahrzeug nulli aufgerufen
+2024-08-18 16:02:44,878;    DEBUG;[            cars.py: 80 -  cb_getOpenwbSoc() ] Von der Wallbox für Fahrzeug nulli empfangener SoC: 78.0
+2024-08-18 16:02:44,881;    DEBUG;[            cars.py: 74 -  cb_getOpenwbSoc() ] cb_getOpenwbSoc von Fahrzeug golfi aufgerufen
+2024-08-18 16:02:44,881;    DEBUG;[            cars.py: 80 -  cb_getOpenwbSoc() ] Von der Wallbox für Fahrzeug golfi empfangener SoC: 45.49
+2024-08-18 16:02:44,905;    DEBUG;[            cars.py: 45 -        cb_status() ] cb_status von Fahrzeug nulli aufgerufen
+2024-08-18 16:02:44,905;     INFO;[            cars.py: 46 -        cb_status() ] WiCAN-Status: others/wican/nulli/status b'{"status": "offline"}'
+2024-08-18 16:02:44,906;     INFO;[            cars.py: 69 -        cb_status() ] Fahrzeug nulli ist <<offline>>
+2024-08-18 16:02:44,906;    DEBUG;[            cars.py: 45 -        cb_status() ] cb_status von Fahrzeug golfi aufgerufen
+2024-08-18 16:02:44,906;     INFO;[            cars.py: 46 -        cb_status() ] WiCAN-Status: others/wican/golfi/status b'{"status": "offline"}'
+2024-08-18 16:02:44,906;     INFO;[            cars.py: 69 -        cb_status() ] Fahrzeug golfi ist <<offline>>
+2024-08-18 16:02:46,142;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:46,227;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:02:46,279;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:48,183;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:48,198;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:02:48,245;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:50,179;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:50,211;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:02:50,333;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:50,706;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:02:52,162;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:52,229;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:02:52,335;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:54,189;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:54,239;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:02:54,368;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:56,231;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:56,264;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:02:56,364;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:58,305;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:02:58,371;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:02:58,452;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:00,325;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:00,327;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:00,580;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:01,282;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:03:02,436;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:02,606;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:02,627;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:04,485;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:04,516;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:04,553;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:06,386;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:06,423;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:06,563;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:08,446;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:08,522;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:08,624;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:10,479;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:10,523;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:10,607;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:11,564;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:03:12,571;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:12,577;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:12,675;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:14,538;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:14,575;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:14,666;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:16,503;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:16,562;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:16,649;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:18,569;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:18,580;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:18,646;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:20,540;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:20,587;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:20,624;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:21,788;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:03:22,654;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:22,707;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:22,786;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:24,667;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:24,763;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:24,892;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:26,712;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:26,765;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:26,820;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:28,709;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:28,763;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:28,894;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:30,928;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:30,964;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:31,085;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:31,435;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:03:32,921;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:32,943;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:33,023;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:34,818;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:34,867;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:34,924;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:36,816;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:36,894;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:36,990;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:38,949;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:39,006;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:39,094;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:40,774;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:03:41,045;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:41,100;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:41,223;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:43,027;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:43,069;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:43,111;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:43,985;    DEBUG;[            cars.py: 45 -        cb_status() ] cb_status von Fahrzeug nulli aufgerufen
+2024-08-18 16:03:43,985;     INFO;[            cars.py: 46 -        cb_status() ] WiCAN-Status: others/wican/nulli/status b'{"status": "online"}'
+2024-08-18 16:03:43,985;     INFO;[            cars.py: 53 -        cb_status() ] Fahrzeug nulli ist online. Sende SOC- und ODO-Anforderung
+2024-08-18 16:03:43,985;     INFO;[            cars.py: 58 -        cb_status() ] Sende SOC-Anforderung: { "bus": "0", "type": "tx", "frame": [{ "id": 2021, "dlc": 8, "rtr": false, "extd": false, "data": [3, 34, 2, 140, 170, 170, 170, 170] }] }
+2024-08-18 16:03:43,985;     INFO;[            cars.py: 64 -        cb_status() ] Sende ODO-Anforderung: { "bus": "0", "type": "tx", "frame": [{ "id": 2021, "dlc": 8, "rtr": false, "extd": false, "data": [3, 34, 2, 189, 170, 170, 170, 170] }] }
+2024-08-18 16:03:44,031;    DEBUG;[            cars.py: 86 -            cb_rx() ] cb_rx von Fahrzeug nulli aufgerufen
+2024-08-18 16:03:44,031;    DEBUG;[            cars.py: 87 -            cb_rx() ] Empfangene CAN-Botschaft: b'{"bus":"0","type":"rx","ts":6682,"frame":[{"id":2029,"dlc":8,"rtr":false,"extd":false,"data":[4,98,2,140,190,170,170,170]}]}'
+2024-08-18 16:03:44,032;    DEBUG;[            cars.py: 93 -            cb_rx() ] Gesamte Frames: [{'id': 2029, 'dlc': 8, 'rtr': False, 'extd': False, 'data': [4, 98, 2, 140, 190, 170, 170, 170]}]
+2024-08-18 16:03:44,032;    DEBUG;[            cars.py:107 -            cb_rx() ] Frame: {'id': 2029, 'dlc': 8, 'rtr': False, 'extd': False, 'data': [4, 98, 2, 140, 190, 170, 170, 170]}
+2024-08-18 16:03:44,032;    DEBUG;[            cars.py:151 -            cb_rx() ] Einteilige Botschaft: [2029, 98, 2, 140, 190, 170, 170, 170]
+2024-08-18 16:03:44,032;    DEBUG;[            cars.py:155 -            cb_rx() ] payload ist: [2029, 98, 2, 140, 190, 170, 170, 170]
+2024-08-18 16:03:44,032;    DEBUG;[            cars.py:164 -            cb_rx() ] Erwarteter SOC_Header: lenSOC: 3; expectSOC: [98, 2, 140]
+2024-08-18 16:03:44,032;    DEBUG;[            cars.py:241 -          calcSOC() ] Daten für SoC-Berechnung: [2029, 98, 2, 140, 190, 170, 170, 170]
+2024-08-18 16:03:44,032;     INFO;[            cars.py:176 -            cb_rx() ] Fahrzeug-SOC ist 78
+2024-08-18 16:03:44,032;    DEBUG;[            cars.py:177 -            cb_rx() ] SOC-Wert von 78 an openWB/set/vehicle/1/soc_module/calculated_soc_state/manual_soc schicken.
+2024-08-18 16:03:44,033;    DEBUG;[            cars.py: 86 -            cb_rx() ] cb_rx von Fahrzeug nulli aufgerufen
+2024-08-18 16:03:44,033;    DEBUG;[            cars.py: 87 -            cb_rx() ] Empfangene CAN-Botschaft: b'{"bus":"0","type":"rx","ts":6691,"frame":[{"id":2029,"dlc":8,"rtr":false,"extd":false,"data":[16,13,98,2,189,112,0,50]}]}'
+2024-08-18 16:03:44,033;    DEBUG;[            cars.py: 93 -            cb_rx() ] Gesamte Frames: [{'id': 2029, 'dlc': 8, 'rtr': False, 'extd': False, 'data': [16, 13, 98, 2, 189, 112, 0, 50]}]
+2024-08-18 16:03:44,033;    DEBUG;[            cars.py:107 -            cb_rx() ] Frame: {'id': 2029, 'dlc': 8, 'rtr': False, 'extd': False, 'data': [16, 13, 98, 2, 189, 112, 0, 50]}
+2024-08-18 16:03:44,033;    DEBUG;[            cars.py:120 -            cb_rx() ] Ersten Teil einer mehrteiligen Botschaft empfangen: [2029, 98, 2, 189, 112, 0, 50]
+2024-08-18 16:03:44,033;    DEBUG;[            cars.py:133 -            cb_rx() ] Aufforderung für Folgeteile absetzen: { "bus": "0", "type": "tx", "frame": [{ "id": 2021, "dlc": 8, "rtr": false, "extd": false, "data": [48,0,100,170,170,170,170,170] }] }
+2024-08-18 16:03:44,033;    DEBUG;[            cars.py:155 -            cb_rx() ] payload ist: [2029, 98, 2, 189, 112, 0, 50]
+2024-08-18 16:03:44,080;    DEBUG;[            cars.py: 86 -            cb_rx() ] cb_rx von Fahrzeug nulli aufgerufen
+2024-08-18 16:03:44,080;    DEBUG;[            cars.py: 87 -            cb_rx() ] Empfangene CAN-Botschaft: b'{"bus":"0","type":"rx","ts":6731,"frame":[{"id":2029,"dlc":8,"rtr":false,"extd":false,"data":[33,123,0,0,99,139,0,141]}]}'
+2024-08-18 16:03:44,080;    DEBUG;[            cars.py: 93 -            cb_rx() ] Gesamte Frames: [{'id': 2029, 'dlc': 8, 'rtr': False, 'extd': False, 'data': [33, 123, 0, 0, 99, 139, 0, 141]}]
+2024-08-18 16:03:44,080;    DEBUG;[            cars.py:107 -            cb_rx() ] Frame: {'id': 2029, 'dlc': 8, 'rtr': False, 'extd': False, 'data': [33, 123, 0, 0, 99, 139, 0, 141]}
+2024-08-18 16:03:44,080;    DEBUG;[            cars.py:144 -            cb_rx() ] Mehrteilige Botschaft komplett: [2029, 98, 2, 189, 112, 0, 50, 123, 0, 0, 99, 139, 0, 141]
+2024-08-18 16:03:44,080;    DEBUG;[            cars.py:155 -            cb_rx() ] payload ist: [2029, 98, 2, 189, 112, 0, 50, 123, 0, 0, 99, 139, 0, 141]
+2024-08-18 16:03:44,080;    DEBUG;[            cars.py:164 -            cb_rx() ] Erwarteter SOC_Header: lenSOC: 3; expectSOC: [98, 2, 140]
+2024-08-18 16:03:44,080;     INFO;[            cars.py:176 -            cb_rx() ] Fahrzeug-SOC ist 78
+2024-08-18 16:03:44,080;    DEBUG;[            cars.py:177 -            cb_rx() ] SOC-Wert von 78 an openWB/set/vehicle/1/soc_module/calculated_soc_state/manual_soc schicken.
+2024-08-18 16:03:44,125;    DEBUG;[            cars.py: 74 -  cb_getOpenwbSoc() ] cb_getOpenwbSoc von Fahrzeug nulli aufgerufen
+2024-08-18 16:03:44,125;    DEBUG;[            cars.py: 80 -  cb_getOpenwbSoc() ] Von der Wallbox für Fahrzeug nulli empfangener SoC: 78.0
+2024-08-18 16:03:44,171;    DEBUG;[            cars.py: 74 -  cb_getOpenwbSoc() ] cb_getOpenwbSoc von Fahrzeug nulli aufgerufen
+2024-08-18 16:03:44,172;    DEBUG;[            cars.py: 80 -  cb_getOpenwbSoc() ] Von der Wallbox für Fahrzeug nulli empfangener SoC: 78.0
+2024-08-18 16:03:45,008;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:45,056;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:45,135;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:47,023;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:47,071;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:47,144;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:49,005;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:49,047;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:49,109;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:51,029;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:03:51,315;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:51,365;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:51,517;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:53,200;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:53,233;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:53,364;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:55,178;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:55,224;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:55,324;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:57,212;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:57,277;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:57,352;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:59,215;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:03:59,251;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:03:59,397;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:01,342;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:01,383;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:01,428;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:01,627;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:04:03,326;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:03,369;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:03,430;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:05,342;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:05,393;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:05,474;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:07,391;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:07,437;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:07,498;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:09,343;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:09,383;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:09,554;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:10,880;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:04:11,541;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:11,591;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:11,694;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:13,589;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:13,623;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:13,722;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:15,603;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:15,654;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:15,753;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:17,585;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:17,652;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:17,668;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:19,541;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:19,593;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:19,673;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:21,268;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:04:21,795;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:21,891;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:22,094;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:23,943;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:24,017;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:24,068;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:25,938;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:25,979;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:26,074;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:27,961;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:28,040;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:28,082;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:29,983;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:30,021;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:30,156;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:31,617;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:04:32,254;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:32,374;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:32,497;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:34,237;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:34,267;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:34,373;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:36,238;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:36,274;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:36,316;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:38,245;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:38,247;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:38,294;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:40,166;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:40,237;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:40,275;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:40,934;    DEBUG;[    chargepoints.py: 44 - cb_connectedVehicle() ] ID des mit Ladepunkt 3 verbundenes Fahrzeugs: 1
+2024-08-18 16:04:42,117;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:42,177;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:42,286;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:44,134;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:44,202;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:44,264;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:46,131;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:46,217;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:46,408;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:48,159;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:48,186;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:48,293;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:50,164;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+2024-08-18 16:04:50,201;    DEBUG;[    chargepoints.py: 48 -          cb_plug() ] Steckerzustand von Ladepunkt 3: b'false'
+2024-08-18 16:04:50,314;    DEBUG;[    chargepoints.py: 36 - cb_energycounter() ] Zählerstand auf Ladepunkt 3: 1772954.96
+Traceback (most recent call last):
+  File "/home/pi/soc_helper/./soc_helper.py", line 180, in <module>
+    client.loop_forever()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1756, in loop_forever
+    rc = self._loop(timeout)
+         ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1150, in _loop
+    socklist = select.select(rlist, wlist, [], timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

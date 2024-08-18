@@ -36,13 +36,17 @@ import spritmonitor	# Zum Prüfen bei Programmstart
 # rudimentäre Prüfung der Konfiguration
 def checkConfig():
     logging.debug('Prüfe Konfiguration...')
-    # Prüfen:
+    # Prüfen ("-": noch nicht vorhanden, "+": vorhanden):
+    # -Ob lokale Logdatei schreibbar ist
+    # -Ob hinreichend freier Plattenspeicher vorhanden ist für das Log
     # +Ob die Namen der Fahrzeuge eindeutig sind (keine Doubletten)
     # +Ob die OpenWB-IDs eindeutig sind
     # +Ob eine IP-Adresse für die Wallbox-Steuerung angegeben ist
     # -Ob die Wallbox unter der angegebenen IP ereichbar ist
     # -Ob die Fahrzeuge mit den IDs auch in der Wallbox vorhanden sind
     # +Ob bei Spritmonitor ein Kilometerstand abrufbar ist, sofern Spritmonitor genutzt werden soll:
+    # +Wenn SPEAKS_UDS == True ist, muss SOC_REQ_ID gesetzt und ungleich 0 sein
+    # +Wenn SPEAKS_UDS == True ist, muss ODO_REQ_ID gesetzt sein, sofern Spritmonitor genutzt werden soll!
 
     # IP-Adresse der OpenWB vorhanden?
     logging.debug('Prüfe auf OpenWB-IP-Adresse')
@@ -102,7 +106,29 @@ def checkConfig():
             else:
                 logging.error(f'Probeweises Auslesen des letzten Kilometerstandes bei Spritmonitor ergibt {lastFueling}. Passen Bearer-Token und Fahrzeunummer?')
                 sys.exit()
-    
+
+    # Für SPEAKS_UDS == True muss SOC_REQ_ID gesetzt und >0 sein
+    logging.debug('Prüfe, ob SOC_REQ_ID gesetzt und >0 ist')
+    for car in configuration.myCars:
+        if car.SPEAKS_UDS:
+            if hasattr(car, 'SOC_REQ_ID'):
+                if car.SOC_REQ_ID > 0:
+                    logging.debug(f'{car.name}: Spricht UDS. SOC_REQ_ID ist gesetzt. OK.')
+                    # Für SPEAKS_UDS == True muss ODO_REQ_ID gesetzt und >0 sein, sofern Spritmonitor aktiv ist.
+                    if car.useSpritmonitor is True:
+                        if hasattr(car, 'ODO_REQ_ID'):
+                            if car.ODO_REQ_ID == 0:
+                                logging.error(f'{car.name} spricht UDS und nutzt Spritmonitor, ODO_REQ_ID ist aber 0. cars.py ist fehlerhaft.')
+                                sys.exit()
+                        else:
+                            logging.error(f'{car.name} spricht UDS und nutzt Spritmonitor, hat aber kein ODO_REQ_ID gesetzt. cars.py ist fehlerhaft.')
+                            sys.exit()
+                else:
+                    logging.error(f'{car.name} spricht UDS, hat aber SOC_REQ_ID ist 0. cars.py ist fehlerhaft.')
+                    sys.exit()
+            else:
+                logging.error(f'{car.name} spricht UDS, aber SOC_REQ_ID ist nicht gesetzt. cars.py ist fehlerhaft.')
+                sys.exit()
 #
 # Callback-Funktionen
 #
@@ -124,7 +150,7 @@ def on_disconnect(client, userdata, rc):
 # Logger anlegen
 FORMAT = "%(asctime)s;%(levelname)9s;[%(filename)19s:%(lineno)3s - %(funcName)16s() ] %(message)s"
 logging.basicConfig(encoding='utf-8', format=FORMAT, level=logging.getLevelName(configuration.LOGLEVEL))
-logging.critical('Starte soc_helper2 Version 2024-08-14')
+logging.critical('Starte soc_helper Version 2024-08-18')
 
 # Prüfen der Konfiguration
 checkConfig()

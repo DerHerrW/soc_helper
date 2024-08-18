@@ -90,6 +90,7 @@ class carclass:
         # anderer Frames passiert
         try:
             frames = json.loads(msg.payload)['frame']
+            logging.debug(f'Gesamte Frames: {frames}')
             # json.loads(msg.payload): String der Nutzlast als dict
             # json.loads(msg.payload)['frame']: Datenframe in f ergibt eine Liste mit einem Element
             # json.loads(msg.payload)['frame'][0]: Das nullte und einzige Element der Liste ist ein dict
@@ -103,6 +104,7 @@ class carclass:
         if self.SPEAKS_UDS is True:
             # Fahrzeug sprich UDS - Fragen und Antworten nötig
             for f in frames:
+                logging.debug(f'Frame: {f}')
                 id = f['id']        # json.loads(msg.payload)['frame'][0]['id']: Sender-ID
                 data = f['data']    # json.loads(msg.payload)['frame'][0]['data']: Liste der Nutzbytes vom CAN
                 # Prüfe, ob die Botschaft mehrteilig oder einteilig ist
@@ -149,22 +151,22 @@ class carclass:
                     logging.debug(f'Einteilige Botschaft: {self.payload}')
                 else:
                     logging.warning('Botschaft mit unbekanntem CAN-TP-Botschaftstyp oder FlowControl empfangen.')
-        
+
+                logging.debug(f'payload ist: {self.payload}')        
                 if self.messageComplete:
                     #in payload liegt eine Liste der komplett empfangenen Botschaft vor
-                    if self.payload[0] == self.SOC_RESP_ID:
-                        if self.SOC_REQ_ID != 0:
-                            # Erwartungswerte zusammenbauen (Kommando wird wiederholt)
-                            lenSOC = self.SOC_REQ_DATA[0]
-                            expectSOC = self.SOC_REQ_DATA[1:1+lenSOC]
-                            expectSOC[0] += 64
-                            logging.debug(f'Erwarteter SOC_Header: lenSOC: {lenSOC}; expectSOC: {expectSOC}')
-                            if self.payload[1:1+lenSOC] == expectSOC:
-                                # Erwartungswert für Auslesekommando ist vorhanden, daher Konvertierung aufrufen
-                                self.calcSOC(self.payload)
-                        else:
-                            # SOC_REQ_ID == 0, daher vor Berechnung nicht prüfen, ob Kommando wiederholt wurde
-                            self.calcSOC(self.payload)
+                    # Erwartungswerte zusammenbauen (Kommando wird wiederholt)
+                    lenSOC = self.SOC_REQ_DATA[0]
+                    expectSOC = self.SOC_REQ_DATA[1:1+lenSOC]
+                    expectSOC[0] += 64
+                    logging.debug(f'Erwarteter SOC_Header: lenSOC: {lenSOC}; expectSOC: {expectSOC}')
+                    lenODO = self.ODO_REQ_DATA[0]
+                    expectODO = self.ODO_REQ_DATA[1:1+lenODO]
+                    expectODO[0] += 64
+                    logging.debug(f'Erwarteter ODO-Header: lenODO: {lenODO}; expectODO: {expectODO}')
+                    if self.payload[0] == self.SOC_RESP_ID and self.payload[1:1+lenSOC] == expectSOC:
+                        # Erwartungswert für SoC-Auslesekommando ist vorhanden, daher Konvertierung aufrufen
+                        self.calcSOC(self.payload)
                         if self.soc is None:
                             logging.warning("Erhaltener SOC ist ungültig (Return-Wert None). Wird ignoriert")
                         elif self.soc<0 or self.soc>100:
@@ -177,18 +179,9 @@ class carclass:
                             except Exception as e:
                                 logging.error(f'Schreiben des SOC an die Wallbox ist fehlgeschlagen: {e}')
                     elif self.payload[0] == self.ODO_RESP_ID:
-                        if self.ODO_REQ_ID !=0:
-                            # Erwartungswerte zusammenbauen
-                            lenODO = self.ODO_REQ_DATA[0]
-                            expectODO = self.ODO_REQ_DATA[1:1+lenODO]
-                            expectODO[0] += 64
-                            logging.debug(f'lenODO: {lenODO}; expectODO: {expectODO}')
-                            if self.payload[1:1+lenODO] == expectODO:
-                                # Erwartungswert für Auslesekommando ist vorhanden, daher Konvertierung aufrufen
-                                self.calcODO(self.payload)
-                                logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
-                        else:
-                            # ODO_REQ_ID == 0, daher vor Berechnung nicht prüfen, ob Kommando wiederholt wurde
+                        # Erwartungswerte zusammenbauen
+                        if self.payload[1:1+lenODO] == expectODO:
+                            # Erwartungswert für Auslesekommando ist vorhanden, daher Konvertierung aufrufen
                             self.calcODO(self.payload)
                             logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
                     else:
