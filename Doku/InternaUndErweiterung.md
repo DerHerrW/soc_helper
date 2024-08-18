@@ -123,12 +123,19 @@ Die in den Fahrzeugindividuellen Klassen verwendeten Variablen sind für fast je
 4. **ODO_REQ_DATA** - wie SOC_REQ_DATA, für die Abfrage des Kilometerstandes
 5. **SOC_REQUEST** - Der json-String, der die Abfrage für den SoC für den WiCAN zusammenbaut. Hier bitte lediglich den Wert für **"extd"** (true oder false) korrekt setzen und den Rest unverändert lassen: true, wenn die Request-ID einer erweiterte ID ist (29 Bits) und false, wenn eine 11-Bit-ID verwendet wird. Eine 11-Bit-ID kann maximal 2047 groß sein. wenn die oben genannten IDs größer sind, ist davon auszugehen, daß extd auf true gesetzt sein muß.
 6. **ODO_REQUEST** - wie SOC_REQUEST, nur für das Odometer
-7. **SPEAKS_UDS** - eingeführt um Fahrzeuge zu unterscheiden, ob das Frage-Antwortspiel von [UDS](https://de.wikipedia.org/wiki/Unified_Diagnostic_Services) (Unified Diagnostic Service) genutzt werden soll oder passiv auf der Buchse gealuscht werden soll. Die übliche Betriebsart ist SPEAKS_UDS = True. 
+7. **SPEAKS_UDS** - eingeführt um zu unterscheiden, ob das Frage-Antwortspiel von [UDS](https://de.wikipedia.org/wiki/Unified_Diagnostic_Services) (Unified Diagnostic Service) genutzt werden oder passiv auf der Buchse gelauscht werden soll. Die übliche Betriebsart ist SPEAKS_UDS = True. 
 
 #### calcSOC(self, bytes)
-berechnet die Klassenvariable soc aus den Rohdaten, die in der Liste bytes übergeben wird. Der erste Wert in bytes ist entgegen dem Namen kein Byte, sondern der Wert SOC_RESP_ID. Die folgenden Bytes sind die zusammengefassten Nutzlasten der Antwort aus die SoC-Anfrage. Zunächst das Echo der Anfrage, wobei das erste Byte um 64 vergrößert wurde, die anderen Bytes unverändert. Die dann folgenden Bytes sind der Inhalt der Anfrage. Beispiel eUp: bytes = \[2024, 98, 2, 140, 100, 0, 0, 0, 0\]. Die 100 wären der Rohwert des SoC. In Prozent umgerechnet wäre beim eUp eine Division durch 2,5. Um auf den angezeigten SoC zu kommen, ist noch etwas Umrechnung erforderich, da der obere und untere Bereich des Akkus als Reserve vorgehalten wird:
+berechnet die Klassenvariable soc aus den Rohdaten, die in der Liste bytes übergeben wird. Der erste Wert in bytes ist entgegen dem Namen kein Byte, sondern der Wert SOC_RESP_ID. Die folgenden Bytes sind die zusammengefassten Nutzlasten der Antwort aus die SoC-Anfrage:
+
+Bei UDS: Zunächst das Echo der Anfrage, wobei das erste Byte um 64 vergrößert wurde, die anderen Bytes unverändert. Die dann folgenden Bytes sind der Inhalt der Anfrage. Beispiel eUp: bytes = \[2024, 98, 2, 140, 100, 0, 0, 0, 0\].
+Die 100 wären der Rohwert des SoC. In Prozent umgerechnet wäre beim eUp eine Division durch 2,5. Um auf den angezeigten SoC zu kommen, ist noch etwas Umrechnung erforderich, da der obere und untere Bereich des Akkus als Reserve vorgehalten wird:
 
     self.soc = round(bytes[4]/2.5*51/46-6.4)
+
+Ohne UDS folgen nach der ID direkt Nutzdaten. Beispiel ZoePH1: bytes = \[1070, 90, 103, 208, 221, 100, 7, 160, 133\]
+
+    self.soc = round( (bytes[1]*256 + (bytes[2]&0xf8) ) / 400)
 
 #### calcODO(self, bytes)
 berechnet den Kilometerstand aus Rohwerten analog zum schon beschriebenen SoC und speichert ihn in der Klassenvariable odo. Auch diese Umrechnung ist fahrzeugtyp-indiviuell. Es ist eine Standard-PID für das Motorsteuergerät definiert (1,166), diese wird aber nicht von allen Fahrzeugen unterstützt. eUp, eGolf unterstützen sie nicht, Passat GTE beispielsweise schon.
