@@ -332,9 +332,9 @@ class ZoePH1(carclass):
     ODO_RESP_ID = 0 # unbekannt und ungenutzt
 
     def calcSOC(self, bytes):
-        # Nach EVNotiPi: (msg[0:2]) >> 3 & 0x1fff) * 0.02
+        # Nach EVNotiPi: (msg[0:2]) >> 3 & 0x1fff) * 0.02 - also die oberen 13 Bits von Byte 0 und 1 der Nutzdaten, geteilt durch 50.
         logging.debug(f'Daten für SoC-Berechnung:{bytes}')
-        self.soc = round( (bytes[1]*256 + (bytes[2]&0xf8) ) / 400) #erwartet: [1070,xx,aa,bb,xx,xx,xx,xx,xx] mit (aa*256+bb)/400
+        self.soc = round( (bytes[1]*256 + (bytes[2]&0xf8) ) / 400) #erwartet: [1070,aa,bb,xx,xx,xx,xx,xx,xx] mit (aa*256+bb)/400
 
     def calcODO(self, bytes):
         # "220206", // 620206 00 01 54 59
