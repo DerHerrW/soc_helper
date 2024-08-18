@@ -176,6 +176,7 @@ ausgeführt werden. (Ich weiss gerade nicht, was mit einer lokal geänderten con
 # Optional: Vorbereitung für Spritmonitor
 
 Die Nutzung von Spritmonitor ist optional und zur Zeit der Dokumentation kostenlos. Spritmonitor ist eine große Datenbank von Verbräuchen, die von den Nutzern eingepflegt wird. Man kann dort sehen, welche Verbäuche Nutzer mit verschiedenen Fahrzeugen erzielen und wie man im Vergleich zu anderen Nutzern seines Fahrzeugs abschneidet. Es kann Buch geführt werden über Kraftstoffkosten und über Wartung / Reparaturen. Verschiedene Auswertungen sind möglich. Die Verbindung zu Spritmonitor automatisiert das Eingeben der Ladevorgänge an der heimischen Wallbox.
+**Die Nutzung von Spritmonitor funktioniert nur mit Fahrzeugklassen, die sowohl Kilometerstands- als auch SoC-Abfragen unterstützen!**
 
 Spritmonitor hat keine Beziehung zu soc_helper.
 
@@ -277,7 +278,7 @@ Die Fahrzeugdefinitionen befinden sich in [cars.py](../cars.py), die verfügbare
 
 Fall ein Konto bei spritmonitor.de besteht, können Ladevorgänge nach Beenden automatisch dort hochgeladen werden. Erforderlich ist ein Konto und die Anlage des Fahrzeugs dort. Für die Anbindung von Spritmonitor sind folgende weitere Parameter erforderlich:
 
-1. **useSpritmonitor** - muss True sein, damit Spritmonitor genutzt wird
+1. **useSpritmonitor** - muss True sein, damit Spritmonitor genutzt wird. **Wichtig:** Spritmonitornutzung funktioniert nur, sofern ein Fahrzeug sowohl SoC als auch Kilometerstand-Abfragen unterstützt! Momentan ist die bei ZoePH1 und StandardFuelLevel nicht gegeben.
 2. **spritmonitorVehicleId** - ist die Fahrzeugnummer, mit der das Fahrzeug bei Spritmonitor gelistet ist
 3. **spritmonitorFuelsort** - ist die Kraftstoffart, die per Default in den Betankungsvorgang eingetragen wird: 19 steht für allgemeinen Strom, 24 für Ökostrom.
 4. **spritmonitorFuelprice** - ist der Default-Kraftstoffpreis pro kWh. Dies kann der Bezugspreis sein oder bei eigener PV im Sommer die entgangene Einspeisevergütung. Sinnvoll kann bei eigener PV-Anlage auch der Gestehungspreis sein (Anlagenpreis geteilt durch Stromerzeugung über Lebensdauer)
@@ -297,6 +298,20 @@ Bei der Übertragung wird für den Ladevorgang automatisch angewählt, daß mit 
 Das Anlegen der Ladepunkte, die vom soc_helper genutzt werden sollen erfolgt noch einfacher: Für jeden Ladepunkt wird lediglich die Ladepunktnummer übergeben:
 
     myChargepoints.append(chargepoints.chargepoint(chargepointId=3))
+
+## Sonstige Konfiguration
+
+Die Variable OPENWB_IP muß die Adresse enthalten, unter der die als Master funktionierende OpenWB ansprechbar ist:
+
+    OPENWB_IP = '192.168.1.102'
+
+Mit der Variable LOGLEVEL kann eingestellt werden, wie detailliert Log-Ausgaben erfolgen sollen. Mit "INFO" kann in während der Inbetriebnahme und danach gut das Geschehen verfolgt werden. Für die Erstellung neuer Fahrze8ugklassen oder allgemeiner Fehlersuche sollte "DEBUG" gewählt werden. Wenn mit einer SD-Karte gearbeitet wird, sollte nach erfolgter Inbetriebnahme bei problemlosem Betrieb "WARNING" gesetzt werden, um das zu schnelle Ableben durch häufige Schreibzugriffe zu verhindern.
+
+    LOGLEVEL = 'INFO'
+
+Mit der Variablen CHARGELOG_PATH kann definiert werden, wo eine lokale Datei mit den Daten der Ladevorgänge angelegt werden soll. Auf dem Ort müssen Schreibrechte bestehen.
+
+    CHARGELOG_PATH = '/home/pi/soc_helper/energydata.csv'
 
 # soc_helper starten und stoppen
 
