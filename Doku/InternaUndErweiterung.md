@@ -123,6 +123,7 @@ Die in den Fahrzeugindividuellen Klassen verwendeten Variablen sind für fast je
 4. **ODO_REQ_DATA** - wie SOC_REQ_DATA, für die Abfrage des Kilometerstandes
 5. **SOC_REQUEST** - Der json-String, der die Abfrage für den SoC für den WiCAN zusammenbaut. Hier bitte lediglich den Wert für **"extd"** (true oder false) korrekt setzen und den Rest unverändert lassen: true, wenn die Request-ID einer erweiterte ID ist (29 Bits) und false, wenn eine 11-Bit-ID verwendet wird. Eine 11-Bit-ID kann maximal 2047 groß sein. wenn die oben genannten IDs größer sind, ist davon auszugehen, daß extd auf true gesetzt sein muß.
 6. **ODO_REQUEST** - wie SOC_REQUEST, nur für das Odometer
+7. **SPEAKS_UDS** - eingeführt um Fahrzeuge zu unterscheiden, ob das Frage-Antwortspiel von [UDS](https://de.wikipedia.org/wiki/Unified_Diagnostic_Services) (Unified Diagnostic Service) genutzt werden soll oder passiv auf der Buchse gealuscht werden soll. Die übliche Betriebsart ist SPEAKS_UDS = True. 
 
 #### calcSOC(self, bytes)
 berechnet die Klassenvariable soc aus den Rohdaten, die in der Liste bytes übergeben wird. Der erste Wert in bytes ist entgegen dem Namen kein Byte, sondern der Wert SOC_RESP_ID. Die folgenden Bytes sind die zusammengefassten Nutzlasten der Antwort aus die SoC-Anfrage. Zunächst das Echo der Anfrage, wobei das erste Byte um 64 vergrößert wurde, die anderen Bytes unverändert. Die dann folgenden Bytes sind der Inhalt der Anfrage. Beispiel eUp: bytes = \[2024, 98, 2, 140, 100, 0, 0, 0, 0\]. Die 100 wären der Rohwert des SoC. In Prozent umgerechnet wäre beim eUp eine Division durch 2,5. Um auf den angezeigten SoC zu kommen, ist noch etwas Umrechnung erforderich, da der obere und untere Bereich des Akkus als Reserve vorgehalten wird:
@@ -187,15 +188,75 @@ Um den soc_helper beim Booten eines Linux-Rechners mit zu starten, kann man eine
 [zurück](#inhalt)
 
 ## Erweiterung um neue Fahrzeugtypen
+
+Es muss grundsätzlich unterschieden werden, ob UDS genutzt werden soll oder nicht: Manche Fahrzeuge senden jede CAN-Botschaft einfach auf den CAN auf der OBD-Buchse. Hier kann durch passives Auswerten möglicherweise die gewünschten Daten erhalten werden. Bei UDS hingegen werden bestimmte Services gezielt abgefragt. Der VW eUp und MEB legen beispielsweise den CAN nicht auf die Buchse und lassen sich durch UDS abfragen. Die alte Renault Zoe (ZoePH1) scheint nicht auf UDS-Abfragen zu reagieren, schickt dafür aber jede Menge CAN-Botschaften auf die Buchse, unter anderem die Botschaft 1070, in der der Anzeige-SoC zu finden ist. Die Unterscheidung erfolgt mit der Fahrzeugklassenvariable **SPEAKS_UDS**: Ist sie False, werden keine aktiven Abfragen gesendet und bei empfangenen Botschaften lediglich auf die richtige ID geprüft und keine Plausibilisierung einer UDS-Antwort durchgeführt.
+
+### SPEAKS_UDE = True
+
 Sofern die OBD2-Anfragen und Antworten bekannt sind, läßt sich der soc_helper einfach um neue Fahrzeugtypen erweitern. Folgende Schritte sind dafür nötig:
+
+1. Datei cars.py öffnen.
+2. Abschnitt einer Fahrzeugtypenklasse (z.B. class eUp(carclass)) kopieren.
+3. Die neue Klasse umbenennen, also eUp ersetzen durch eine kurze und eingängige Beschreibung des neuen Fahrzeugtyps.
+4. SPEAKS_UDS = True setzen.
+5. die SOC_REQ_ID, SOC_RESP_ID, SOC_REQ_DATA, ODO_REQ_ID, ODO_RESP_ID, ODO_REQ_DATA passend definieren. Die Zahlen sollten Ganzzahlen sein.
+6. Wenn eine ID größer als 2047 ist, handelt es sich sicher um eine erweiterte 29-Bit-ID. In diesem Fall muß im zugehörigen String (SOC_REQUEST und/oder ODO_REQUEST) hinter dem "extd": true stehen, ansonsten false.
+7. Die Umrechnungsfunktionen für soc und odo müssen vermutlich dem Fahrzeug angepaßt werden. Wenn in der Quelle der OBD-Informationen nichts angegeben ist, muß durch Vergleich der Rohwerte mit den im Fahrzeug angezeigten SoC-Werten oder dem Kilometerstand eine Formel ermittelt werden. Beispielsweise sei 100% SOC mit einem Rohwert von 240 in Listenelement 4 und 10% SOC mit einem Rohwert von 40 verbunden. Eine Ausgleichsgerade würde eine Steigung von (100%-10%)/(240-40)=0,45 ergeben. Um von 10% auf 0% zu kommen, sind (10%-0%)/0,45=22,222 Rohwerte erforderlich, also 40-22,222=17,778 Rohwerte Offset. Die Formel für das Beispiel lautet daher: self.soc = (bytes[4]-17,7)*0,45
+
+Beispiel einer UDS-Klasse:
+
+    class eGolf(carclass):
+        SPEAKS_UDS = True
+        SOC_REQ_ID = 2021
+        SOC_RESP_ID = 2029
+        SOC_REQ_DATA = [3, 34, 2, 140, 170, 170, 170, 170]
+        ODO_REQ_ID = 2021
+        ODO_RESP_ID = 2029
+        ODO_REQ_DATA = [3, 34, 2, 189, 170, 170, 170, 170]
+        SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
+        ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
+
+        def calcSOC(self, bytes):
+            logging.debug(f'Daten für SoC-Berechnung: {bytes}')
+          self.soc = round((bytes[4]/2.5-8)/0.88) # e-Golf [2029, 98, 2, 140, aa, xx, xx, xx, xx]. SOC=aa/2.5, Umrechung auf Anzeigewert
+
+        def calcODO(self, bytes):
+            logging.debug(f'Daten für ODO-Berechnung: {bytes}')
+            self.odo = bytes[5]*65536+bytes[6]*256+bytes[7] # VW e-Golf, ungetestet. [2029, 98, 2, 189, xx, bb, cc, dd, xx, xx, xx, xx, xx, xx]
+
+
+### SPEAKS_UDS = False
 
 1. Datei cars.py öffnen
 2. Abschnitt einer Fahrzeugtypenklasse (z.B. class eUp(carclass)) kopieren.
 3. Die neue Klasse umbenennen, also eUp ersetzen durch eine kurze und eingängige Beschreibung des neuen Fahrzeugtyps
-4. die SOC_REQ_ID, SOC_RESP_ID, SOC_REQ_DATA, ODO_REQ_ID, ODO_RESP_ID, ODO_REQ_DATA passen definieren. Die Zahlen sollten Ganzzahlen sein.
-5. Wenn eine ID größer als 2047 ist, handelt es sich sicher um eine erweiterte 29-Bit-ID. In diesem Fall muß im zugehörigen String (SOC_REQUEST und/oder ODO_REQUEST) hinter dem "extd": true stehen, ansonsten false.
-6. Die Umrechnungsfunktionen für soc und odo müssen vermutlich dem Fahrzeug angepaßt werden. Wenn in der Quelle der OBD-Informationen nichts angegeben ist, muß durch Vergleich der Rohwerte mit den im Fahrzeug angezeigten SoC-Werten oder dem Kilometerstand eine Formel ermittelt werden. Beispielsweise sei 100% SOC mit einem Rohwert von 240 in Listenelement 4 und 10% SOC mit einem Rohwert von 40 verbunden. Eine Ausgleichsgerade würde eine Steigung von (100%-10%)/(240-40)=0,45 ergeben. Um von 10% auf 0% zu kommen, sind (10%-0%)/0,45=22,222 Rohwerte erforderlich, also 40-22,222=17,778 Rohwerte Offset. Die Formel für das Beispiel lautet daher: self.soc = (bytes[4]-17,7)*0,45
-7. Wenn die Definition der neuen Fahrzeugtypklasse funktioniert, bitte unbedingt als Pull Request oder den Codeschnippsel per Nachricht an mich zustellen.
+4. SPEAKS_UDS = False setzen
+5. SOC_REQ_ID, ODO_REQ_ID, SOC_REQ_DATA, ODO_REQ_DATA sind nur für UDS relevant und können entfallen.
+6. Ebenso ist das Setzen der Variablen SOC_REQUEST und ODO_REQUEST nicht nötig.
+7. SOC_RESP_ID, und ODO_RESP_ID mit der ID der passenden CAN-Botschaft definieren. Die Zahlen sollten Ganzzahlen sein.
+8. Wenn eine ID größer als 2047 ist, handelt es sich sicher um eine erweiterte 29-Bit-ID. In diesem Fall muß im zugehörigen String (SOC_REQUEST und/oder ODO_REQUEST) hinter dem "extd": true stehen, ansonsten false.
+9. Die Umrechnungsfunktionen für soc und odo müssen vermutlich dem Fahrzeug angepaßt werden. Wenn in der Quelle der OBD-Informationen nichts angegeben ist, muß durch Vergleich der Rohwerte mit den im Fahrzeug angezeigten SoC-Werten oder dem Kilometerstand eine Formel ermittelt werden. Beispielsweise sei 100% SOC mit einem Rohwert von 240 in Listenelement 4 und 10% SOC mit einem Rohwert von 40 verbunden. Eine Ausgleichsgerade würde eine Steigung von (100%-10%)/(240-40)=0,45 ergeben. Um von 10% auf 0% zu kommen, sind (10%-0%)/0,45=22,222 Rohwerte erforderlich, also 40-22,222=17,778 Rohwerte Offset. Die Formel für das Beispiel lautet daher: self.soc = (bytes[4]-17,7)*0,45
+
+Beispiel einer Klasse mit passivem Lauschen ohne UDS:
+
+    class ZoePH1(carclass):
+        # Ich vermute, die alte Zoe spricht kein UDS. Sie sendet aber etliche CAN-Botschaften periodisch auf den CAN der OBD-Buchse.
+        SPEAKS_UDS = False
+        SOC_RESP_ID = 1070 # sollte Anzeige-SOC enthalten
+        ODO_RESP_ID = 0 # zur Zeit unbekannt
+
+        def calcSOC(self, bytes):
+            # Nach EVNotiPi: (msg[0:2]) >> 3 & 0x1fff) * 0.02
+            logging.debug(f'Daten für SoC-Berechnung:{bytes}')
+            self.soc = round( (bytes[1]*256 + (bytes[2]&0xf8) ) / 400) #erwartet: [1070,xx,aa,bb,xx,xx,xx,xx,xx] mit (aa*256+bb)/400
+
+        def calcODO(self, bytes):
+            # zur Zeit nicht genutzt
+            logging.debug(f'Daten für ODO-Berechnung:{bytes}')
+            self.odo = bytes[4]*16777216+bytes[5]*65536+bytes[6]*256+bytes[7] # erwartet: [1867, 94, 2, 6, aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
+
+
+In jedem Fall gilt: Wenn die Definition der neuen Fahrzeugtypklasse funktioniert, bitte unbedingt als Pull Request oder den Codeschnippsel per Nachricht an mich zustellen.
 
 ### Hilfe zur Ermittlung der IDs und Daten
 
