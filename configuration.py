@@ -17,7 +17,8 @@ Die Fahrzeugklassen ("Fahrzeugtypen") sind in cars.py definiert. Momentan verfü
     VwMEB,
     Fiat500e,
     OraFunkyCat,
-    ZoePH1 (R210/Q210,R240,R75,R90,Q90 - kein Kilometerstand, keinSpritmonitor!).
+    ZoePH1 (R210/Q210,R240,R75,R90,Q90 - kein Kilometerstand, keinSpritmonitor!)
+    StandardFuelLevel (Standard-PID für Tankfüllstand eines Verbrenners und Kilometerstand, nur zur Anzeige in der Wallbox)
 
 Für jeden Fahrzeugtyp muss mindestens definiert sein:
 name - Der Name, der auch im WiCAN vergeben ist.
