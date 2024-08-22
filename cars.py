@@ -349,6 +349,28 @@ class ZoePH1(carclass):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = bytes[4]*16777216+bytes[5]*65536+bytes[6]*256+bytes[7] # erwartet: [1867, 94, 2, 6, aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
 
+# see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe.json
+class ZoeTest(carclass):
+    # noch nicht getestet
+    SPEAKS_UDS = True
+    SOC_REQ_ID = 2020 # 0x7E4
+    SOC_RESP_ID = 2028 # 0x7EC
+    SOC_REQ_DATA = [3, 34, 32, 2, 170, 170, 170, 170] # Request 0x222002
+    ODO_REQ_ID = 1859 # 0x743 - Instrument cluster
+    ODO_RESP_ID = 1867
+    ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170]
+    SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
+    ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
+
+    def calcSOC(self, bytes):
+        logging.debug(f'Daten für SoC-Berechnung:{bytes}')
+        self.soc = round( (bytes[4]*256+bytes[5]) / 50)
+
+    def calcODO(self, bytes):
+        # Antwort auf ODO: "220206", // 62020600015459
+        logging.debug(f'Daten für ODO-Berechnung:{bytes}')
+        self.odo = bytes[4]*65536+bytes[5]*256+bytes[6] # erwartet: [1867, 94, 2, 6, aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
+
 class StandardFuelLevel(carclass):
     # Warum nicht den relativen Tankfüllstand als SOC an die OpenWB senden? Hier die Lösung für 11-Bit-CAN-IDs:
     SPEAKS_UDS = True
@@ -397,33 +419,12 @@ class SmartED(carclass):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = ( bytes[3]*65536+bytes[4]*256+bytes[5] ) # Smart ED [1042, xx, xx, aa, bb, cc, dd, xx, xx]
 
-# see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe.json
-class Zoe(carclass):
-    SOC_REQ_ID = 2020 # 0x7E4
-    SOC_RESP_ID = 2028 # 0x7EC
-    SOC_REQ_DATA = [3, 34, 32, 2, 170, 170, 170, 170] # Request 0x222002
-    ODO_REQ_ID = 1859 # 0x743 - Instrument cluster
-    ODO_RESP_ID = ?
-    ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170]
-    SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
-    ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
 
-    def calcSOC(self, bytes):
-        # "2103", 29 Bytes 61030185 16A71724 00000000 01850185 000000FF FF07D005 16E60000 03000000 0000
-        logging.debug(f'Daten für SoC-Berechnung:{bytes}')
-        self.soc = round( (bytes[25]*256+bytes[26]) / 50)
-
-    def calcODO(self, bytes):
-        #SOC_RESP_ID = ??#(Antwortstring in hex scheint mindestens 52 Bytes lang zu sein?! 
-        # Antwort auf ODO: "220206", // 62020600015459
-        logging.debug(f'Daten für ODO-Berechnung:{bytes}')
-        self.odo = bytes[4]*65536+bytes[5]*256+bytes[6]
-
-#see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe2.json
+# see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe2.json
 class Zoe2(carclass):
-    SOC_REQ_ID =  14342897 #DADAF1 (alternativ: 0x79B Lithium battery controller)
-    SOC_RESP_ID = 417001947 # 18DAF1DB oder 18DADBF1?
-    SOC_REQ_DATA = [3, 34, 144, 2, 170, 170, 170, 170] # Request (0x2103 oderr 0x229002?)
+    SOC_REQ_ID =  14342897 #DADAF1
+    SOC_RESP_ID = 417001947 # 18DAF1DA
+    SOC_REQ_DATA = [3, 34, 144, 2, 170, 170, 170, 170] # Request 0x229002
     ODO_REQ_ID = 1859 # 0x743 - Instrument cluster
     ODO_RESP_ID = ?
     ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170]
