@@ -10,18 +10,31 @@ Eigene Änderungen ab hier
 
 Definition der Fahrzeuge
 
+Erklärung: myCars wir die Liste der mit WiCAN-Steckern betriebenen Fahrzeuge. Es werden mittels myCars.append() Fahzeuge an diese Liste angehängt.
+Die Fahrzeugklassen ("Fahrzeugtypen") sind in cars.py definiert. Momentan verfügbar:
+    eUp,
+    eGolf,
+    VwMEB,
+    Fiat500e,
+    OraFunkyCat,
+    ZoePH1 (R210/Q210,R240,R75,R90,Q90 - kein Kilometerstand, keinSpritmonitor!).
+
+Für jeden Fahrzeugtyp muss mindestens definiert sein:
+name - Der Name, der auch im WiCAN vergeben ist.
+openwbVehicleId - die dem Fahrzeug zugeordnete openwb-ID (Nummer), auf der Statusseite der Wallbox angezeigt.
+
 Definition eines Fahrzeugs, das nicht an Spritmonitor übermitteln soll:
 myCars.append(cars.VwMEB(
     name = "Standard",                 # Name des Fahrzeugs, wie im WiCAN konfiguriert. Definiert einen Zweig unter others/ im MQTT-Broker.
     openwbVehicleId = 0                # Fahrzeugnummer in der OpenWB-Konfiguration
 ))
 
-Erklärung: myCars wir die Liste der mit WiCAN-Steckern betriebenen Fahrzeuge. Es werden mittels myCars.append() Fahzeuge an diese Liste angehängt.
-Die Fahrzeugklassen ("Fahrzeugtypen") sind in cars.py definiert. Momentan verfügbar:
-eUp, eGolf, VwMEB, Fiat500e, OraFunkyCat.
-Für jeden Fahrzeugtyp muss mindestens definiert sein:
-name - Der Name, der auch im WiCAN vergeben ist.
-openwbVehicleId - die dem Fahrzeug zugeordnete openwb-ID (Nummer), auf der Statusseite der Wallbox angezeigt.
+Soll an Spritmonitor übermittelt werden, sind weitere Parameter erforderlich (Fahrzeug muss bei spritmonitor angelegt sein!):
+useSpritmonitor - muss True gesetzt werden
+spritmonitorVehicleId - Fahrzeugnummer, die das Fahrzeug bei spritmonitor hat
+spritmonitorFuelsort - Stromsorte; 19 für Strom, 24 für Ökostrom
+spritmonitorFuelprice - Strompreis in €/kWh. Im Winter Bezugspreis, im Sommer bei vorhandener PV z.B. Einspeisevergütung oder Gestehungskosten
+spritmonitorAttributes - Attribute wie summertires oder ac, die per Default gesetzt werden sollen, siehe Dokumentation
 
 Definition eines Fahrzeuges, das zu Spritmonitor übermitteln soll:
 myCars.append(cars.eUp(
@@ -33,13 +46,6 @@ myCars.append(cars.eUp(
     spritmonitorFuelprice = 0.08,
     spritmonitorAttributes = 'summertires,slow'
 ))
-
-Soll an Spritmonitor übermittelt werden, sind weitere Parameter erforderlich (Fahrzeug muss bei spritmonitor angelegt sein!):
-useSpritmonitor - muss True gesetzt werden
-spritmonitorVehicleId - Fahrzeugnummer, die das Fahrzeug bei spritmonitor hat
-spritmonitorFuelsort - Stromsorte; 19 für Strom, 24 für Ökostrom
-spritmonitorFuelprice - Strompreis in €/kWh. Im Winter Bezugspreis, im Sommer bei vorhandener PV z.B. Einspeisevergütung oder Gestehungskosten
-spritmonitorAttributes - Attribute wie summertires oder ac, die per Default gesetzt werden sollen, siehe Dokumentation
 
 Wichtig für Spritmonitor-Konfiguration: Es muß eine gültige Umgebungsvariable
 SPRITMONITOR_BEARER_TOKEN geben. Diese kann bei Spritmonitor.de auf der Passwort-
