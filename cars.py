@@ -167,7 +167,6 @@ class carclass:
                 else:
                     logging.warning('Botschaft mit unbekanntem CAN-TP-Botschaftstyp oder FlowControl empfangen.')
 
-                logging.debug(f'payload ist: {self.payload}')        
                 if self.messageComplete:
                     #in payload liegt eine Liste der komplett empfangenen Botschaft vor
                     # Erwartungswerte zusammenbauen (Kommando wird wiederholt)
