@@ -24,6 +24,7 @@
 1. [MEB-OBD2-IDs](https://github.com/spot2000/Volkswagen-MEB-EV-CAN-parameters/blob/main/VW%20MEB%20UDS%20PIDs%20list.csv)
 1. [SOC/Odo Fiat500e](https://github.com/meatpiHQ/wican-fw/issues/95)
 1. [Mehr OBD2-PIDs](https://github.com/iternio/ev-obd-pids/blob/main/)
+2. [eUp](https://www.goingelectric.de/wiki/Liste-der-OBD2-Codes/) 
 
 ## Werkzeuge
 
