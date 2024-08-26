@@ -90,7 +90,7 @@ class carclass:
         try:
             self.openwbsoc = float(msg.payload)
         except Exception as e:
-            logging.warn(f'Fahrzeug {self.name}: Konnte von der Wallbox empfangenen SoC nicht in Zahl umwandeln: {e}')
+            logging.warning(f'Fahrzeug {self.name}: Konnte von der Wallbox empfangenen SoC nicht in Zahl umwandeln: {e}')
             self.openwbsoc = 0
         logging.debug(f'Von der Wallbox für Fahrzeug {self.name} empfangener SoC: {self.openwbsoc}')
         return()

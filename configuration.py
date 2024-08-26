@@ -60,7 +60,8 @@ myCars.append(cars.eUp(
     name = 'nulli',
     openwbVehicleId = 1,
     useSpritmonitor = True,
-    spritmonitorVehicleId =  1370192,
+#    spritmonitorVehicleId =  1370192,
+    spritmonitorVehicleId =  1569502,
     spritmonitorFuelsort = 24,
     spritmonitorFuelprice = 0.08,
     spritmonitorAttributes = 'summertires,slow'

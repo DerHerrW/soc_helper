@@ -39,11 +39,11 @@ def checkConfig():
     # Prüfen ("-": noch nicht vorhanden, "+": vorhanden):
     # -Ob lokale Logdatei schreibbar ist
     # -Ob hinreichend freier Plattenspeicher vorhanden ist für das Log
+    # -Ob die Wallbox unter der angegebenen IP ereichbar ist
+    # -Ob die Fahrzeuge mit den IDs auch in der Wallbox vorhanden sind
     # +Ob die Namen der Fahrzeuge eindeutig sind (keine Doubletten)
     # +Ob die OpenWB-IDs eindeutig sind
     # +Ob eine IP-Adresse für die Wallbox-Steuerung angegeben ist
-    # -Ob die Wallbox unter der angegebenen IP ereichbar ist
-    # -Ob die Fahrzeuge mit den IDs auch in der Wallbox vorhanden sind
     # +Ob bei Spritmonitor ein Kilometerstand abrufbar ist, sofern Spritmonitor genutzt werden soll:
     # +Wenn SPEAKS_UDS == True ist, muss SOC_REQ_ID gesetzt und ungleich 0 sein
     # +Wenn SPEAKS_UDS == True ist, muss ODO_REQ_ID gesetzt sein, sofern Spritmonitor genutzt werden soll!
@@ -96,15 +96,19 @@ def checkConfig():
             # Bearer-Token vorhanden
             lastFueling = spritmonitor.get_last_fuel_entry(car.spritmonitorVehicleId)
             logging.debug('Antwort von Spritmonitor auf probeweises Abrufen des letzten Kilometerstandes: %s',lastFueling)
-            if len(lastFueling) > 0 and isinstance(lastFueling, list):
-                td = json.loads(json.dumps(lastFueling[0]))
-                if 'odometer' in td:
-                    logging.debug(f'Letzter Spritmonitor-Kilometerstand von Fahrzeug {car.name} erfolgreich abgerufen: {td}.')
+            if isinstance(lastFueling, list):
+                if len(lastFueling) > 0:
+                    td = json.loads(json.dumps(lastFueling[0]))
+                    if 'odometer' in td:
+                        logging.debug(f'Letzter Spritmonitor-Kilometerstand von Fahrzeug {car.name} erfolgreich abgerufen: {td}.')
+                    else:
+                        # should not happen ;-)
+                        logging.error(f'Letzter Spritmonitor-Kilometerstand ergibt Liste mit mindestens einem Eintrag, aber ohne "odometer"')
+                        sys.exit()
                 else:
-                    logging.error('Konnte für Fahrzeug {car.name} keinen letzter Spritmonitor-Kilometerstand ermitteln. Passt Bearer-Token und Fahrzeugnummer?')
-                    sys.exit()
+                    logging.warning(f'Kein letzter Spritmonitor-Kilometerstand für Fahrzeug {car.name}. Nächster Ladvorgang wird Erstbeladung.')
             else:
-                logging.error(f'Probeweises Auslesen des letzten Kilometerstandes bei Spritmonitor ergibt {lastFueling}. Passen Bearer-Token und Fahrzeunummer?')
+                logging.error(f'Probeweises Auslesen des letzten Kilometerstandes bei Spritmonitor ergibt keine Liste {lastFueling}. Passen Bearer-Token und Fahrzeunummer?')
                 sys.exit()
 
     # Für SPEAKS_UDS == True muss SOC_REQ_ID gesetzt und >0 sein
