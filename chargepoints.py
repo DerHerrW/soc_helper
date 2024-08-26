@@ -100,11 +100,11 @@ class chargepoint:
                 # Zeitpunkt des Endes des Ladevorganges
                 datetimeAtPlugOut = datetime.datetime.now() 	# Datum des Ladeendes
                 date = datetimeAtPlugOut.strftime('%d.%m.%Y')   # Datum in lesbarer Form für lokale Datei und ggf. Spritmonitor
-                # lokales Abspeichern
                 if found:
-                    #Fahrzeug in Liste gefunden
+                    # Fahrzeug in Liste gefunden
+                    # lokales Abspeichern
                     energylog.write(date+', '+car.name+', '+str(car.odo)+', '+str(lastCharged)+', '+str(car.socAtPlugin)+', '+str(car.openwbsoc)+'\n')
-                    #Spritmonitor-Teil nach Ladeabschluß
+                    # hochladen zu Spritmonitor
                     if car.useSpritmonitor and (lastCharged >= 0.1):
                         logging.debug(f'Spritmonitor ist konfiguriert. Beginne Übermittlung.')
                         # letzten bei Spritmonitor eingetragenen km-Stand auslesen
