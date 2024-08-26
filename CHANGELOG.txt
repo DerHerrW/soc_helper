@@ -1,3 +1,7 @@
+2024-08-26:
+* Prüfung bei Start bricht nicht mehr ab, falls noch keine Ladung bei
+  Spritmonitor hinterlegt ist.
+
 2024-08-23:
 * Bugfix (Entfernen von Debug-Ausgabe, die möglicherweise auf nicht existierendes
   Objekt zugriff und abstürzt
