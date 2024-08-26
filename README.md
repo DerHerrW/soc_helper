@@ -20,13 +20,14 @@ Beim Abziehen des Ladesteckers aus dem Auto protokolliert der soc_helper den Kil
 ### Funktioniert:
 1. eUp
 2. VW MEB (ID3, ID4 und abgeleitete Varianten von Skoda,Seat)
-3. Standard-Abfragen für Verbrenner: Tankfüllstand (als SOC an die Wallbox), Kilometerstand
+3. Standard-Abfragen für Verbrenner sofern unterstützt: Tankfüllstand (als SOC an die Wallbox), Kilometerstand
+4. eGolf
+5. Renault Zoe alt (PH1), allerdings ohne Kilometerstand und deshalb Spritmonitor
 
 ### Vorbereitet (Tester gesucht):
-1. eGolf (sollte identisch zum eUp funktionieren)
-2. Ora Funky Cat
-3. Renault Zoe
-4. Fiat 500e
+1. Ora Funky Cat
+2. Renault Zoe neu (PH2)
+3. Fiat 500e
 
 Generell werden immer Tester gesucht. Ich freue mich über Rückmeldungen - entweder über das [OpenWB-Forum](https://forum.openwb.de/viewtopic.php?t=7451) oder per EMail an soc_helper\<at\>vortagsmett\<Punkt\>de.
 
