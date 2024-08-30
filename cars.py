@@ -151,12 +151,15 @@ class carclass:
                     # Botschaft ist ein Folgeteil einer mehrteiligen Botschaft. Der Index sollte im unteren Nibble von Byte 0 stehen
                     # hier wird einfach gehofft, daß die Botschaften in der richtigen Reihenfolge ankommen. Sie werden stumpf angehängt.
                     if hasattr(self, 'payload') and hasattr(self, 'bytesToReceive'):
-                        self.payload.extend(data[1:8])     # Je Nachfolger sollten 7 Nutzbytes kommen
-                        self.bytesReceived += 7
-                        if self.bytesReceived >= self.bytesToReceive:
-                            self.messageComplete = True
-                            self.bytesToReceive = 0
-                        logging.debug(f'Mehrteilige Botschaft komplett: {self.payload}')
+                        if self.bytesToReceive > 0:
+                            self.payload.extend(data[1:8])     # Je Nachfolger sollten 7 Nutzbytes kommen
+                            self.bytesReceived += 7
+                            if self.bytesReceived >= self.bytesToReceive:
+                                self.messageComplete = True
+                                self.bytesToReceive = 0
+                            logging.debug(f'Mehrteilige Botschaft komplett: {self.payload}')
+                        else:
+                            logging.debug(f'Unerwarteten Folgeteil einer mehrteiligen Botschaft empfangen: {self.payload} - verwerfe.')
                 elif tpType == 0:
                     # Einteilige Botschaft
                     self.payload = [id]
@@ -200,6 +203,9 @@ class carclass:
                             logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
                     else:
                         logging.warning(f'Empfangene Botschaft: {self.payload} ist keine gültige Antwort auf eine konfigurierte Anfrage')
+
+                    # Botschaftsempfang zurücksetzen
+                    self.messageComplete = False
         else:
             # Fahrzeug spricht kein UDS (ZoePH1 et al)
             for f in frames:

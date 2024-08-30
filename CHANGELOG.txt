@@ -1,3 +1,7 @@
+2024-08-30:
+* Bugfix: Geparste empfangene Message löschen, um nicht bei jeder nicht
+  relevanten empfangenen Botschaft die alte Message wieder neu zu parsen.
+
 2024-08-26:
 * Prüfung bei Start bricht nicht mehr ab, falls noch keine Ladung bei
   Spritmonitor hinterlegt ist.
