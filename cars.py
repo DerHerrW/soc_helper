@@ -341,8 +341,8 @@ class OraFunkyCat(carclass):
 class ZoePH1(carclass):
     # Ich vermute, die alte Zoe spricht kein UDS. Sie sendet aber etliche CAN-Botschaften periodisch auf den CAN der OBD-Buchse.
     SPEAKS_UDS = False
-    SOC_RESP_ID = 1070 # sollte Anzeige-SOC enthalten
-    ODO_RESP_ID = 0 # unbekannt und ungenutzt
+    SOC_RESP_ID = 1070 # sollte Anzeige-SOC enthalten in Bytes 0 und 1
+    ODO_RESP_ID = 1495 # enthält odometer in Bytes 2 bis 5
 
     def calcSOC(self, bytes):
         # Nach EVNotiPi: (msg[0:2]) >> 3 & 0x1fff) * 0.02 - also die oberen 13 Bits von Byte 0 und 1 der Nutzdaten, geteilt durch 50.
@@ -350,9 +350,9 @@ class ZoePH1(carclass):
         self.soc = round( (bytes[1]*256 + (bytes[2]&0xf8) ) / 400) #erwartet: [1070,aa,bb,xx,xx,xx,xx,xx,xx] mit (aa*256+bb)/400
 
     def calcODO(self, bytes):
-        # "220206", // 620206 00 01 54 59
+        # Nach EVNotiPi: (msg[2:6]) >> 4) * 0.01
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
-        self.odo = bytes[4]*16777216+bytes[5]*65536+bytes[6]*256+bytes[7] # erwartet: [1867, 94, 2, 6, aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
+        self.odo = round( (bytes[3]*16777216+bytes[4]*65536+bytes[5]*256+bytes[6])/1600 )  # erwartet: [1495, xx, xx,  aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
 
 # see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe.json
 class ZoeTest(carclass):
@@ -377,14 +377,14 @@ class ZoeTest(carclass):
         self.odo = bytes[4]*65536+bytes[5]*256+bytes[6] # erwartet: [1867, 94, 2, 6, aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
 
 class StandardFuelLevel(carclass):
-    # Warum nicht den relativen Tankfüllstand als SOC an die OpenWB senden? Hier die Lösung für 11-Bit-CAN-IDs:
+    # Warum nicht den relativen Tankfüllstand als SOC an die OpenWB senden? Hier die Lösung für den Golf
     SPEAKS_UDS = True
-    SOC_REQ_ID = 2016
+    SOC_REQ_ID = 2016 # Motorelektronik, Standard-PID für rel. Tankfüllstand
     SOC_RESP_ID = 2024
     SOC_REQ_DATA = [2, 1, 47, 0, 0, 0, 0, 0]
-    ODO_REQ_ID = 2016    # Odometer; im Verbrenner-eUp oder -Golf leider nicht vorhanden
-    ODO_RESP_ID = 2024
-    ODO_REQ_DATA = [2, 1, 166, 0, 0, 0, 0, 0]
+    ODO_REQ_ID = 1812    # Odometer Verbrenner-Golf, Schalttafeleinsatz
+    ODO_RESP_ID = 1918
+    ODO_REQ_DATA = [3, 34, 34, 3, 0, 0, 0, 0]
     SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
     ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
 
@@ -394,7 +394,7 @@ class StandardFuelLevel(carclass):
 
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
-        self.odo = ( bytes[3]*16777216 + bytes[4]*65536 + bytes[5]*256 + bytes[6] )/10 # Standard-PID 166 vom MSG [2024, 65, 166, aa, bb, cc, dd, xx, xx]
+        self.odo = bytes[4]*2560 + bytes[5]*10 # auf 10km quantisierter km-Stand vom Schalttafeleinsatz [1918, 98, 34, 34, aa, bb, xx, xx, xx]
 
 
 """

@@ -1,3 +1,6 @@
+2024-09-05:
+* Erster Versuch, den Kilometerstand der ZoePH1 auszulesen
+
 2024-08-30:
 * Bugfix: Geparste empfangene Message löschen, um nicht bei jeder nicht
   relevanten empfangenen Botschaft die alte Message wieder neu zu parsen.
