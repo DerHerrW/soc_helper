@@ -213,8 +213,6 @@ class carclass:
                 data = f['data']    # json.loads(msg.payload)['frame'][0]['data']: Liste der Nutzbytes vom CAN
                 self.payload = [id]
                 self.payload.extend(data[0:8])
-                self.bytesReceived = 8
-                self.messageComplete = True
                 logging.debug(f'Rohe CAN-Botschaft: {self.payload}')
                 if self.payload[0] == self.SOC_RESP_ID:
                     self.calcSOC(self.payload)
@@ -223,16 +221,14 @@ class carclass:
                     elif self.soc<0 or self.soc>100:
                         logging.warning(f'Erhaltener SOC {self.soc} ist ungültig. Wird ignoriert.')
                     else:
-                        logging.info(f'Fahrzeug-SOC ist {self.soc}')
-                        logging.debug(f'SOC-Wert von {self.soc} an {self.getsetSocTopic()} schicken.')
+                        logging.debug(f'Fahrzeug-SOC von {self.soc} an {self.getsetSocTopic()} schicken.')
                         try:
                             client.publish(self.getsetSocTopic(), self.soc)     #SOC-Wert an die OpenWB schicken.
                         except Exception as e:
                             logging.error(f'Schreiben des SOC an die Wallbox ist fehlgeschlagen: {e}')
                 elif self.payload[0] == self.ODO_RESP_ID:
-                    # Erwartungswerte zusammenbauen
                     self.calcODO(self.payload)
-                    logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
+                    logging.debug(f'Fahrzeug-Kilometerstand ist {self.odo}')
 
 class eUp(carclass):
     # Alle Objekte werden nicht in Init initialisiert und sind deshalb Klassenobjekte!
@@ -354,27 +350,32 @@ class ZoePH1(carclass):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = round( (bytes[3]*16777216+bytes[4]*65536+bytes[5]*256+bytes[6])/1600 )  # erwartet: [1495, xx, xx,  aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
 
-# see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe.json
-class ZoeTest(carclass):
-    # noch nicht getestet
+# see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe2.json
+class ZoePH2(carclass):
     SPEAKS_UDS = True
-    SOC_REQ_ID = 2020 # 0x7E4
-    SOC_RESP_ID = 2028 # 0x7EC
-    SOC_REQ_DATA = [3, 34, 32, 2, 170, 170, 170, 170] # Request 0x222002
-    ODO_REQ_ID = 1859 # 0x743 - Instrument cluster
-    ODO_RESP_ID = 1867
+    SOC_REQ_ID =  14343153  # DADBF1
+    SOC_RESP_ID = 417001947 # 18DAF1DB
+    SOC_REQ_DATA = [3, 34, 144, 2, 170, 170, 170, 170] # Request 0x229002
+    ODO_REQ_ID = 0 # nicht abfragen. sonst: 1859 (0x743) - Instrument cluster
+    ODO_RESP_ID = 0
     ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170]
-    SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(SOC_REQ_DATA)+' }] }'
-    ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
+    SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": true, "data": '+str(SOC_REQ_DATA)+' }] }'
+    ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": true, "data": '+str(ODO_REQ_DATA)+' }] }'
 
     def calcSOC(self, bytes):
+        # Renault Zoe, siehe https://github.com/nickn17/evDash/blob/master/src/CarRenaultZoe.cpp
+        # Antwort auf SOC: "2103": 01D 6103018516A717240000000001850185000000FFFF07D00516E60000030000000000
+        # "2103", 29 Bytes 61030185 16A71724 00000000 01850185 000000FF FF07D005 16E60000 03000000 0000
+        # liveData->params.socPerc = liveData->hexToDecFromResponse(48, 52, 2, false) / 100.0; 48 und 52 sind Nibbles? Byte 24 bis 26
+        # 6103 ist der Request +0x40 im ersten Byte
         logging.debug(f'Daten für SoC-Berechnung:{bytes}')
-        self.soc = round( (bytes[4]*256+bytes[5]) / 50)
+        self.soc = round( (bytes[x]*256+bytes[y]) / 100)
 
     def calcODO(self, bytes):
+        #SOC_RESP_ID = ??#(Antwortstring in hex scheint mindestens 52 Bytes lang zu sein?! 
         # Antwort auf ODO: "220206", // 62020600015459
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
-        self.odo = bytes[4]*65536+bytes[5]*256+bytes[6] # erwartet: [1867, 94, 2, 6, aa, bb, cc, dd, xx] mit odo=aa*2**24+bb*2**16+cc*256+dd
+        self.odo = bytes[4]*65536+bytes[5]*256+bytes[6]
 
 class StandardFuelLevel(carclass):
     # Warum nicht den relativen Tankfüllstand als SOC an die OpenWB senden? Hier die Lösung für den Golf
@@ -423,31 +424,4 @@ class SmartED(carclass):
         print(f'Daten für ODO-Berechnung:{bytes}')
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = ( bytes[3]*65536+bytes[4]*256+bytes[5] ) # Smart ED [1042, xx, xx, aa, bb, cc, dd, xx, xx]
-
-
-# see https://github.com/iternio/ev-obd-pids/blob/main/renault/zoe2.json
-class Zoe2(carclass):
-    SOC_REQ_ID =  14342897 #DADAF1
-    SOC_RESP_ID = 417001947 # 18DAF1DA
-    SOC_REQ_DATA = [3, 34, 144, 2, 170, 170, 170, 170] # Request 0x229002
-    ODO_REQ_ID = 1859 # 0x743 - Instrument cluster
-    ODO_RESP_ID = ?
-    ODO_REQ_DATA = [3, 34, 2, 6, 170, 170, 170, 170]
-    SOC_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(SOC_REQ_ID)+', "dlc": 8, "rtr": false, "extd": true, "data": '+str(SOC_REQ_DATA)+' }] }'
-    ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
-
-    def calcSOC(self, bytes):
-        # Renault Zoe, siehe https://github.com/nickn17/evDash/blob/master/src/CarRenaultZoe.cpp
-        # Antwort auf SOC: "2103": 01D 6103018516A717240000000001850185000000FFFF07D00516E60000030000000000
-        # "2103", 29 Bytes 61030185 16A71724 00000000 01850185 000000FF FF07D005 16E60000 03000000 0000
-        # liveData->params.socPerc = liveData->hexToDecFromResponse(48, 52, 2, false) / 100.0; 48 und 52 sind Nibbles? Byte 24 bis 26
-        # 6103 ist der Request +0x40 im ersten Byte
-        logging.debug(f'Daten für SoC-Berechnung:{bytes}')
-        self.soc = round( (bytes[x]*256+bytes[y]) / 100)
-
-    def calcODO(self, bytes):
-        #SOC_RESP_ID = ??#(Antwortstring in hex scheint mindestens 52 Bytes lang zu sein?! 
-        # Antwort auf ODO: "220206", // 62020600015459
-        logging.debug(f'Daten für ODO-Berechnung:{bytes}')
-        self.odo = bytes[4]*65536+bytes[5]*256+bytes[6]
 """
