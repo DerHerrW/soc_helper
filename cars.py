@@ -263,8 +263,9 @@ class eGolf(carclass):
     ODO_REQUEST = '{ "bus": "0", "type": "tx", "frame": [{ "id": '+str(ODO_REQ_ID)+', "dlc": 8, "rtr": false, "extd": false, "data": '+str(ODO_REQ_DATA)+' }] }'
 
     def calcSOC(self, bytes):
+        # Umrechnung gemäß https://github.com/meatpiHQ/wican-fw/issues/168#issuecomment-2325270376
         logging.debug(f'Daten für SoC-Berechnung: {bytes}')
-        self.soc = round((bytes[4]/2.5-8)/0.88) # e-Golf [2029, 98, 2, 140, aa, xx, xx, xx, xx]. SOC=aa/2.5, Umrechung auf Anzeigewert
+        self.soc = max( [round((bytes[4]-20) /2.2), 0] ) # e-Golf [2029, 98, 2, 140, aa, xx, xx, xx, xx].
 
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
