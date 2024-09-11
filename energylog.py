@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
+import sys
 import logging
 from os.path import exists
 
@@ -32,6 +32,7 @@ def init(path):
             savefile = open(path,'a')
     except Exception as e:
         logging.error(f'Konnte Ausgabedatei {path} nicht anlegen oder öffnen: {e}')
+        sys.exit()
     
 def write(line):
     global savefile

@@ -25,6 +25,7 @@ import json
 import sys
 import time
 import importlib
+import shutil
 from os.path import exists
 import os
 import energylog
@@ -37,10 +38,10 @@ import spritmonitor	# Zum Prüfen bei Programmstart
 def checkConfig():
     logging.debug('Prüfe Konfiguration...')
     # Prüfen ("-": noch nicht vorhanden, "+": vorhanden):
-    # -Ob lokale Logdatei schreibbar ist
-    # -Ob hinreichend freier Plattenspeicher vorhanden ist für das Log
     # -Ob die Wallbox unter der angegebenen IP ereichbar ist
     # -Ob die Fahrzeuge mit den IDs auch in der Wallbox vorhanden sind
+    # +Ob lokale Logdatei schreibbar ist, wird in energylog.py geprüft
+    # +Ob hinreichend freier Plattenspeicher vorhanden ist für das Log
     # +Ob die Namen der Fahrzeuge eindeutig sind (keine Doubletten)
     # +Ob die OpenWB-IDs eindeutig sind
     # +Ob eine IP-Adresse für die Wallbox-Steuerung angegeben ist
@@ -48,11 +49,18 @@ def checkConfig():
     # +Wenn SPEAKS_UDS == True ist, muss SOC_REQ_ID gesetzt und ungleich 0 sein
     # +Wenn SPEAKS_UDS == True ist, muss ODO_REQ_ID gesetzt sein, sofern Spritmonitor genutzt werden soll!
 
+    # Genug Plattenplatz vorhanden (mindestens 5MB?)
+    fs = shutil.disk_usage('.').free
+    logging.debug(f'Freier Speicher: {fs/1024/1024} MB.')
+    if fs < 1024*1024*5:
+        logging.warn('Achtung: Weniger als 5MB Speicher vorhanden.')
+    
     # IP-Adresse der OpenWB vorhanden?
     logging.debug('Prüfe auf OpenWB-IP-Adresse')
     if not hasattr(configuration, 'OPENWB_IP'):
         logging.error('OPENWB_IP ist undefiniert')
         sys.exit()
+
     # IP-Adresse der OpenWB funktionsfähig?
 
     # Doppelte Namen?
