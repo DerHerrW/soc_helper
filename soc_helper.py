@@ -181,7 +181,7 @@ try:
     # MQTT-Topic-Abos einrichten und mit Callback-Funktionen verbinden
     logging.info(f'Verbinde Callbackfunktionen der Ladepunkte:')
     for cp in configuration.myChargepoints:
-        logging.debug(f'Ladepunkt {cp.chargepointId}')
+        logging.info(f'Ladepunkt {cp.chargepointId}')
         m = cp.getCounterTopic()
         logging.debug(f'Abonniere {m}')
         client.message_callback_add(m, cp.cb_energycounter)		# Zählerstand von Chargepoint cp empfangen
@@ -193,7 +193,7 @@ try:
         client.message_callback_add(m, cp.cb_plug)			    # Ladesteckerzustand von Chargepoint cp empfangen
     logging.info(f'Verbinde Callbackfunktionen der Fahrzeuge:')
     for car in configuration.myCars:
-        logging.debug(f'Fahrzeug {car.name}')
+        logging.info(f'Fahrzeug {car.name}')
         m = car.getStatusTopic()
         logging.debug(f'Abonniere {m}')
         client.message_callback_add(m, car.cb_status)		# WiCAN-Statusbotschaft empfangen für car
