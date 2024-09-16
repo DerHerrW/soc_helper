@@ -1,3 +1,7 @@
+2024-09-16:
+* Unplausible Kilometerstände abfangen und erneute ODO-Abfrage senden
+* Fehler in bisher ungenutzten Fahrzeugklassen entdeckt und gefixt
+
 2024-09-06:
 * Überflüssige Zuweisungen für Nicht-UDS_Fahrzeuge entfernt
 * Loglevel für empfangene Botschaften von Nicht-UDS-Fahrzeugen von info

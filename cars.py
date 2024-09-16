@@ -201,6 +201,10 @@ class carclass:
                             # Erwartungswert für Auslesekommando ist vorhanden, daher Konvertierung aufrufen
                             self.calcODO(self.payload)
                             logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
+                            if self.odo = -1:  # Wert für "nicht bereit"
+                                # Kilometerstand lieferte nur Einsen (meist bedeutet das "nicht bereit")
+                                logging.warn('Kilometerstand nicht nutzbar. Sende erneute ODO-Anfrage')
+                                client.publish(self.getTxTopic(), self.ODO_REQUEST)
                     else:
                         logging.warning(f'Empfangene Botschaft: {self.payload} ist keine gültige Antwort auf eine konfigurierte Anfrage')
 
@@ -250,6 +254,8 @@ class eUp(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
         self.odo =  bytes[5]*65536+bytes[6]*256+bytes[7] # VW e-up. [2029, 98, 2, 189, xx, bb, cc, dd, xx, xx]
+        if self.odo = 0xffffff:
+            self.odo = -1
 
 class eGolf(carclass):
     SPEAKS_UDS = True
@@ -270,6 +276,8 @@ class eGolf(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
         self.odo = bytes[5]*65536+bytes[6]*256+bytes[7] # VW e-Golf, ungetestet. [2029, 98, 2, 189, xx, bb, cc, dd, xx, xx, xx, xx, xx, xx]
+        if self.odo = 0xffffff:
+            self.odo = -1
 
 class VwMEB(carclass):
     SPEAKS_UDS = True
@@ -289,6 +297,9 @@ class VwMEB(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = bytes[4]*65536+bytes[5]*256+bytes[6] # VW MEB. [0x17FE0076, 98, 41, 90, aa, bb, cc, xx]
+        if self.odo = 0xffffff:
+            # Abfangen von "nicht bereit"
+            self.odo = -1
 
 class Fiat500e(carclass):
     SPEAKS_UDS = True
@@ -307,10 +318,10 @@ class Fiat500e(carclass):
         displaySoc = min( round(bytes[6]*0.45-6.4), 100 ) # Fiat 500e [0x18DAF144, 98, 160, 16, xx, xx, aa, xx, xx, xx, ...]. SOC ist aa/2.55
         return(displaySoc)
     def calcODO(self, bytes):
-        print(f'Daten für ODO-Berechnung:{bytes}')
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
-        return( (bytes[4]*65536+bytes[5]*256+bytes[6])/10 ) # Fiat 500e [0x18DAF142, 98, 32, 1, aa, bb, cc, xx]
-
+        self.odo = (bytes[4]*65536+bytes[5]*256+bytes[6])/10  # Fiat 500e [0x18DAF142, 98, 32, 1, aa, bb, cc, xx]
+        if self.odo = 0xffffff / 10:
+            self.odo = -1
 
 # Ora Funky Cat, Danke an Kitmgue
 class OraFunkyCat(carclass):
@@ -330,9 +341,11 @@ class OraFunkyCat(carclass):
         logging.debug(f'Daten für SoC-Berechnung:{bytes}')
         return( round((bytes[4]*256+bytes[5])/10) ) # Ora Funky Cat [1995, 98, 3, 8, aa, bb, xx, xx]. SOC ist (aa*256+bb)/10
     def calcODO(self, bytes):
-        print(f'Daten für ODO-Berechnung:{bytes}')
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
-        return( bytes[4]*65536+bytes[5]*256+bytes[6] ) # Ora Funky Cat. [1995, 98, 208, 4, aa, bb, cc, xx]
+        self.odo =  bytes[4]*65536+bytes[5]*256+bytes[6]  # Ora Funky Cat. [1995, 98, 208, 4, aa, bb, cc, xx]
+        if self.odo = 0xffffff:
+            # Abfangen von "nicht bereit"
+            self.odo = -1
 
 #see https://github.com/meatpiHQ/wican-fw/issues/17#issuecomment-1456925171
 class ZoePH1(carclass):
@@ -377,6 +390,9 @@ class ZoePH2(carclass):
         # Antwort auf ODO: "220206", // 62020600015459
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = bytes[4]*65536+bytes[5]*256+bytes[6]
+        if self.odo = 0xffffff:
+            # Abfangen von "nicht bereit"
+            self.odo = -1
 
 class StandardFuelLevel(carclass):
     # Warum nicht den relativen Tankfüllstand als SOC an die OpenWB senden? Hier die Lösung für den Golf
@@ -397,6 +413,9 @@ class StandardFuelLevel(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
         self.odo = bytes[4]*2560 + bytes[5]*10 # auf 10km quantisierter km-Stand vom Schalttafeleinsatz [1918, 98, 34, 34, aa, bb, xx, xx, xx]
+        if self.odo = 0xffff * 10:
+            # Abfangen von "nicht bereit"
+            self.odo = -1
 
 
 """
@@ -422,7 +441,9 @@ class SmartED(carclass):
         self.soc = round( (bytes[8]/2) ) # Smart ED [1304, ?, ?, ?, xx, xx, xx, xx, aa]. Displayed SOC ist aa/2
         #return( round( ( (bytes[5] & 3)*256 + bytes[6] ) /10) ) # Smart ED [725, ?, ?, ?, xx, aa, bb, xx, xx]. real SOC is ((2lower Bits of aa)*256+bb)/10
     def calcODO(self, bytes):
-        print(f'Daten für ODO-Berechnung:{bytes}')
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = ( bytes[3]*65536+bytes[4]*256+bytes[5] ) # Smart ED [1042, xx, xx, aa, bb, cc, dd, xx, xx]
+        if self.odo = 0xffffff:
+            # Abfangen von "nicht bereit"
+            self.odo = -1
 """

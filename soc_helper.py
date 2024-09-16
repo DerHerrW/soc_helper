@@ -38,8 +38,9 @@ import spritmonitor	# Zum Prüfen bei Programmstart
 def checkConfig():
     logging.debug('Prüfe Konfiguration...')
     # Prüfen ("-": noch nicht vorhanden, "+": vorhanden):
-    # -Ob die Wallbox unter der angegebenen IP ereichbar ist
-    # -Ob die Fahrzeuge mit den IDs auch in der Wallbox vorhanden sind
+    # ( -Ob die Wallbox unter der angegebenen IP ereichbar ist
+    #   -Ob die Fahrzeuge mit den IDs auch in der Wallbox vorhanden sind) - Noch keine Verbindung zum MQTT-Server zu
+    #   diesem Zeitpunkt
     # +Ob lokale Logdatei schreibbar ist, wird in energylog.py geprüft
     # +Ob hinreichend freier Plattenspeicher vorhanden ist für das Log
     # +Ob die Namen der Fahrzeuge eindeutig sind (keine Doubletten)
@@ -162,7 +163,7 @@ def on_disconnect(client, userdata, rc):
 # Logger anlegen
 FORMAT = "%(asctime)s;%(levelname)9s;[%(filename)19s:%(lineno)3s - %(funcName)16s() ] %(message)s"
 logging.basicConfig(encoding='utf-8', format=FORMAT, level=logging.getLevelName(configuration.LOGLEVEL))
-logging.critical('Starte soc_helper Version 2024-09-06')
+logging.critical('Starte soc_helper Version 2024-09-16')
 
 # Prüfen der Konfiguration
 checkConfig()
