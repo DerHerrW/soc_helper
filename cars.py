@@ -201,7 +201,7 @@ class carclass:
                             # Erwartungswert für Auslesekommando ist vorhanden, daher Konvertierung aufrufen
                             self.calcODO(self.payload)
                             logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
-                            if self.odo = -1:  # Wert für "nicht bereit"
+                            if self.odo == -1:  # Wert für "nicht bereit"
                                 # Kilometerstand lieferte nur Einsen (meist bedeutet das "nicht bereit")
                                 logging.warn('Kilometerstand nicht nutzbar. Sende erneute ODO-Anfrage')
                                 client.publish(self.getTxTopic(), self.ODO_REQUEST)
@@ -254,7 +254,7 @@ class eUp(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
         self.odo =  bytes[5]*65536+bytes[6]*256+bytes[7] # VW e-up. [2029, 98, 2, 189, xx, bb, cc, dd, xx, xx]
-        if self.odo = 0xffffff:
+        if self.odo == 0xffffff:
             self.odo = -1
 
 class eGolf(carclass):
@@ -276,7 +276,7 @@ class eGolf(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
         self.odo = bytes[5]*65536+bytes[6]*256+bytes[7] # VW e-Golf, ungetestet. [2029, 98, 2, 189, xx, bb, cc, dd, xx, xx, xx, xx, xx, xx]
-        if self.odo = 0xffffff:
+        if self.odo == 0xffffff:
             self.odo = -1
 
 class VwMEB(carclass):
@@ -297,7 +297,7 @@ class VwMEB(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = bytes[4]*65536+bytes[5]*256+bytes[6] # VW MEB. [0x17FE0076, 98, 41, 90, aa, bb, cc, xx]
-        if self.odo = 0xffffff:
+        if self.odo == 0xffffff:
             # Abfangen von "nicht bereit"
             self.odo = -1
 
@@ -320,7 +320,7 @@ class Fiat500e(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = (bytes[4]*65536+bytes[5]*256+bytes[6])/10  # Fiat 500e [0x18DAF142, 98, 32, 1, aa, bb, cc, xx]
-        if self.odo = 0xffffff / 10:
+        if self.odo == 0xffffff / 10:
             self.odo = -1
 
 # Ora Funky Cat, Danke an Kitmgue
@@ -343,7 +343,7 @@ class OraFunkyCat(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo =  bytes[4]*65536+bytes[5]*256+bytes[6]  # Ora Funky Cat. [1995, 98, 208, 4, aa, bb, cc, xx]
-        if self.odo = 0xffffff:
+        if self.odo == 0xffffff:
             # Abfangen von "nicht bereit"
             self.odo = -1
 
@@ -390,7 +390,7 @@ class ZoePH2(carclass):
         # Antwort auf ODO: "220206", // 62020600015459
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = bytes[4]*65536+bytes[5]*256+bytes[6]
-        if self.odo = 0xffffff:
+        if self.odo == 0xffffff:
             # Abfangen von "nicht bereit"
             self.odo = -1
 
@@ -413,7 +413,7 @@ class StandardFuelLevel(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
         self.odo = bytes[4]*2560 + bytes[5]*10 # auf 10km quantisierter km-Stand vom Schalttafeleinsatz [1918, 98, 34, 34, aa, bb, xx, xx, xx]
-        if self.odo = 0xffff * 10:
+        if self.odo == 0xffff * 10:
             # Abfangen von "nicht bereit"
             self.odo = -1
 
@@ -443,7 +443,7 @@ class SmartED(carclass):
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung:{bytes}')
         self.odo = ( bytes[3]*65536+bytes[4]*256+bytes[5] ) # Smart ED [1042, xx, xx, aa, bb, cc, dd, xx, xx]
-        if self.odo = 0xffffff:
+        if self.odo == 0xffffff:
             # Abfangen von "nicht bereit"
             self.odo = -1
 """
