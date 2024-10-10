@@ -1,5 +1,8 @@
 # soc_helper
 
+## Vorweg
+Falls nur der SoC des Fahrzeugs vom WiCAN zu einem MQTT-Broker übertragen werden soll, kann der WiCAN inzwischen alleine verwendet werden. Ab Firmware 3.30 erfolgt eine starke Weiterentwicklung in diese Richtung. Auch andere Werte wie Reichweite, Kilometerstand können bei einigen Fahrzeugen schon direkt per MQTT übertragen werden. Ein Einstieg findet sich unter (https://forum.openwb.de/viewtopic.php?t=9397). Der soc_helper bietet darüber hinausgehend nur die Anbindung an Spritmonitor und Beispiel für eigenen Code.
+
 ## Motivation
 
 Der soc_helper ist aus einem persönlichen Bedürfnis entstanden: Vorhanden sind eine [OpenWB](https://openwb.de/main/) und ein eUp. Im ersten Jahr gibt es gratis weConnect zum Auto dazu. Solange dieser Zugang besteht, kann die OpenWB den Ladezustand automatisch von einem VW-Server abfragen. Dies ist nützlich, um die Ladung akkuschonend bei 80% zu beenden.
