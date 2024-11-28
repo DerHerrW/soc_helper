@@ -114,7 +114,7 @@ Der WiCAN sollte sich einige Zeit nach Wegnahme der Fahrbereitschaft des Fahrzeu
 
 [zurück](inhalt)
 
-#Linuxsystem konfigurieren
+# Linuxsystem konfigurieren
 Vorweg: Es ist nicht nötig, Linux als Grundlage für den soc_helper zu verwenden. Theoretisch kann auch ein Desktoprechner oder Laptop mit Windows verwendet werden. Empfehlenswert ist allerdings etwas stromsparendes wie der Raspberry Pi. Weil ich mit Windows keine Erfahrungen habe, beschreibe ich hier die nötigen Tätigkeiten nach dem Aufsetzen eines Linux-Grundsystems auf einem Raspberry Pi. Für die Bedienung eines Linux-Systems von der Konsole sei auf andere Anleitungen verwiesen, da dies den Umfang dieser Anleitung bei weitem sprengen würde.
 
 ## Micro-SD-Karte bespielen:
@@ -229,7 +229,7 @@ Um mit dem WiCAN zusammen zu arbeiten, sind ein paar Einstellungen in der OpenWB
 
 ## Fahrzeugprofile
 
-Im zu nutzenden Fahrzeugprofil muß die Netto-Kapazität der Fahrzeugbatterie sowie der Ladewirkungsgrad korrekt eingestellt sein, da sonst das SoC-Modul während der Ladung den Ladezustand falsch berechnet (SoC bedeutet State of Charge und ist gleichbedeutend mit Ladezustand). Der e-Up! der zweiten Generation hat eine nutzbare Batteriekapazität von 32,3kWh, dies wird hier auf 32kWh gerundet. Beim Laden hat das Fahrzeug Verluste. Diese kommen einerseits von Nebenverbrauchern und sind unabhängig von der Ladeleistung, zum anderen hat das Ladegerät selbst von der Ladeleistungs abhängige Verluste. Die im Bild angegebenen 90% sind daher en Mittelwert. Wenn die Ladung mit geringer Leistung stattfindet, sind die Verluste höher, weil die Nebenverbraucher mehr ins Gewicht fallen. Bei hoher Leistung wird der Wirkungsgrade etwas besser sein. Hier gilt es, durch Probieren einen sinnvollen Wert herauszufinden:
+Im zu nutzenden Fahrzeugprofil muß die Netto-Kapazität der Fahrzeugbatterie sowie der Ladewirkungsgrad korrekt eingestellt sein, da sonst das SoC-Modul während der Ladung den Ladezustand falsch berechnet (SoC bedeutet State of Charge und ist gleichbedeutend mit Ladezustand). Der e-Up! der zweiten Generation hat eine nutzbare Batteriekapazität von 32,3kWh, dies wird hier auf 32kWh gerundet. Beim Laden hat das Fahrzeug Verluste. Diese kommen einerseits von Nebenverbrauchern und sind unabhängig von der Ladeleistung, zum anderen hat das Ladegerät selbst von der Ladeleistungs abhängige Verluste. Die im Bild angegebenen 90% haben sich in der Praxis als zu niedrig erwiesen. Für den e-Up! habe ich mit 95% gute Erfahrungen gemacht. Wenn die Ladung mit geringer Leistung stattfindet, sind die Verluste höher, weil die Nebenverbraucher mehr ins Gewicht fallen. Bei hoher Leistung wird der Wirkungsgrade etwas besser sein. Hier gilt es, durch Probieren einen sinnvollen Wert herauszufinden:
 
 Wenn der SoC nach Abstecken grundsätzlich höher ist als von der Wallbox berechnet, sollte der Wirkungsgrad heraufgesetzt werden. Wenn der Ladezustand nach Abstecken meist zu niedrig ist, sollte der Wirkungsgrad verringert werden, um der Wirklichkeit Rechnung zu tragen.
 
@@ -239,7 +239,7 @@ Wenn der SoC nach Abstecken grundsätzlich höher ist als von der Wallbox berech
 
 Unter der Fahrzeugkonfiguration ist als SoC-Modul "Manueller SoC" auszuwählen. Dieses Modul nimmt normalerweise die manuelle Eingabe des SoC und rechnet anhand HV-Speicherkapazität, Ladewirkungsgrad und gemessener Ladearbeit den SOC während der Ladung fortwährend aus. Der soc_helper nutzt die Eingabemöglichkeit und schickt den aus dem Fahrzeug asugelesenen Ladezustand an die Wallbox, die dann während der Ladung den Fahrzeug-SoC berechnet.
 
-Der SoC wird nicht direkt aus dem Fahrzeug gelesen - das klappt nur mit der OpenWB Pro im Zusammenspiel mit einigen Fahrzeugtypen. Während der Ladung soll jede Minute der SoC aktualisiert werden, ohne Ladung ist es nicht nötig (lange ZZeitintervalle, hier 720 Minuten) und im abgesteckten Zustandergibt die Funktion keinen Sinn, daher nur aktualisieren wenn angesteckt.
+Der SoC wird nicht direkt aus dem Fahrzeug gelesen - das klappt nur mit der OpenWB Pro im Zusammenspiel mit einigen Fahrzeugtypen. Während der Ladung soll jede Minute der SoC aktualisiert werden, ohne Ladung ist es nicht nötig (lange Zeitintervalle, hier 720 Minuten) und im abgesteckten Zustandergibt die Funktion keinen Sinn, daher nur aktualisieren wenn angesteckt.
 
 ![Einstellungen Fahrzeug](./OpenWB_EinstellungenFahrzeug.png "Einstellungen Fahrzeug")
 
@@ -269,6 +269,7 @@ Zu Beginn con configuration.py wird jeweils eine leere Liste von Fahrzeugen ("my
         spritmonitorFuelsort = 24,
         spritmonitorFuelprice = 0.08,
         spritmonitorAttributes = 'summertires,slow'
+        actionURL = 'http://192.168.1.109/relay/1?turn=on&timer=420'
     ))
 
 Die Fahrzeugdefinitionen befinden sich in [cars.py](../cars.py), die verfügbaren Typen sollten als Kommentar in configuration.py gelistet sein. Das Beispiel hängt der Liste ein Fahrzeug vom Typ eUp an. Jedem Fahrzeug werden mindestens die Parameter `name` und `openwbVehicleId` übergeben.
@@ -283,6 +284,7 @@ Fall ein Konto bei spritmonitor.de besteht, können Ladevorgänge nach Beenden a
 3. **spritmonitorFuelsort** - ist die Kraftstoffart, die per Default in den Betankungsvorgang eingetragen wird: 19 steht für allgemeinen Strom, 24 für Ökostrom.
 4. **spritmonitorFuelprice** - ist der Default-Kraftstoffpreis pro kWh. Dies kann der Bezugspreis sein oder bei eigener PV im Sommer die entgangene Einspeisevergütung. Sinnvoll kann bei eigener PV-Anlage auch der Gestehungspreis sein (Anlagenpreis geteilt durch Stromerzeugung über Lebensdauer)
 5. **spritmonitorAttributes** - ist eine Zeichenkette, in der durch Komma getrennt, Informationen über das Fahren zwischen den Tankvorgängen übergeben werden. Es sollten nur solche Attribute angegeben werden, die nahezu immer aktiv sind. Gültige Werte sind je ein Wort für Reifensorte ("summertires" / "wintertires" / "allyeartires"), die Fahrweise ("slow" / "normal" / "fast"), falls die Klimaanlage meist in Betrieb ist "ac", falls immer mit Anhänger gefahren wird "trailer", falls die Standheizung immer aktiv ist "heating". Die Zeichenkette darf leer sein ('').
+6. **actionURL** - wenn die Zeichenkette angegeben ist, wird diese URL aufgerufen, sofern der gerade abgefragte SoC um mehr als 2% geringer ist als der zuvor abgefragte. Dies dient dazu, bei Rückkehr des Fahrzeugs eine Aktion auszuführen, zum Beispiel mittels eines shelly-Relaisschalters für eine definierte Zeit das Licht anzuschalten.
 
 Bei der Übertragung wird für den Ladevorgang automatisch angewählt, daß mit 11kW AC geladen wurde und die Lademenge durch die Wallbox gemessen wurde. Momentan ist dies hart codiert. Falls Bedarf besteht, die Ladeleistung auf beispielsweie 3,6kW zu setzen (fixes Einphasiges Laden als Defaulteinstellung), kann ich den Wert konfigurierbar gestalten. Eine Berechnung der durchschnittlichen Ladeleistung halte ich für nicht sinnvoll, da eine Ladung für den soc_helper mit Stecken des Ladesteckers beginnt und mit Abziehen endet, auch wenn schon lange vorher kein Strom mehr geflossen ist.zurück
 
