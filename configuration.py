@@ -6,8 +6,6 @@ myCars = []     	# leere Liste von Fahrzeugen
 myChargepoints = []	# leere Liste von Ladepunkten
 
 """
-Eigene Änderungen ab hier
-
 Definition der Fahrzeuge
 
 Erklärung: myCars wir die Liste der mit WiCAN-Steckern betriebenen Fahrzeuge. Es werden mittels myCars.append() Fahzeuge an diese Liste angehängt.
@@ -45,7 +43,7 @@ myCars.append(cars.eUp(
     spritmonitorVehicleId =  1370192,
     spritmonitorFuelsort = 24,
     spritmonitorFuelprice = 0.08,
-    spritmonitorAttributes = 'summertires,slow'
+    spritmonitorAttributes = 'wintertires,slow'
 ))
 
 Wichtig für Spritmonitor-Konfiguration: Es muß eine gültige Umgebungsvariable
@@ -55,21 +53,29 @@ nicht aus versehen der Zugang mit verschickt wird, wenn der Code weitergegeben
 oder veröffentlicht wird. Sie wird vor Aufruf von soc_helper.py mittels
 "export SPRITMONITOR_BEARER_TOKEN=<eigenerToken>" deklariert - idealerweise in der Datei
 ~/.profile schon bei der Anmeldung am System.
+
+Option actionURL: Eine URL, die aufgerufen wird, wenn der gerade abgefragte SoC
+um mehr als 2% niedriger ist als der davor abgerufene. Dies kann beispielsweise zum
+Aktivieren eines Shelly-Schaltrelais genutzt werden. Wird ignoriert, wenn nicht angegeben.
+
+Eigene Änderungen ab hier
 """
+
 myCars.append(cars.eUp(
     name = 'nulli',
     openwbVehicleId = 1,
     useSpritmonitor = True,
     spritmonitorVehicleId =  1370192,
-#    spritmonitorVehicleId =  1569502,
     spritmonitorFuelsort = 24,
-    spritmonitorFuelprice = 0.08,
-    spritmonitorAttributes = 'summertires,slow'
+    spritmonitorFuelprice = 0.27,
+    spritmonitorAttributes = 'wintertires,slow',
+    actionURL = 'http://192.168.1.109/relay/1?turn=on&timer=420' # schalte 420 Minuten das Licht im Carport (Kanal 1) an, wenn das Fahrzeug nach Hause kommt.
 ))
 
 myCars.append(cars.StandardFuelLevel(
     name = 'golfi',                    # Name des Fahrzeugs, wie im WiCAN konfiguriert. Definiert einen Zweig unter others/ im MQTT-Broker.
-    openwbVehicleId = 3                # Fahrzeugnummer in der OpenWB-Konfiguration
+    openwbVehicleId = 3,               # Fahrzeugnummer in der OpenWB-Konfiguration
+    actionURL = 'http://192.168.1.109/relay/1?turn=on&timer=420'
 ))
 
 #myCars.append(cars.eUp(

@@ -23,6 +23,8 @@ from dataclasses import dataclass, field
 from typing import List
 import logging
 import json
+import urllib.request
+from Sun import Sun
 
 validCars = ("eUp", "eGolf", "VwMEB", "Fiat500e", "OraFunkyCat", "ZoePH1", "StandardFuelLevel")
 
@@ -35,7 +37,8 @@ class carclass:
     spritmonitorVehicleId: int = 0
     spritmonitorFuelsort: int = 19
     spritmonitorFuelprice: float = 0.27
-    spritmonitorAttributes: str = 'summertires, slow'
+    spritmonitorAttributes: str = 'wintertires, slow'
+    actionURL: str = ''
     odo: float = 0		# Letzter vom Fahrzeug empfangener Kilometerstand
     soc: float = 0		# Letzter vom Fahrzeug emfangener SoC
     socAtPlugin: float = 0	# Inhalt von soc im Moment des Einsteckens des Ladesteckers
@@ -183,6 +186,7 @@ class carclass:
                     logging.debug(f'Erwarteter ODO-Header: lenODO: {lenODO}; expectODO: {expectODO}')
                     if self.payload[0] == self.SOC_RESP_ID and self.payload[1:1+lenSOC] == expectSOC:
                         # Erwartungswert für SoC-Auslesekommando ist vorhanden, daher Konvertierung aufrufen
+                        oldSoc = self.soc
                         self.calcSOC(self.payload)
                         if self.soc is None:
                             logging.warning("Erhaltener SOC ist ungültig (Return-Wert None). Wird ignoriert")
@@ -193,6 +197,15 @@ class carclass:
                             logging.debug(f'SOC-Wert von {self.soc} an {self.getsetSocTopic()} schicken.')
                             try:
                                 client.publish(self.getsetSocTopic(), self.soc)     #SOC-Wert an die OpenWB schicken.
+                                if self.actionURL != '' and self.soc < (oldSoc-2):
+                                    # es gibt einen shelly, der angesteuert werden soll und
+                                    # neuer SoC ist hinreichend kleiner als der alte SoC vom
+                                    # Losfahren -> Zeichen, daß Fahrzeug gefahren wurde
+                                    # Funktioniert u.U. nicht, wenn extern gelöaden wurde!
+                                    logging.info(f'Rufe Licht-URL {self.actionURL} auf')
+                                    with urllib.request.urlopen(self.actionURL) as response:
+                                        status = response.read()
+                                        logging.debug(f'Antwort ist {status}')
                             except Exception as e:
                                 logging.error(f'Schreiben des SOC an die Wallbox ist fehlgeschlagen: {e}')
                     elif self.payload[0] == self.ODO_RESP_ID:
@@ -219,6 +232,7 @@ class carclass:
                 self.payload.extend(data[0:8])
                 logging.debug(f'Rohe CAN-Botschaft: {self.payload}')
                 if self.payload[0] == self.SOC_RESP_ID:
+                    oldSoc = self.soc
                     self.calcSOC(self.payload)
                     if self.soc is None:
                         logging.warning("Erhaltener SOC ist ungültig (Return-Wert None). Wird ignoriert")
@@ -228,6 +242,14 @@ class carclass:
                         logging.debug(f'Fahrzeug-SOC von {self.soc} an {self.getsetSocTopic()} schicken.')
                         try:
                             client.publish(self.getsetSocTopic(), self.soc)     #SOC-Wert an die OpenWB schicken.
+                            if self.actionURL != '' and self.soc < (oldSoc-2):
+                                # es gibt einen shelly, der angesteuert werden soll und
+                                # neuer SoC ist hinreichend kleiner als der SoC vom Losfahren
+                                # -> Zeichen, daß Fahrzeug gefahren wurde
+                                logging.info(f'Rufe Licht-URL {self.actionURL} auf')
+                                with urllib.request.urlopen(self.actionURL) as response:
+                                    status = response.read()
+                                    logging.debug(f'Antwort ist {status}')
                         except Exception as e:
                             logging.error(f'Schreiben des SOC an die Wallbox ist fehlgeschlagen: {e}')
                 elif self.payload[0] == self.ODO_RESP_ID:

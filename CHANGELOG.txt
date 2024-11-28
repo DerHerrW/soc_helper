@@ -1,3 +1,7 @@
+2024-11-28:
+* Erweiterung der Fahrzeugklassen um den Parameter "actionURL" - eine
+  URL die aufgerufen wird, um beispielsweise einen shelly zu aktivieren.
+
 2024-09-16:
 * Unplausible Kilometerstände abfangen und erneute ODO-Abfrage senden
 * Fehler in bisher ungenutzten Fahrzeugklassen entdeckt und gefixt
