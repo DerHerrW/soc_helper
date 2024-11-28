@@ -25,6 +25,8 @@ Die hier vorliegenden Dokumente sollen eine Schritt-für-Schritt-Anleitung zum e
   * [Firmware aktualisieren](#firmware-aktualisieren)
   * [Restliche Konfiguration](#restliche-konfiguration)
 
+* [Linux-Gastsystem konfigurieren](#linuxsystem-konfigurieren)
+
 * [Einmalig: Installieren der benötigten python-Pakete](#nur-einmalig-installieren-der-benötigten-python-pakete)
 
 * [soc_helper aufspielen](#soc_helper-aufspielen)
