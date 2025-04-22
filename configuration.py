@@ -67,15 +67,15 @@ myCars.append(cars.eUp(
     useSpritmonitor = True,
     spritmonitorVehicleId =  1370192,
     spritmonitorFuelsort = 24,
-    spritmonitorFuelprice = 0.27,
-    spritmonitorAttributes = 'wintertires,slow',
-    actionURL = 'http://192.168.1.109/relay/1?turn=on&timer=420' # schalte 420 Minuten das Licht im Carport (Kanal 1) an, wenn das Fahrzeug nach Hause kommt.
+    spritmonitorFuelprice = 0.08,
+    spritmonitorAttributes = 'summertires,slow',
+    actionURL = 'http://192.168.1.109/relay/0?turn=on&timer=420' # schalte 420 Minuten das Licht im Carport (Kanal 1) an, wenn das Fahrzeug nach Hause kommt.
 ))
 
 myCars.append(cars.StandardFuelLevel(
     name = 'golfi',                    # Name des Fahrzeugs, wie im WiCAN konfiguriert. Definiert einen Zweig unter others/ im MQTT-Broker.
     openwbVehicleId = 3,               # Fahrzeugnummer in der OpenWB-Konfiguration
-    actionURL = 'http://192.168.1.109/relay/1?turn=on&timer=420'
+    actionURL = 'http://192.168.1.109/relay/0?turn=on&timer=420'
 ))
 
 #myCars.append(cars.eUp(

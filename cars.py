@@ -21,6 +21,7 @@ limitations under the License.
 
 from dataclasses import dataclass, field
 from typing import List
+import time
 import logging
 import json
 import urllib.request
@@ -75,6 +76,7 @@ class carclass:
                     else:
                         logging.info(f'Sende SOC-Anforderung: {self.SOC_REQUEST}')
                         client.publish(self.getTxTopic(), self.SOC_REQUEST)
+                        time.sleep(0.2)	# give some time for the car to respond before sending next request 
     
                     if self.ODO_REQ_ID == 0:
                         logging.info(f'ODO_REQ_ID ist 0, sende keine Anforderung')
@@ -434,7 +436,7 @@ class StandardFuelLevel(carclass):
 
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
-        self.odo = bytes[4]*2560 + bytes[5]*10 # auf 10km quantisierter km-Stand vom Schalttafeleinsatz [1918, 98, 34, 34, aa, bb, xx, xx, xx]
+        self.odo = bytes[4]*65536 + bytes[5]*256 + bytes[6] # auf 10km quantisierter km-Stand vom Schalttafeleinsatz [1918, 98, 34, 34, aa, bb, cc, xx, xx]
         if self.odo == 0xffff * 10:
             # Abfangen von "nicht bereit"
             self.odo = -1
