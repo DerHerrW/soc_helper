@@ -436,7 +436,7 @@ class StandardFuelLevel(carclass):
 
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
-        self.odo = bytes[4]*65536 + bytes[5]*256 + bytes[6] # auf 10km quantisierter km-Stand vom Schalttafeleinsatz [1918, 98, 34, 34, aa, bb, cc, xx, xx]
+        self.odo = bytes[4]*65536 + bytes[5]*256 + bytes[6] # km-Stand vom Schalttafeleinsatz [1918, 98, 34, 34, aa, bb, cc, xx, xx]
         if self.odo == 0xffff * 10:
             # Abfangen von "nicht bereit"
             self.odo = -1

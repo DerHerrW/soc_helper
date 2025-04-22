@@ -1,3 +1,10 @@
+2025-04-22:
+* Einfügen einer 200ms-Pause nach Senden der SoC-Anforderung (bei einem
+  Fahrzeug kam kein SoC, wenn die ODO-Anforderung unmittelbar danach kam)
+* Fahrzeugkonfiguration der Fahrzeugklasse StandardFuelLevel so geändert,
+  dass auch der Kilometerstand vom Schalttafeleinsatz richtig interpretiert
+  wird.
+
 2024-11-28:
 * Erweiterung der Fahrzeugklassen um den Parameter "actionURL" - eine
   URL die aufgerufen wird, um beispielsweise einen shelly zu aktivieren.
