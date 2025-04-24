@@ -218,13 +218,13 @@ except Exception as e:
     quit()
 client.loop_start()
 
-#try:
-while True:
-    txstack.tx(client)
-    time.sleep(0.5)
-#except KeyboardInterrupt:
-#    logging.error('Abbruch durch Benutzer')
-#except Exception as e:
-#    logging.error(f'Exception in der Endlosschleife: {e}')
+try:
+    while True:
+        txstack.tx(client)
+        time.sleep(0.5)
+except KeyboardInterrupt:
+    logging.error('Abbruch durch Benutzer')
+except Exception as e:
+    logging.error(f'Exception in der Endlosschleife: {e}')
 
 client.loop_stop()
