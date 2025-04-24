@@ -21,10 +21,10 @@ limitations under the License.
 
 from dataclasses import dataclass, field
 from typing import List
-import time
 import logging
 import json
 import urllib.request
+import txstack
 from Sun import Sun
 
 validCars = ("eUp", "eGolf", "VwMEB", "Fiat500e", "OraFunkyCat", "ZoePH1", "StandardFuelLevel")
@@ -44,7 +44,7 @@ class carclass:
     soc: float = 0		# Letzter vom Fahrzeug emfangener SoC
     socAtPlugin: float = 0	# Inhalt von soc im Moment des Einsteckens des Ladesteckers
     openwbsoc: float = 0        # Letzter von der Wallbox empfangener (berechneter) SoC
-        
+    
     # Hilfsfunktionen
     def getStatusTopic(self):
         return('others/wican/'+self.name+'/status/#')
@@ -74,15 +74,17 @@ class carclass:
                     if self.SOC_REQ_ID == 0:
                         logging.info(f'SOC_REQ_ID ist 0, sende keine Anforderung')
                     else:
-                        logging.info(f'Sende SOC-Anforderung: {self.SOC_REQUEST}')
-                        client.publish(self.getTxTopic(), self.SOC_REQUEST)
-                        time.sleep(0.2)	# give some time for the car to respond before sending next request 
+                        logging.info(f'Stelle SOC-Anforderung in Anfrageliste: {self.SOC_REQUEST}')
+                        txstack.add2stack(self.getTxTopic(),self.SOC_REQUEST)
+                        #client.publish(self.getTxTopic(), self.SOC_REQUEST)
     
                     if self.ODO_REQ_ID == 0:
                         logging.info(f'ODO_REQ_ID ist 0, sende keine Anforderung')
                     else:
-                        logging.info(f'Sende ODO-Anforderung: {self.ODO_REQUEST}')
-                        client.publish(self.getTxTopic(), self.ODO_REQUEST)
+                        logging.info(f'Stelle ODO-Anforderung in Anfrageliste: {self.ODO_REQUEST}')
+                        txstack.add2stack(self.getTxTopic(),self.ODO_REQUEST)
+                        #client.publish(self.getTxTopic(), self.ODO_REQUEST)
+
                 else:
                     logging.info(f'Fahrzeug {self.name} ist online, spricht aber kein UDS. Keine Aktion.')
             else:

@@ -29,6 +29,7 @@ import shutil
 from os.path import exists
 import os
 import energylog
+import txstack
 
 # Importe von lokalen Dateien
 import configuration	# Konfiguration des soc_helper.py
@@ -210,11 +211,20 @@ except Exception as e:
 
 # Verbindung zum MQTT-Broker in der Wallbox herstellen
 logging.debug(f'Verbindungsversuch mit MQTT-Broker der Wallbox unter Adresse {configuration.OPENWB_IP}.')
+try:
+    client.connect(configuration.OPENWB_IP, 1883, 60)
+except Exception as e:
+    logging.error(f'FATAL: Fehler beim Versuch, Verbindung mit Broker {configuration.OPENWB_IP} herzustellen: {e}')
+    quit()
+client.loop_start()
+
+#try:
 while True:
-    try:
-        client.connect(configuration.OPENWB_IP, 1883, 60)
-    except Exception as e:
-        logging.error(f'FATAL: Fehler beim Versuch, Verbindung mit Broker {configuration.OPENWB_IP} herzustellen: {e}')
-        quit()
-    client.loop_forever()
-    time.sleep(1)	# Nach Ende der Verbindung zum MQTT-Broker der Wallbox kurz warten vor neuer Kontaktaufnahme, sonst Fehler
+    txstack.tx(client)
+    time.sleep(0.5)
+#except KeyboardInterrupt:
+#    logging.error('Abbruch durch Benutzer')
+#except Exception as e:
+#    logging.error(f'Exception in der Endlosschleife: {e}')
+
+client.loop_stop()
