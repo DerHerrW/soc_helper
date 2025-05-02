@@ -1,6 +1,17 @@
+2025-05-02:
+* Einfügen zusätzlicher logging-Informationen, um auf Loglevel info
+  den Inhalt der als gültig erkannten SoC- und ODO-Botschaften auszugeben
+
+2025-04-24:
+* Die 200ms-Pause war nicht hinreichend, da während der Callback-Routine 
+  die Sendefunktionen gesammelt, aber nicht abgeschickt werden. Dies
+  geschieht nach Verlassen der Callback-Routine ohne Pause. Daher
+  Einführen eines Sendestacks, der im Callback befüllt wird und in der
+  Hauptschleife mit einer Botschaft pro 500ms gesendet wird.
+
 2025-04-22:
-* Einfügen einer 200ms-Pause nach Senden der SoC-Anforderung (bei einem
-  Fahrzeug kam kein SoC, wenn die ODO-Anforderung unmittelbar danach kam)
+* Einfügen einer 200ms-Pause nach Senden der SoC-Anforderung (bei Firmware
+  >2.98 kam kein SoC, wenn die ODO-Anforderung unmittelbar abgesetzt wurde)
 * Fahrzeugkonfiguration der Fahrzeugklasse StandardFuelLevel so geändert,
   dass auch der Kilometerstand vom Schalttafeleinsatz richtig interpretiert
   wird.

@@ -164,7 +164,7 @@ def on_disconnect(client, userdata, rc):
 # Logger anlegen
 FORMAT = "%(asctime)s;%(levelname)9s;[%(filename)19s:%(lineno)3s - %(funcName)16s() ] %(message)s"
 logging.basicConfig(encoding='utf-8', format=FORMAT, level=logging.getLevelName(configuration.LOGLEVEL))
-logging.critical('Starte soc_helper Version 2025-04-24')
+logging.critical('Starte soc_helper Version 2025-05-02')
 
 # Prüfen der Konfiguration
 checkConfig()

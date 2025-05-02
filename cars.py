@@ -74,16 +74,14 @@ class carclass:
                     if self.SOC_REQ_ID == 0:
                         logging.info(f'SOC_REQ_ID ist 0, sende keine Anforderung')
                     else:
-                        logging.info(f'Stelle SOC-Anforderung in Anfrageliste: {self.SOC_REQUEST}')
+                        logging.debug(f'Stelle SOC-Anforderung in Anfrageliste: {self.SOC_REQUEST}')
                         txstack.add2stack(self.getTxTopic(),self.SOC_REQUEST)
-                        #client.publish(self.getTxTopic(), self.SOC_REQUEST)
     
                     if self.ODO_REQ_ID == 0:
                         logging.info(f'ODO_REQ_ID ist 0, sende keine Anforderung')
                     else:
-                        logging.info(f'Stelle ODO-Anforderung in Anfrageliste: {self.ODO_REQUEST}')
+                        logging.debug(f'Stelle ODO-Anforderung in Anfrageliste: {self.ODO_REQUEST}')
                         txstack.add2stack(self.getTxTopic(),self.ODO_REQUEST)
-                        #client.publish(self.getTxTopic(), self.ODO_REQUEST)
 
                 else:
                     logging.info(f'Fahrzeug {self.name} ist online, spricht aber kein UDS. Keine Aktion.')
@@ -191,6 +189,7 @@ class carclass:
                     if self.payload[0] == self.SOC_RESP_ID and self.payload[1:1+lenSOC] == expectSOC:
                         # Erwartungswert für SoC-Auslesekommando ist vorhanden, daher Konvertierung aufrufen
                         oldSoc = self.soc
+                        logging.info(f'Empfangene SoC-Botschaft ist {self.payload}')
                         self.calcSOC(self.payload)
                         if self.soc is None:
                             logging.warning("Erhaltener SOC ist ungültig (Return-Wert None). Wird ignoriert")
@@ -216,6 +215,7 @@ class carclass:
                         # Erwartungswerte zusammenbauen
                         if self.payload[1:1+lenODO] == expectODO:
                             # Erwartungswert für Auslesekommando ist vorhanden, daher Konvertierung aufrufen
+                            logging.info(f'Empfangene ODO-Botschaft ist {self.payload}')
                             self.calcODO(self.payload)
                             logging.info(f'Fahrzeug-Kilometerstand ist {self.odo}')
                             if self.odo == -1:  # Wert für "nicht bereit"
@@ -275,7 +275,7 @@ class eUp(carclass):
         
     def calcSOC(self, bytes):
         logging.debug(f'Daten für SoC-Berechnung: {bytes}')
-        self.soc = round(bytes[4]/2.5*51/46-6.4)         # VW e-up [2029, 98, 2, 140, aa, xx, xx, xx, xx].
+        self.soc = bytes[4]/2.5*51/46-6.4         # VW e-up [2029, 98, 2, 140, aa, xx, xx, xx, xx].
 
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
@@ -297,7 +297,7 @@ class eGolf(carclass):
     def calcSOC(self, bytes):
         # Umrechnung gemäß https://github.com/meatpiHQ/wican-fw/issues/168#issuecomment-2325270376
         logging.debug(f'Daten für SoC-Berechnung: {bytes}')
-        self.soc = max( [round((bytes[4]-20) /2.2), 0] ) # e-Golf [2029, 98, 2, 140, aa, xx, xx, xx, xx].
+        self.soc = max( [(bytes[4]-20)/2.2 , 0] ) # e-Golf [2029, 98, 2, 140, aa, xx, xx, xx, xx].
 
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
@@ -434,7 +434,7 @@ class StandardFuelLevel(carclass):
 
     def calcSOC(self, bytes):
         logging.debug(f'Daten für Tankfüllstand: {bytes}')
-        self.soc = bytes[3]/2.55 # Standard-PID Tankfüllstand [2024, 65, 47, aa, xx, xx, xx, xx, xx]. Füllstand=aa/2.55
+        self.soc = bytes[3]/2.0 # Standard-PID Tankfüllstand [2024, 65, 47, aa, xx, xx, xx, xx, xx]. Füllstand=aa/2.0
 
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
