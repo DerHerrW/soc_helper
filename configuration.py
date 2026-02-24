@@ -67,8 +67,8 @@ myCars.append(cars.eUp(
     useSpritmonitor = True,
     spritmonitorVehicleId =  1370192,
     spritmonitorFuelsort = 24,
-    spritmonitorFuelprice = 0.08,
-    spritmonitorAttributes = 'summertires,slow',
+    spritmonitorFuelprice = 0.2793,
+    spritmonitorAttributes = 'wintertires,slow',
     actionURL = 'http://192.168.1.109/relay/0?turn=on&timer=420' # schalte 420 Minuten das Licht im Carport (Kanal 1) an, wenn das Fahrzeug nach Hause kommt.
 ))
 

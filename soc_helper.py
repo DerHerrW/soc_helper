@@ -148,13 +148,13 @@ def checkConfig():
 #
 
 # Erfolgreicher Verbindung zur OpenWB (CONNACK)
-def on_connect(client, userdata, flags, rc):
-    logging.info(f'Verbindung hergestellt zu {configuration.OPENWB_IP} mit Resultat {rc}')
+def on_connect(client, userdata, flags, reason_code, properties):
+    logging.info(f'Verbindung hergestellt zu {configuration.OPENWB_IP} mit Resultat {reason_code}')
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     client.subscribe('#')
 
-def on_disconnect(client, userdata, rc):
+def on_disconnect(client, userdata, reason_code, properties):
     logging.info(f'Verbindung zu {configuration.OPENWB_IP} gelöst.')
 
 #
@@ -173,7 +173,7 @@ checkConfig()
 energylog.init(configuration.CHARGELOG_PATH)
 
 # MQTT-Client einrichten und mit dem Broker verbinden
-client = mqtt.Client()
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.on_pre_connect = None
 client.on_connect = on_connect
 client.on_subscribe = None

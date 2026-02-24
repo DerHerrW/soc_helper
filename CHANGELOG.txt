@@ -1,3 +1,6 @@
+2026-02-24:
+* Umstellen der mqtt-API auf V2
+
 2025-05-02:
 * Einfügen zusätzlicher logging-Informationen, um auf Loglevel info
   den Inhalt der als gültig erkannten SoC- und ODO-Botschaften auszugeben
