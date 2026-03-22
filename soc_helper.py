@@ -154,7 +154,7 @@ def on_connect(client, userdata, flags, reason_code, properties):
     # reconnect then subscriptions will be renewed.
     client.subscribe('#')
 
-def on_disconnect(client, userdata, reason_code, properties):
+def on_disconnect(client, userdata, flags, reason_code, properties):
     logging.info(f'Verbindung zu {configuration.OPENWB_IP} gelöst.')
 
 #

@@ -275,8 +275,7 @@ class eUp(carclass):
         
     def calcSOC(self, bytes):
         logging.debug(f'Daten für SoC-Berechnung: {bytes}')
-        self.soc = bytes[4]/2.5*51/46-6.4         # VW e-up [2029, 98, 2, 140, aa, xx, xx, xx, xx].
-
+        self.soc = (bytes[4]-14)*100/(229-14)         # VW e-up [2029, 98, 2, 140, aa, xx, xx, xx, xx]. 14 lt Anzeige leer, 229 voll
     def calcODO(self, bytes):
         logging.debug(f'Daten für ODO-Berechnung: {bytes}')
         self.odo =  bytes[5]*65536+bytes[6]*256+bytes[7] # VW e-up. [2029, 98, 2, 189, xx, bb, cc, dd, xx, xx]
