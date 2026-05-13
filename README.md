@@ -1,5 +1,8 @@
 # soc_helper
 
+## Umzug
+!!Der soc_helper ist zu codeberg.org umgezogen.!!
+
 ## Vorweg
 Falls nur der SoC des Fahrzeugs vom WiCAN zu einem MQTT-Broker übertragen werden soll, kann der WiCAN inzwischen alleine verwendet werden. Ab Firmware 3.30 erfolgt eine starke Weiterentwicklung in diese Richtung. Auch andere Werte wie Reichweite, Kilometerstand können bei einigen Fahrzeugen schon direkt per MQTT übertragen werden. Ein Einstieg findet sich unter (https://forum.openwb.de/viewtopic.php?t=9397). Der soc_helper bietet darüber hinausgehend nur die Anbindung an Spritmonitor und Beispiel für eigenen Code.
 
